@@ -41,6 +41,7 @@ function GameEngine() {
     this.space = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
+    this.count = 0;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -63,6 +64,35 @@ GameEngine.prototype.start = function () {
 
 GameEngine.prototype.startInput = function () {
     var that = this;
+
+    this.ctx.canvas.addEventListener("click", function (e) {
+        if (that.count === 0) {
+            that.count++;
+            console.log('CLICKED');          
+            var bgMusic = new Audio("./MoonlightTemptation.mp3");
+            bgMusic.loop = true;
+            bgMusic.play();
+            
+            that.entities = [];
+            var bg = new Background(that);
+            var maincharacter = new MainCharacter(that);
+            var healthbar = new HealthBar(that);
+            var slime = new Slime(that);
+            var turkey = new Turkey(that);
+            var spike = new Spike(that);
+
+
+            that.addEntity(bg);
+            that.addEntity(healthbar);
+            that.entities.Character = maincharacter;
+            that.addEntity(slime);
+            that.addEntity(turkey);
+            that.addEntity(spike);     
+        }
+
+    }, false);
+
+    
     this.ctx.canvas.addEventListener("keydown", function (e) {
         if (String.fromCharCode(e.which) === 'D') that.d = true;
         e.preventDefault();

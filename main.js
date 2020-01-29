@@ -79,6 +79,24 @@ Background.prototype.draw = function (ctx) {
 }
 // #endregion 
 
+// Beginning StartScreen
+function StartScreen(game, spritesheet) {
+    this.x = 0;
+    this.y = 0;
+    this.spritesheet = spritesheet;
+    this.game = game;
+    this.ctx = game.ctx;
+};
+
+StartScreen.prototype.draw = function () {
+    this.ctx.drawImage(this.spritesheet,
+                   this.x, this.y);
+};
+
+StartScreen.prototype.update = function () {
+};
+// End StartScreen
+
 // #region HealthBar
 function HealthBar(game) {
     Entity.call(this, game, 0, 400);
@@ -426,6 +444,7 @@ ASSET_MANAGER.queueDownload("./img/ballsprite.png");
 ASSET_MANAGER.queueDownload("./img/slimeEnemy.png");
 ASSET_MANAGER.queueDownload("./img/turkey.png");
 ASSET_MANAGER.queueDownload("./img/traps.png");
+ASSET_MANAGER.queueDownload("./img/startScreen.jpg");
 
 
 ASSET_MANAGER.downloadAll(function () {
@@ -434,22 +453,25 @@ ASSET_MANAGER.downloadAll(function () {
     var ctx = canvas.getContext('2d');
 
     var gameEngine = new GameEngine();
-    var bg = new Background(gameEngine);
-    var maincharacter = new MainCharacter(gameEngine);
-    var healthbar = new HealthBar(gameEngine);
-	var slime = new Slime(gameEngine);
-	var turkey = new Turkey(gameEngine);
-	var spike = new Spike(gameEngine);
-
-
-    gameEngine.addEntity(bg);
-    gameEngine.addEntity(healthbar);
-    gameEngine.entities.Character = maincharacter;
-	gameEngine.addEntity(slime);
-	gameEngine.addEntity(turkey);
-	gameEngine.addEntity(spike);
- 
     gameEngine.init(ctx);
     gameEngine.start();
+    gameEngine.addEntity(new StartScreen(gameEngine, ASSET_MANAGER.getAsset("./img/startScreen.jpg")));
+
+    // var gameEngine = new GameEngine();
+    // var bg = new Background(gameEngine);
+    // var maincharacter = new MainCharacter(gameEngine);
+    // var healthbar = new HealthBar(gameEngine);
+	// var slime = new Slime(gameEngine);
+	// var turkey = new Turkey(gameEngine);
+	// var spike = new Spike(gameEngine);
+
+
+    // gameEngine.addEntity(bg);
+    // gameEngine.addEntity(healthbar);
+    // gameEngine.entities.Character = maincharacter;
+	// gameEngine.addEntity(slime);
+	// gameEngine.addEntity(turkey);
+	// gameEngine.addEntity(spike);
+ 
 });
 // #endregion
