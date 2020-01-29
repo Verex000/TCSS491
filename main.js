@@ -415,6 +415,50 @@ Slime.prototype.draw = function (ctx) {
 }
 //#endregion
 
+//#region Bat
+function Bat(game) {
+    this.flyRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/bat.png"), 0, 32, 32, 32, 0.05, 4, true, true);
+    this.flyLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/bat.png"), 0, 96, 32, 32, 0.05, 4, true, true);
+    this.amplitude = 50;
+    this.speed = 150;
+    this.flyRight = true;
+    Entity.call(this, game, 200, 400);
+}
+
+Bat.prototype = new Entity();
+Bat.prototype.constructor = Bat;
+
+Bat.prototype.update = function () {
+    if(this.flyLeft) {
+        //fly left
+        this.x -= this.game.clockTick * this.speed;
+        if(this.x <= 100) {
+            this.flyLeft = false;
+        }
+    }
+    else {
+        //fly right
+        this.x += this.game.clockTick * this.speed;
+        if(this.x >= 700) {
+            this.flyLeft = true;
+        }
+    }
+    this.y = 200 - Math.sin(this.x / 25) * this.amplitude;
+
+    Entity.prototype.update.call(this);
+}
+
+Bat.prototype.draw = function(ctx) {
+    if(this.flyLeft) {
+        this.flyLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    }
+    else {
+        this.flyRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    }
+    Entity.prototype.draw.call(this);
+}
+//#endregion
+
 // the "main" code begins here
 // #region Main
 var ASSET_MANAGER = new AssetManager();
@@ -426,6 +470,7 @@ ASSET_MANAGER.queueDownload("./img/ballsprite.png");
 ASSET_MANAGER.queueDownload("./img/slimeEnemy.png");
 ASSET_MANAGER.queueDownload("./img/turkey.png");
 ASSET_MANAGER.queueDownload("./img/traps.png");
+ASSET_MANAGER.queueDownload("./img/bat.png");
 
 
 ASSET_MANAGER.downloadAll(function () {
@@ -439,7 +484,8 @@ ASSET_MANAGER.downloadAll(function () {
     var healthbar = new HealthBar(gameEngine);
 	var slime = new Slime(gameEngine);
 	var turkey = new Turkey(gameEngine);
-	var spike = new Spike(gameEngine);
+    var spike = new Spike(gameEngine);
+    var bat = new Bat(gameEngine);
 
 
     gameEngine.addEntity(bg);
@@ -447,7 +493,8 @@ ASSET_MANAGER.downloadAll(function () {
     gameEngine.entities.Character = maincharacter;
 	gameEngine.addEntity(slime);
 	gameEngine.addEntity(turkey);
-	gameEngine.addEntity(spike);
+    gameEngine.addEntity(spike);
+    gameEngine.addEntity(bat);
  
     gameEngine.init(ctx);
     gameEngine.start();
