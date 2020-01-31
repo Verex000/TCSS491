@@ -85,7 +85,7 @@ GameEngine.prototype.startInput = function () {
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         if (String.fromCharCode(e.which) === 'S') {
-            var bgMusic = new Audio("./CityRuins.MP3");
+            var bgMusic = new Audio("./MoonlightTemptation.MP3");
             bgMusic.loop = true;
             bgMusic.play();
         } 
