@@ -1,5 +1,7 @@
 // This game shell was happily copied from Googler Seth Ladd's "Bad Aliens" game and his Google IO talk in 2011
 
+var bgMusic = new Audio("./MoonlightTemptation.mp3"); 
+
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
@@ -38,10 +40,12 @@ function GameEngine() {
     this.c = null;
     this.r = null;
     this.l = null;
+    this.p = null;
     this.space = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
     this.count = 0;
+    this.music = false;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -68,8 +72,8 @@ GameEngine.prototype.startInput = function () {
     this.ctx.canvas.addEventListener("click", function (e) {
         if (that.count === 0) {
             that.count++;
+            that.music = true;
             console.log('CLICKED');          
-            var bgMusic = new Audio("./MoonlightTemptation.mp3");
             bgMusic.loop = true;
             bgMusic.play();
             
@@ -80,6 +84,8 @@ GameEngine.prototype.startInput = function () {
             var slime = new Slime(that);
             var turkey = new Turkey(that);
             var spike = new Spike(that);
+            var dino = new Dino(that);
+            
 
 
             that.addEntity(bg);
@@ -87,9 +93,31 @@ GameEngine.prototype.startInput = function () {
             that.entities.Character = maincharacter;
             that.addEntity(slime);
             that.addEntity(turkey);
-            that.addEntity(spike);     
+            that.addEntity(spike); 
+            that.addEntity(dino);       
         }
 
+    }, false);
+
+    this.ctx.canvas.addEventListener("keydown", function (e) {
+        if (String.fromCharCode(e.which) === 'P') {
+            that.p = false;
+            e.preventDefault();
+            if(that.music) {
+                that.music = false;
+                bgMusic.pause();
+            } else {
+                that.music = true;
+                bgMusic.play(); 
+            }
+    }
+    }, false);
+
+    this.ctx.canvas.addEventListener("keyup", function (e) {
+        if (String.fromCharCode(e.which) === 'P') {
+            that.p = true;
+            e.preventDefault();
+    }
     }, false);
 
     
@@ -115,9 +143,6 @@ GameEngine.prototype.startInput = function () {
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         if (String.fromCharCode(e.which) === 'S') {
-            var bgMusic = new Audio("./CityRuins.MP3");
-            bgMusic.loop = true;
-            bgMusic.play();
         } 
         e.preventDefault();
     }, false);

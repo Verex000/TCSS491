@@ -1,8 +1,4 @@
-// #region Music
-var bgMusic = new Audio("./MoonlightTemptation.MP3");
-bgMusic.loop = true;
-bgMusic.play();
-// #rendregion
+
 
 // #region Animation
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
@@ -74,7 +70,7 @@ Background.prototype.update = function () {
 
 Background.prototype.draw = function (ctx) {
     ctx.fillStyle = "SaddleBrown";
-    ctx.fillRect(0,500,800,300);
+    ctx.fillRect(0,500,1200,300);
     Entity.prototype.draw.call(this);
 }
 // #endregion 
@@ -214,21 +210,21 @@ MainCharacter.prototype.update = function () {
     if(this.game.d) {
         if(this.game.c) {
             this.x = this.x + this.game.clockTick * 900;
-            if(this.x > 800) this.x = -20; 
+            if(this.x > 1200) this.x = -20; 
         }
         else {
             this.x = this.x + this.game.clockTick * 300;
-            if(this.x > 800) this.x = -20; 
+            if(this.x > 1200) this.x = -20; 
         }
     }
     if(this.game.a) {
         if(this.game.c) {
             this.x = this.x - this.game.clockTick * 900
-            if(this.x < 0) this.x = 820;
+            if(this.x < 0) this.x = 1220;
         }
         else {
             this.x = this.x - this.game.clockTick * 300
-            if(this.x < 0) this.x = 820;
+            if(this.x < 0) this.x = 1220;
         }
         
     }
@@ -340,6 +336,75 @@ Turkey.prototype.draw = function(ctx) {
 }
 //#endregion
 
+//Dino region
+function Dino(game) {
+    this.animation = new Animation(ASSET_MANAGER.getAsset("./img/dino.png"), 0, 0, 960 / 5, 576 / 3, 0.3, 10, true, false);
+    this.WalkLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/dinoReverse.png"), 0, 0, 960 / 5, 576 / 3, 0.3, 10, true, true);
+    this.TurnLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/dino.png"), 192, 0, 960 / 5, 576 / 3, 0.3, 3, true, false);
+    this.TurnRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/dino.png"), 192, 0, 960 / 5, 576 / 3, 0.3, 3, true, true);
+    this.jumping = false;
+    this.speed = 50;
+    this.radius = 0;
+    this.ground = 462;
+    this.walkLeft = true;
+    this.walkRight = false; 
+    this.jumpTime = 0;
+    Entity.call(this, game, 100, 310);
+
+}
+
+Dino.prototype = new Entity();
+Dino.prototype.constructor = Dino;
+
+Dino.prototype.update = function() {
+    
+        if(this.walkLeft) {
+            this.x -= this.game.clockTick * this.speed;
+            if(this.x <= 100) {
+                this.walkLeft = false;
+                this.walkRight = true;
+            }
+        }
+        else {
+            this.x += this.game.clockTick * this.speed;
+            if(this.x >= 1000) {
+                this.walkRight = false;
+                this.walkLeft = true;
+            }
+        }
+
+        if(this.walkLeft) {
+            this.x -= this.game.clockTick * this.speed;
+            if(this.x <= 100) {
+                this.walkLeft = false;
+                this.walkRight = true;
+            }
+        }
+        else {
+            this.x += this.game.clockTick * this.speed;
+            if(this.x >= 1000) {
+                this.walkRight = false;
+                this.walkLeft = true;
+            }
+        }
+
+    Entity.prototype.update.call(this);
+
+}
+
+Dino.prototype.draw = function (ctx) {
+    if(this.walkLeft) {
+        this.WalkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    }
+    else {
+        this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    }
+        // this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+
+    Entity.prototype.draw.call(this);
+}
+//end region
+
 //#region Slime
 function Slime(game) {
     this.jumpAnimation = new Animation(ASSET_MANAGER.getAsset("./img/slimeEnemy.png"), 0, 0, 64, 64, 0.15, 5, false, true);
@@ -444,7 +509,9 @@ ASSET_MANAGER.queueDownload("./img/ballsprite.png");
 ASSET_MANAGER.queueDownload("./img/slimeEnemy.png");
 ASSET_MANAGER.queueDownload("./img/turkey.png");
 ASSET_MANAGER.queueDownload("./img/traps.png");
-ASSET_MANAGER.queueDownload("./img/startScreen.jpg");
+ASSET_MANAGER.queueDownload("./img/dino.png");
+ASSET_MANAGER.queueDownload("./img/dinoReverse.png");
+ASSET_MANAGER.queueDownload("./img/startScreen.png");
 
 
 ASSET_MANAGER.downloadAll(function () {
@@ -455,7 +522,7 @@ ASSET_MANAGER.downloadAll(function () {
     var gameEngine = new GameEngine();
     gameEngine.init(ctx);
     gameEngine.start();
-    gameEngine.addEntity(new StartScreen(gameEngine, ASSET_MANAGER.getAsset("./img/startScreen.jpg")));
+    gameEngine.addEntity(new StartScreen(gameEngine, ASSET_MANAGER.getAsset("./img/startScreen.png")));
 
     // var gameEngine = new GameEngine();
     // var bg = new Background(gameEngine);
