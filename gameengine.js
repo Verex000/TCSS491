@@ -1,5 +1,7 @@
 // This game shell was happily copied from Googler Seth Ladd's "Bad Aliens" game and his Google IO talk in 2011
 
+var bgMusic = new Audio("./MoonlightTemptation.mp3"); 
+
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
@@ -38,9 +40,12 @@ function GameEngine() {
     this.c = null;
     this.r = null;
     this.l = null;
+    this.p = null;
     this.space = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
+    this.count = 0;
+    this.music = false;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -63,6 +68,65 @@ GameEngine.prototype.start = function () {
 
 GameEngine.prototype.startInput = function () {
     var that = this;
+
+    this.ctx.canvas.addEventListener("click", function (e) {
+        if (that.count === 0) {
+            that.count++;
+            that.music = true;
+            console.log('CLICKED');          
+            bgMusic.loop = true;
+            bgMusic.play();
+            
+            that.entities = [];
+            var bg = new Background(that);
+            var maincharacter = new MainCharacter(that);
+            var healthbar = new HealthBar(that);
+            var slime = new Slime(that);
+            var turkey = new Turkey(that, 200, 600);
+            var spike = new Spike(that);
+            var dino = new Dino(that);
+            var bat = new Bat(that);
+            var skeleton = new Skeleton(that);
+            var chest = new Chest(that);
+            
+
+
+            that.addEntity(bg);
+            that.addEntity(healthbar);
+            that.entities.Character = maincharacter;
+            that.addEntity(slime);
+            that.addEntity(turkey);
+            that.addEntity(spike); 
+            that.addEntity(dino);
+            that.addEntity(bat);
+            that.addEntity(skeleton);
+            that.addEntity(chest);  
+        }
+
+    }, false);
+
+    this.ctx.canvas.addEventListener("keydown", function (e) {
+        if (String.fromCharCode(e.which) === 'P') {
+            that.p = false;
+            e.preventDefault();
+            if(that.music) {
+                that.music = false;
+                bgMusic.pause();
+            } else {
+                that.music = true;
+                bgMusic.play(); 
+            }
+    }
+    }, false);
+
+    this.ctx.canvas.addEventListener("keyup", function (e) {
+        if (String.fromCharCode(e.which) === 'P') {
+            that.p = true;
+            e.preventDefault();
+    }
+    }, false);
+
+    
     this.ctx.canvas.addEventListener("keydown", function (e) {
         if (String.fromCharCode(e.which) === 'D') that.d = true;
         e.preventDefault();
@@ -85,9 +149,6 @@ GameEngine.prototype.startInput = function () {
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         if (String.fromCharCode(e.which) === 'S') {
-            var bgMusic = new Audio("./MoonlightTemptation.MP3");
-            bgMusic.loop = true;
-            bgMusic.play();
         } 
         e.preventDefault();
     }, false);
