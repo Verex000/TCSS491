@@ -82,9 +82,12 @@ GameEngine.prototype.startInput = function () {
             var maincharacter = new MainCharacter(that);
             var healthbar = new HealthBar(that);
             var slime = new Slime(that);
-            var turkey = new Turkey(that);
+            var turkey = new Turkey(that, 200, 600);
             var spike = new Spike(that);
             var dino = new Dino(that);
+            var bat = new Bat(that);
+            var skeleton = new Skeleton(that);
+            var chest = new Chest(that);
             
 
 
@@ -94,7 +97,10 @@ GameEngine.prototype.startInput = function () {
             that.addEntity(slime);
             that.addEntity(turkey);
             that.addEntity(spike); 
-            that.addEntity(dino);       
+            that.addEntity(dino);
+            that.addEntity(bat);
+            that.addEntity(skeleton);
+            that.addEntity(chest);  
         }
 
     }, false);
