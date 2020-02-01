@@ -1,3 +1,45 @@
+// Camera scrolling section
+function Camera() {
+    this.x = 0;
+    this.y = 0;
+}
+// Follows our main character positions
+Camera.prototype.update = function(characterX, characterY) {
+    if(characterX > 640) {
+        this.x = characterX - 640;
+        this.y = characterY;
+    }
+    else{
+        this.x = 0;
+        this.y = 0;
+    }
+}
+// End camera region
+
+// Begin distance formula
+function distance(a, b) {
+    var difX = a.x - b.x;
+    var difY = a.y - b.y;
+    return Math.sqrt(difX * difX + difY * difY);
+};
+// End
+
+// Check if a given entity is on a platform
+function onPlatform(theEntity) {
+    onPlat = false;
+
+    for (let i = 0; i < platforms.length && !onPlat; i++) {
+        var tile = platforms[i];
+        if (tile.y <= theEntity.y + theEntity.radius 
+            && tile.x + tile.radius > theEntity.x
+            && tile.x <= theEntity.x) {
+            onPlat = true;
+        }
+    }
+    return onPlat;
+}
+
+// End
 
 // #region Animation
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
@@ -53,26 +95,55 @@ Animation.prototype.currentFrame = function () {
 Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
-
-function Background(game) {
-    Entity.call(this, game, 0, 400);
-    this.radius = 200;
-}
 // #endregion
 
-// #region Background
-Background.prototype = new Entity();
-Background.prototype.constructor = Background;
+// Dialog section
+// function DialogPane(ctx) {
+//     ctx.fillStyle = "white";
+//     ctx.font = "20px Verdana"
+//     ctx.fillText("Health : ");
+//     Entity.prototype.draw.call(this);
+// }
 
-Background.prototype.update = function () {
-}
+// DialogPane.prototype.update = function () {
+// }
 
-Background.prototype.draw = function (ctx) {
-    ctx.fillStyle = "SaddleBrown";
-    ctx.fillRect(0,500,1200,300);
-    Entity.prototype.draw.call(this);
+// end dialog section
+
+// function Background(game) {
+//     Entity.call(this, game, 0, 400);
+//     this.radius = 200;
+// }
+
+
+// // #region Background
+// Background.prototype = new Entity();
+// Background.prototype.constructor = Background;
+
+// Background.prototype.update = function () {
+// }
+
+// Background.prototype.draw = function (ctx) {
+//     ctx.fillStyle = "ForestGreen";
+//     ctx.fillRect(0,500,1200,300);
+//     Entity.prototype.draw.call(this);
+// }
+// // #endregion 
+
+// Begin background
+function Background(game) {
+    this.x = 0;
+    this.y = 0;
+    this.spritesheet = ASSET_MANAGER.getAsset("./img/brickBG_1200x700.png");
+    this.game = game;
+    this.ctx = game.ctx;
 }
-// #endregion 
+Background.prototype.draw = function() {
+    this.ctx.drawImage(this.spritesheet, this.x, this.y);
+}
+Background.prototype.update = function() {
+}
+// End Background
 
 // Beginning StartScreen
 function StartScreen(game, spritesheet) {
@@ -120,24 +191,30 @@ HealthBar.prototype.draw = function (ctx) {
 
 // #region Main Character
 function MainCharacter(game) {
-    this.walkAnim = new Animation(ASSET_MANAGER.getAsset("./img/MainCharacter.png"), 0, 32, 32, 32, .1, 4, true, false);
-    this.backWalkAnim= new Animation(ASSET_MANAGER.getAsset("./img/MainCharacter.png"), 0, 0, 32, 32, .1, 4, true, false);
-    this.attackBackAnim = new Animation(ASSET_MANAGER.getAsset("./img/MainCharacter.png"), 0, 64, 32, 32, .1, 4, false, false);
-    this.attackForwardAnim = new Animation(ASSET_MANAGER.getAsset("./img/MainCharacter.png"), 0, 96, 32, 32, .1, 4, false, false);
-    this.idleBackAnim = new Animation(ASSET_MANAGER.getAsset("./img/MainCharacter.png"), 0, 128, 32, 32, .1, 4, true, false);
-    this.idleAnim = new Animation(ASSET_MANAGER.getAsset("./img/MainCharacter.png"), 0, 160, 32, 32, .1, 4, true, false);
-    this.jumpForward = new Animation(ASSET_MANAGER.getAsset("./img/MainCharacter.png"), 0, 224, 32, 32, .2, 4, false, false);
-    this.jumpBackward = new Animation(ASSET_MANAGER.getAsset("./img/MainCharacter.png"), 0, 192, 32, 32, .2, 4, false, false);
+    this.walkAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 64, 64, 64, .1, 4, true, false);
+    this.backWalkAnim= new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 0, 64, 64, .1, 4, true, false);
+    this.attackBackAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 128, 64, 64, .1, 4, false, false);
+    this.attackForwardAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 192, 64, 64, .1, 4, false, false);
+    this.idleBackAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 0, 64, 64, .1, 1, true, false);
+    this.idleAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 64, 64, 64, .1, 1, true, false);
+    this.jumpForward = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 320, 64, 64, .2, 4, false, false);
+    this.jumpBackward = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 256, 64, 64, .2, 4, false, false);
+    this.fallForward = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 224, 64, 64, .2, 4, false, false);
+    this.fallBackward = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 192, 64, 64, .2, 4, false, false);
+    
     this.jumping = false;
     this.stand = true;
     this.back = false;
     this.attack = false;
+    // this.falling = false;
+
+    this.maxHP = 100;
     this.hp = 100;
-    this.radius = 32;
-    this.ground = 468;
-    this.x = 0;
-    this.y = 468;
-    Entity.call(this, game, this.x, this.y);
+    this.radius = 64;
+    this.ground = 592;
+    // this.x = 0;
+    // this.y = 590;
+    Entity.call(this, game, 0, this.ground);
 }
 
 MainCharacter.prototype = new Entity();
@@ -149,16 +226,42 @@ MainCharacter.prototype.collideTrap = function() {
             // top collision
     return (traps[0].y + trapRadius >= this.y && traps[0].y + trapRadius <= this.y + this.radius)
             // left & right collision
-            && ((traps[0].x + trapRadius >= this.x + this.radius
-                && traps[0].x <= this.x + this.radius) || (traps[0].x + trapRadius >= this.x
-                && traps[0].x <= this.x));
+            && ((traps[0].x + trapRadius <= this.x + this.radius
+                && traps[0].x + trapRadius >= this.x) || (traps[0].x >= this.x
+                && traps[0].x <= this.x + this.radius));
+            // && ((traps[0].x + trapRadius >= this.x + this.radius
+            //     && traps[0].x <= this.x + this.radius) || (traps[0].x + trapRadius >= this.x
+            //     && traps[0].x <= this.x));
 }
+
+// MainCharacter.prototype.onPlatform = function () {
+//     onPlat = false;
+
+//     for (let i = 0; i < platforms.length && !onPlat; i++) {
+//         var tile = platforms[i];
+//         if (tile.y <= this.y + this.radius && tile.x + tile.radius > this.x
+//             && tile.x <= this.x) {
+//             onPlat = true;
+//         }
+//     }
+//     return onPlat;
+// }
 
 MainCharacter.prototype.update = function () {
 
-    // detect collision for traps
+    // detect collision for trapsd
     if (this.collideTrap()) {
         this.hp -= 1;
+    }
+
+    // fall if not on a platform
+    if (!onPlatform(this)) {
+        this.y += 3;
+    }
+
+    // if fall off map, die
+    if (this.y > 700) {
+        this.hp = 0;
     }
 
     if (this.game.space) {
@@ -224,27 +327,28 @@ MainCharacter.prototype.update = function () {
         }
     }
 
-
     if(this.game.d) {
         if(this.game.c) {
             this.x = this.x + this.game.clockTick * 900;
-            if(this.x > 1200) this.x = -20; 
         }
         else {
             this.x = this.x + this.game.clockTick * 300;
-            if(this.x > 1200) this.x = -20; 
         }
     }
     if(this.game.a) {
         if(this.game.c) {
             this.x = this.x - this.game.clockTick * 900
-            if(this.x < 0) this.x = 1220;
         }
         else {
             this.x = this.x - this.game.clockTick * 300
-            if(this.x < 0) this.x = 1220;
         }
-        
+    }
+    if(this.game.camera) {
+        this.game.camera.update(this.x, 0);
+    }
+
+    if(this.x < 0) {
+        this.x = 0;
     }
 
     Entity.prototype.update.call(this);
@@ -252,28 +356,28 @@ MainCharacter.prototype.update = function () {
 
 MainCharacter.prototype.draw = function (ctx) {
     if (this.jumping && !this.back) {
-        this.jumpForward.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.jumpForward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.jumping && this.back) {
-        this.jumpBackward.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.jumpBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.attack && this.back) {
-        this.attackBackAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.attackBackAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.attack && !this.back) {
-        this.attackForwardAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.attackForwardAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.stand == false && this.back == false) {
-        this.walkAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.walkAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.stand == false && this.back == true) {
-        this.backWalkAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.backWalkAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.stand == true && this.back == false){
-        this.idleAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.idleAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
-        this.idleBackAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.idleBackAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     Entity.prototype.draw.call(this);
 }
@@ -282,8 +386,8 @@ MainCharacter.prototype.draw = function (ctx) {
 //#region Ball
 function Ball(game) {
     this.thrown = new Animation(ASSET_MANAGER.getAsset("./img/ballsprite.png"), 0, 0, 32, 32, .05, 3, true, false);
-    this.radius = 64;
-    this.ground = 400;
+    this.radius = 32;
+    this.ground = 592;
     this.left = true;
     Entity.call(this, game, game.entities.Character.x, game.entities.Character.y);
 }
@@ -291,6 +395,7 @@ function Ball(game) {
 Ball.prototype = new Entity();
 Ball.prototype.constructor = Ball;
 
+// Bug when camera scroll
 Ball.prototype.update = function () {
     if(this.left) {
         this.x = this.x + this.game.clockTick * 400;
@@ -305,7 +410,7 @@ Ball.prototype.update = function () {
 }
 
 Ball.prototype.draw = function (ctx) {
-    this.thrown.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    this.thrown.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
 }
 // #endregion
 
@@ -313,21 +418,25 @@ Ball.prototype.draw = function (ctx) {
 function Spike(game) {
     this.animation = new Animation(ASSET_MANAGER.getAsset("./img/traps.png"), 12, 62, 32, 32, 0.3, 1, true, true);
     this.radius = 32;
-    this.ground = 462;
+    // this.ground = 462;
     Entity.call(this, game, 20, 20);
 }
 
 Spike.prototype = new Entity();
 Spike.prototype.constructor = Spike;
 Spike.prototype.update = function() {
-    if(this.y < 500) {
-        this.y = this.y + 5;
+    // fall if not on a platform
+    if (!onPlatform(this)) {
+        this.y += 5;
     }
+    // if(this.y < 500) {
+    //     this.y = this.y + 5;
+    // }
     Entity.prototype.update.call(this);
 }
 
 Spike.prototype.draw = function(ctx) {
-    this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 
 }
@@ -335,21 +444,52 @@ Spike.prototype.draw = function(ctx) {
 
 //#region Turkey
 function Turkey(game, x, y) {
-    this.animation = new Animation(ASSET_MANAGER.getAsset("./img/turkey.png"), 0, 0, 64, 64, 1, 1, true, true);
-    this.radius = 64;
-    this.ground = 462;
+    this.game = game;
+    this.animation = new Animation(ASSET_MANAGER.getAsset("./img/turkey_32.png"), 0, 0, 32, 32, 0.3, 3, true, true);
+    this.radius = 32;
+    this.ground = y;
     Entity.call(this, game, x, y);
 }
 
 Turkey.prototype = new Entity();
 Turkey.prototype.constructor = Turkey;
 
+// Check if collided with MC; return true if collided, false, otherwise
+Turkey.prototype.collided = function() {
+    var charact = this.game.entities.Character;
+    return distance(this, charact) <= this.radius / 1.9 + charact.radius / 1.9;
+}
+
+// Turkey.prototype.onPlatform = function () {
+//     onPlat = false;
+//     for (let i = 0; i < platforms.length && !onPlat; i++) {
+//         var tile = platforms[i];
+//         if (tile.y <= this.y + this.radius && tile.x + tile.radius > this.x
+//             && tile.x <= this.x) {
+//             onPlat = true;
+//         }
+//     }
+//     return onPlat;
+// }
+
 Turkey.prototype.update = function() {
+    if (this.collided()) {
+        this.removeFromWorld = true;
+        if (this.game.entities.Character.hp + 30 >= this.game.entities.Character.maxHP) {
+            this.game.entities.Character.hp = this.game.entities.Character.maxHP;
+        } else {
+            this.game.entities.Character.hp += 30;
+        }
+    }
+    // fall if not on a platform
+    if (!onPlatform(this)) {
+        this.y += 1;
+    }
     Entity.prototype.update.call(this);
 }
 
 Turkey.prototype.draw = function(ctx) {
-    this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 }
 //#endregion
@@ -362,12 +502,12 @@ function Dino(game) {
     this.TurnRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/dino.png"), 192, 0, 960 / 5, 576 / 3, 0.3, 3, true, true);
     this.jumping = false;
     this.speed = 50;
-    this.radius = 0;
-    this.ground = 462;
+    this.radius = 576 / 3;
+    this.ground = 465;
     this.walkLeft = true;
     this.walkRight = false; 
     this.jumpTime = 0;
-    Entity.call(this, game, 100, 310);
+    Entity.call(this, game, 100, this.ground);
 
 }
 
@@ -375,6 +515,10 @@ Dino.prototype = new Entity();
 Dino.prototype.constructor = Dino;
 
 Dino.prototype.update = function() {
+        // fall if not on a platform
+        if (!onPlatform(this)) {
+            this.y += 1;
+        }
     
         if(this.walkLeft) {
             this.x -= this.game.clockTick * this.speed;
@@ -412,12 +556,12 @@ Dino.prototype.update = function() {
 
 Dino.prototype.draw = function (ctx) {
     if(this.walkLeft) {
-        this.WalkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.WalkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
-        this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
-        // this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        // this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
 
     Entity.prototype.draw.call(this);
 }
@@ -430,20 +574,20 @@ function Slime(game) {
     this.walkRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/slimeEnemy.png"), 192, 64, 64, 64, 0.3, 3, true, true);
     this.jumping = false;
     this.speed = 100;
-    this.radius = 0;
-    this.ground = 462;
+    this.radius = 40;
+    this.ground = 616;
     this.walkLeft = true;
-    this.walkRight = false; 
+    this.walkRight = false;
     this.jumpTime = 0;
-    Entity.call(this, game, 300, 462);
+    Entity.call(this, game, 300, 616);
 }
 
 Slime.prototype = new Entity();
 Slime.prototype.constructor = Slime;
 
 Slime.prototype.update = function() {
+    
     if(this.jumpTime >= 100) {
-        console.log("yeet");
         this.jumping = true;
     }
     if(this.jumping) {
@@ -499,15 +643,20 @@ Slime.prototype.update = function() {
 }
 
 Slime.prototype.draw = function (ctx) {
+    // fall if not on a platform
+    if (!onPlatform(this)) {
+        this.y += 3;
+    }
+
     if (this.jumping) {
-        this.jumpAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.jumpAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
         if(this.walkLeft) {
-            this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
         else {
-            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
     }
     Entity.prototype.draw.call(this);
@@ -549,10 +698,10 @@ Bat.prototype.update = function () {
 
 Bat.prototype.draw = function(ctx) {
     if(this.flyLeft) {
-        this.flyLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.flyLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
-        this.flyRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.flyRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     Entity.prototype.draw.call(this);
 }
@@ -571,14 +720,19 @@ function Skeleton(game) {
     this.walkLeft = false;
     this.walkRight = true;
     this.speed = 80;
-    this.radius = 64;
-    this.ground = 450;
-    Entity.call(this, game, 300, 445);
+    this.radius = 55;
+    this.ground = 605;
+    Entity.call(this, game, 300, this.ground);
 }
 Skeleton.prototype = new Entity();
 Skeleton.prototype.constructor = Skeleton;
 
 Skeleton.prototype.update = function() {
+    // fall if not on a platform
+    if (!onPlatform(this)) {
+        this.y += 1;
+    }
+
     if(this.attackTime >= 100) {
         this.attacking = true;
     }
@@ -622,18 +776,18 @@ Skeleton.prototype.update = function() {
 Skeleton.prototype.draw = function(ctx) {
     if(this.attacking) {
         if(this.attackLeft) {
-            this.attackLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.attackLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
         else {
-            this.attackRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.attackRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
     }
     else {
         if(this.walkLeft) {
-            this.walkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.walkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
         else {
-            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
     }
 
@@ -644,7 +798,7 @@ Skeleton.prototype.draw = function(ctx) {
 function SkeletonBone(game, skeletonX, skeletonY, direction) {
     this.animation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 192, 256, 64, 64, 0.2, 3, true, true);
     this.speed = 300;
-    this.ground = 450;
+    this.ground = 687;
     this.radius = 16;
     this.direction = direction;
     Entity.call(this, game, skeletonX, skeletonY);
@@ -654,6 +808,11 @@ SkeletonBone.prototype = new Entity();
 SkeletonBone.prototype.constructor = SkeletonBone;
 
 SkeletonBone.prototype.update = function() {
+    // fall if not on a platform
+    if (!onPlatform(this)) {
+        this.y += 1;
+    }
+
     if(this.y >= this.ground) {
         this.removeFromWorld = true;
     }
@@ -676,7 +835,7 @@ SkeletonBone.prototype.update = function() {
 }
 
 SkeletonBone.prototype.draw = function(ctx) {
-    this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
 }
 //#endregion
 
@@ -685,20 +844,25 @@ function Chest(game) {
     this.openingAnimation = new Animation(ASSET_MANAGER.getAsset("./img/chest.png"), 0, 0, 64, 64, 0.1, 6, false, false);
     this.closedAnimation = new Animation(ASSET_MANAGER.getAsset("./img/chest.png"), 0, 0, 64, 64, 1, 1, true, false);
     this.openedAnimation = new Animation(ASSET_MANAGER.getAsset("./img/chest.png"), 320, 0, 64, 64, 1, 1, true, false);
-    this.ground = 450;
-    this.radius = 64;
+    this.ground = 613;
+    this.radius = 42;
     this.open = false;
     this.opening = false;
     this.openTime = 0;
-    Entity.call(this, game, 400, 450);
+    Entity.call(this, game, 400, this.ground);
 }
 
 Chest.prototype = new Entity();
 Chest.prototype.constructor = Chest;
 
 Chest.prototype.update = function() {
+    // fall if not on a platform
+    if (!onPlatform(this)) {
+        this.y += 1;
+    }
+
     let mcXPosition = this.game.entities.Character.x;
-    if(Math.abs(mcXPosition - this.x) <= 20 && this.game.e) {
+    if(Math.abs(mcXPosition - this.x) <= 40 && this.game.e) {
         this.opening = true;
     }
     if(this.opening && this.openingAnimation.isDone()) {
@@ -708,7 +872,7 @@ Chest.prototype.update = function() {
     if(this.open) {
         this.openTime++;
         if(this.openTime >= 150) {
-            turkey = new Turkey(this.game, this.x, this.y);
+            turkey = new Turkey(this.game, this.x - this.game.camera.x, this.y - this.game.camera.y);
             this.game.addEntity(turkey);
             this.removeFromWorld = true;
         }
@@ -718,37 +882,273 @@ Chest.prototype.update = function() {
 
 Chest.prototype.draw = function(ctx) {
     if(this.opening && !this.open) {
-        this.openingAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.openingAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.open && this.open) {
-        this.openedAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.openedAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
-        this.closedAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.closedAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
 }
 //#endregion
+
+function AttackWolf(game, theX) {
+    this.walkBack = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 420, 88, 60, .1, 9, true, false);
+    this.walk = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 960, 88, 60, .1, 9, true, false);
+    this.attackF = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 780, 88, 60, .1, 9, false, false);
+    this.attackBack = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 240, 88, 60, .1, 9, false, false);
+    this.attack = false;
+    this.back = false;
+    this.radius = 60;
+    Entity.call(this, game, theX, 595);
+}
+
+AttackWolf.prototype = new Entity();
+AttackWolf.prototype.constructor = AttackWolf;
+
+AttackWolf.prototype.update = function () {
+    // fall if not on a platform
+    if (!onPlatform(this)) {
+        this.y += 1;
+    }
+
+    if(this.x > 600) {
+        this.back = true;
+        this.attack = true;
+    }
+    else if(this.x < 50) {
+        this.back = false;
+        this.attack = true;
+    }
+
+    if(this.attackF.isDone()) {
+        this.back = false;
+        this.attackF.elapsedTime = 0;
+        this.attackBack.elapsedTime = 0;
+        this.attack = false;
+    }
+    else if(this.attackBack.isDone()) {
+        this.back = true;
+        this.attackF.elapsedTime = 0;
+        this.attackBack.elapsedTime = 0;
+        this.attack = false;
+    }
+    
+
+    if(this.back) {
+            this.x = this.x - this.game.clockTick * 75
+        }
+    else {
+            this.x = this.x + this.game.clockTick * 75
+     }
+    Entity.prototype.update.call(this);
+}
+
+AttackWolf.prototype.draw = function (ctx) {
+    if(this.attack && !this.back) {
+        this.attackF.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.attack && this.back) {
+        this.attackBack.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.back) {
+        this.walkBack.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else {
+        this.walk.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    Entity.prototype.draw.call(this);
+}
+
+function Nightmare(game, theX, backbool) {
+    this.runBackward = new Animation(ASSET_MANAGER.getAsset("./img/nightmare.png"), 0, 0, 144, 96, .20, 4, true, false);
+    this.runForward = new Animation(ASSET_MANAGER.getAsset("./img/nightmare.png"), 0, 96, 144, 96, .20, 4, true, false);
+    this.idleForward = new Animation(ASSET_MANAGER.getAsset("./img/nightmare.png"), 0, 192, 128, 96, .3, 4, false, false);
+    this.idleBackward = new Animation(ASSET_MANAGER.getAsset("./img/nightmare.png"), 0, 288, 128, 96, .3, 4, false, false);
+    this.idle = true;
+    this.back = backbool;
+    this.radius = 96;
+    Entity.call(this, game, theX, 560);
+}
+
+Nightmare.prototype = new Entity();
+Nightmare.prototype.constructor = Nightmare;
+
+Nightmare.prototype.update = function () {
+    // fall if not on a platform
+    if (!onPlatform(this)) {
+        this.y += 1;
+    }
+
+    if(this.x < 50) {
+        this.back = false;
+        this.idle = true;
+    }
+    if(this.x > 1250) {
+        this.back = true;
+        this.idle = true;
+    }
+
+    if(this.idleForward.isDone()) {
+        this.idle = false;
+        this.idleForward.elapsedTime = 0;
+    }
+    if(this.idleBackward.isDone()) {
+        this.idle = false;
+        this.idleBackward.elapsedTime = 0;
+    }
+
+    if(!this.idle && !this.back) {
+        this.x = this.x + this.game.clockTick * 500;
+    }
+    else if(!this.idle && this.back) {
+        this.x = this.x - this.game.clockTick * 500;
+    }
+    Entity.prototype.update.call(this);
+}
+
+Nightmare.prototype.draw = function (ctx) {
+    if(this.idle && this.back) {
+        this.idleBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.idle && !this.back) {
+        this.idleForward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(!this.idle && this.back) {
+        this.runBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else {
+        this.runForward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+}
+
+// Begin Ghost enemy
+function Ghost(game, theX, theY) {
+    this.appearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 0, 64, 48, .15, 6, false, false);
+    this.disappearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 48, 64, 48, .15, 6, false, false);
+    this.idleA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 96, 64, 48, .15, 6, false, false);
+    this.scareA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 144, 64, 48, .15, 4, false, false);
+    this.appear = true;
+    this.disappear = false;
+    this.idle = false;
+    this.scare = false;
+    Entity.call(this, game, theX, theY   );
+}
+
+Ghost.prototype.update = function() {
+    if (this.appearA.isDone()) {
+        this.appearA.elapsedTime = 0;
+        this.appear = false;
+        this.idle = true;
+    }
+    else if(this.idleA.isDone()) {
+        this.idle = false;
+        this.scare = true;
+        this.idleA.elapsedTime = 0;
+    }
+    else if(this.scareA.isDone()) {
+        this.scare = false;
+        this.disappear = true;
+        this.scareA.elapsedTime = 0;
+    }
+    else if(this.disappearA.isDone()){
+        this.disappearA.elapsedTime = 0;
+        if(this.game.entities.Character) {
+            var ghost = new Ghost(this.game, (Math.floor(Math.random() * 301)) - 50 + this.game.entities.Character.x, -(Math.floor(Math.random() * 301)) + 50 + this.game.entities.Character.y);
+            this.game.addEntity(ghost);
+            this.removeFromWorld = true;
+            this.disappear = false;
+        }
+    }
+    Entity.prototype.update.call(this);
+}
+
+Ghost.prototype.draw = function (ctx) {
+    if(this.appear) {
+        this.appearA.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.idle) {
+        this.idleA.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.scare) {
+        this.scareA.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.disappear) {
+        this.disappearA.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    Entity.prototype.draw.call(this);
+}
+// End Ghost enemy
+
+// BEGIN PLATFORM
+
+// Key piece:
+// 1 - bright brick medium (32 x 32 px)
+// 2 - bright brick half-size (32 X 16 px)
+// 3 - right round
+function Platform(game, theX, theY, tilePiece) {
+    this.game = game;
+    this.radius = 32;
+    // this.x = theX;
+    // this.y = theY;
+
+    switch(tilePiece) {
+        case 1:
+        this.tileAnim = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 32, 1, 1, true, false);
+        break;
+
+        case 2:
+        this.tileAnim = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 16, 1, 1, true, false);
+        break;
+    }
+    
+    Entity.call(this, game, theX, theY);
+}
+Platform.prototype = new Entity();
+Platform.prototype.constructor = Platform;
+
+Platform.prototype.update = function() {
+    Entity.prototype.update.call(this);
+}
+
+Platform.prototype.draw = function(ctx) {
+    this.tileAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    Entity.prototype.draw.call(this);
+}
+// END PLATFORM
+
+
+
 
 // the "main" code begins here
 // #region Main
 var ASSET_MANAGER = new AssetManager();
 
-//ASSET_MANAGER.queueDownload("./img/traps.png");
+// Queue all assets used in game:
+
 ASSET_MANAGER.queueDownload("./img/RobotUnicorn.png");
-ASSET_MANAGER.queueDownload("./img/MainCharacter.png");
+ASSET_MANAGER.queueDownload("./img/mc64.png");
 ASSET_MANAGER.queueDownload("./img/ballsprite.png");
 ASSET_MANAGER.queueDownload("./img/slimeEnemy.png");
-ASSET_MANAGER.queueDownload("./img/turkey.png");
+ASSET_MANAGER.queueDownload("./img/turkey_32.png");
 ASSET_MANAGER.queueDownload("./img/traps.png");
 ASSET_MANAGER.queueDownload("./img/dino.png");
 ASSET_MANAGER.queueDownload("./img/dinoReverse.png");
 ASSET_MANAGER.queueDownload("./img/startScreen.png");
 ASSET_MANAGER.queueDownload("./img/bat.png");
 ASSET_MANAGER.queueDownload("./img/chest.png");
-
+ASSET_MANAGER.queueDownload("./img/ghost.png");
+ASSET_MANAGER.queueDownload("./img/nightmare.png");
+ASSET_MANAGER.queueDownload("./img/wolfsheet.png");
 ASSET_MANAGER.queueDownload("./img/skeleton.png");
+ASSET_MANAGER.queueDownload("./img/brickBG_1200x700.png");
+ASSET_MANAGER.queueDownload("./img/tiles_32x32.png");
+ASSET_MANAGER.queueDownload("./img/brickSmall.png");
+ASSET_MANAGER.queueDownload("./img/brickMed.png");
+ASSET_MANAGER.queueDownload("./img/dirt_tiles.png");
 
-
+// Download all assests before starting game
 ASSET_MANAGER.downloadAll(function () {
     console.log("starting up da sheild");
     var canvas = document.getElementById('gameWorld');
