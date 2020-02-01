@@ -1,6 +1,9 @@
 // This game shell was happily copied from Googler Seth Ladd's "Bad Aliens" game and his Google IO talk in 2011
 
-var bgMusic = new Audio("./MoonlightTemptation.mp3"); 
+var bgMusic = new Audio("./MoonlightTemptation.mp3");
+
+// # region traps array
+var traps = [];
 
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
@@ -89,8 +92,6 @@ GameEngine.prototype.startInput = function () {
             var skeleton = new Skeleton(that);
             var chest = new Chest(that);
             
-
-
             that.addEntity(bg);
             that.addEntity(healthbar);
             that.entities.Character = maincharacter;
@@ -101,6 +102,8 @@ GameEngine.prototype.startInput = function () {
             that.addEntity(bat);
             that.addEntity(skeleton);
             that.addEntity(chest);  
+
+            traps.push(spike);
         }
 
     }, false);
