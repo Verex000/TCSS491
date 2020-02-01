@@ -44,6 +44,7 @@ function GameEngine() {
     this.r = null;
     this.l = null;
     this.p = null;
+    this.camera = null;
     this.space = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -79,7 +80,8 @@ GameEngine.prototype.startInput = function () {
             console.log('CLICKED');          
             bgMusic.loop = true;
             bgMusic.play();
-            
+            that.camera = new Camera();
+
             that.entities = [];
             var bg = new Background(that);
             var maincharacter = new MainCharacter(that);
@@ -91,6 +93,11 @@ GameEngine.prototype.startInput = function () {
             var bat = new Bat(that);
             var skeleton = new Skeleton(that);
             var chest = new Chest(that);
+            var nightmare = new Nightmare(that, 200, true);
+            var ghost = new Ghost(that, 500, 500)
+            var attackWolf = new AttackWolf(that, 200);
+
+
             
             that.addEntity(bg);
             that.addEntity(healthbar);
@@ -102,6 +109,9 @@ GameEngine.prototype.startInput = function () {
             that.addEntity(bat);
             that.addEntity(skeleton);
             that.addEntity(chest);  
+            that.addEntity(nightmare);
+            that.addEntity(ghost);
+            that.addEntity(attackWolf);
 
             traps.push(spike);
         }
@@ -211,7 +221,6 @@ GameEngine.prototype.startInput = function () {
 }
 
 GameEngine.prototype.addEntity = function (entity) {
-    console.log('added entity');
     this.entities.push(entity);
 }
 

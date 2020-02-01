@@ -1,4 +1,19 @@
 
+function Camera() {
+    this.x = 0;
+    this.y = 0;
+}
+
+Camera.prototype.update = function(characterX, characterY) {
+    if(characterX > 640) {
+        this.x = characterX - 640;
+        this.y = characterY;
+    }
+    else{
+        this.x = 0;
+        this.y = 0;
+    }
+}
 // #region Animation
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
     this.spriteSheet = spriteSheet;
@@ -68,7 +83,7 @@ Background.prototype.update = function () {
 }
 
 Background.prototype.draw = function (ctx) {
-    ctx.fillStyle = "SaddleBrown";
+    ctx.fillStyle = "ForestGreen";
     ctx.fillRect(0,500,1200,300);
     Entity.prototype.draw.call(this);
 }
@@ -228,23 +243,26 @@ MainCharacter.prototype.update = function () {
     if(this.game.d) {
         if(this.game.c) {
             this.x = this.x + this.game.clockTick * 900;
-            if(this.x > 1200) this.x = -20; 
         }
         else {
             this.x = this.x + this.game.clockTick * 300;
-            if(this.x > 1200) this.x = -20; 
         }
     }
     if(this.game.a) {
         if(this.game.c) {
             this.x = this.x - this.game.clockTick * 900
-            if(this.x < 0) this.x = 1220;
         }
         else {
             this.x = this.x - this.game.clockTick * 300
-            if(this.x < 0) this.x = 1220;
         }
         
+    }
+    if(this.game.camera) {
+        this.game.camera.update(this.x, 0);
+    }
+
+    if(this.x < 0) {
+        this.x = 0;
     }
 
     Entity.prototype.update.call(this);
@@ -252,28 +270,28 @@ MainCharacter.prototype.update = function () {
 
 MainCharacter.prototype.draw = function (ctx) {
     if (this.jumping && !this.back) {
-        this.jumpForward.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.jumpForward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.jumping && this.back) {
-        this.jumpBackward.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.jumpBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.attack && this.back) {
-        this.attackBackAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.attackBackAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.attack && !this.back) {
-        this.attackForwardAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.attackForwardAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.stand == false && this.back == false) {
-        this.walkAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.walkAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.stand == false && this.back == true) {
-        this.backWalkAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.backWalkAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.stand == true && this.back == false){
-        this.idleAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.idleAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
-        this.idleBackAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.idleBackAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     Entity.prototype.draw.call(this);
 }
@@ -305,7 +323,7 @@ Ball.prototype.update = function () {
 }
 
 Ball.prototype.draw = function (ctx) {
-    this.thrown.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    this.thrown.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
 }
 // #endregion
 
@@ -327,7 +345,7 @@ Spike.prototype.update = function() {
 }
 
 Spike.prototype.draw = function(ctx) {
-    this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 
 }
@@ -349,7 +367,7 @@ Turkey.prototype.update = function() {
 }
 
 Turkey.prototype.draw = function(ctx) {
-    this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 }
 //#endregion
@@ -412,12 +430,12 @@ Dino.prototype.update = function() {
 
 Dino.prototype.draw = function (ctx) {
     if(this.walkLeft) {
-        this.WalkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.WalkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
-        this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
-        // this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        // this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
 
     Entity.prototype.draw.call(this);
 }
@@ -443,7 +461,6 @@ Slime.prototype.constructor = Slime;
 
 Slime.prototype.update = function() {
     if(this.jumpTime >= 100) {
-        console.log("yeet");
         this.jumping = true;
     }
     if(this.jumping) {
@@ -500,14 +517,14 @@ Slime.prototype.update = function() {
 
 Slime.prototype.draw = function (ctx) {
     if (this.jumping) {
-        this.jumpAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.jumpAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
         if(this.walkLeft) {
-            this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
         else {
-            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
     }
     Entity.prototype.draw.call(this);
@@ -549,10 +566,10 @@ Bat.prototype.update = function () {
 
 Bat.prototype.draw = function(ctx) {
     if(this.flyLeft) {
-        this.flyLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.flyLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
-        this.flyRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.flyRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     Entity.prototype.draw.call(this);
 }
@@ -622,18 +639,18 @@ Skeleton.prototype.update = function() {
 Skeleton.prototype.draw = function(ctx) {
     if(this.attacking) {
         if(this.attackLeft) {
-            this.attackLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.attackLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
         else {
-            this.attackRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.attackRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
     }
     else {
         if(this.walkLeft) {
-            this.walkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.walkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
         else {
-            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
     }
 
@@ -676,7 +693,7 @@ SkeletonBone.prototype.update = function() {
 }
 
 SkeletonBone.prototype.draw = function(ctx) {
-    this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
 }
 //#endregion
 
@@ -708,7 +725,7 @@ Chest.prototype.update = function() {
     if(this.open) {
         this.openTime++;
         if(this.openTime >= 150) {
-            turkey = new Turkey(this.game, this.x, this.y);
+            turkey = new Turkey(this.game, this.x - this.game.camera.x, this.y - this.game.camera.y);
             this.game.addEntity(turkey);
             this.removeFromWorld = true;
         }
@@ -718,16 +735,190 @@ Chest.prototype.update = function() {
 
 Chest.prototype.draw = function(ctx) {
     if(this.opening && !this.open) {
-        this.openingAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.openingAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.open && this.open) {
-        this.openedAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.openedAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
-        this.closedAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.closedAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
 }
 //#endregion
+
+function AttackWolf(game, theX) {
+    this.walkBack = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 420, 88, 60, .1, 9, true, false);
+    this.walk = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 960, 88, 60, .1, 9, true, false);
+    this.attackF = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 780, 88, 60, .1, 9, false, false);
+    this.attackBack = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 240, 88, 60, .1, 9, false, false);
+    this.attack = false;
+    this.back = false;
+    Entity.call(this, game, theX, 450);
+}
+
+AttackWolf.prototype = new Entity();
+AttackWolf.prototype.constructor = AttackWolf;
+
+AttackWolf.prototype.update = function () {
+    if(this.x > 600) {
+        this.back = true;
+        this.attack = true;
+    }
+    else if(this.x < 50) {
+        this.back = false;
+        this.attack = true;
+    }
+
+    if(this.attackF.isDone()) {
+        this.back = false;
+        this.attackF.elapsedTime = 0;
+        this.attackBack.elapsedTime = 0;
+        this.attack = false;
+    }
+    else if(this.attackBack.isDone()) {
+        this.back = true;
+        this.attackF.elapsedTime = 0;
+        this.attackBack.elapsedTime = 0;
+        this.attack = false;
+    }
+    
+
+    if(this.back) {
+            this.x = this.x - this.game.clockTick * 75
+        }
+    else {
+            this.x = this.x + this.game.clockTick * 75
+     }
+    Entity.prototype.update.call(this);
+}
+
+AttackWolf.prototype.draw = function (ctx) {
+    if(this.attack && !this.back) {
+        this.attackF.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.attack && this.back) {
+        this.attackBack.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.back) {
+        this.walkBack.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else {
+        this.walk.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    Entity.prototype.draw.call(this);
+}
+
+function Nightmare(game, theX, backbool) {
+    this.runBackward = new Animation(ASSET_MANAGER.getAsset("./img/nightmare.png"), 0, 0, 144, 96, .20, 4, true, false);
+    this.runForward = new Animation(ASSET_MANAGER.getAsset("./img/nightmare.png"), 0, 96, 144, 96, .20, 4, true, false);
+    this.idleForward = new Animation(ASSET_MANAGER.getAsset("./img/nightmare.png"), 0, 192, 128, 96, .3, 4, false, false);
+    this.idleBackward = new Animation(ASSET_MANAGER.getAsset("./img/nightmare.png"), 0, 288, 128, 96, .3, 4, false, false);
+    this.idle = true;
+    this.back = backbool;
+    Entity.call(this, game, theX, 405);
+}
+
+Nightmare.prototype = new Entity();
+Nightmare.prototype.constructor = Nightmare;
+
+Nightmare.prototype.update = function () {
+    if(this.x < 50) {
+        this.back = false;
+        this.idle = true;
+    }
+    if(this.x > 1250) {
+        this.back = true;
+        this.idle = true;
+    }
+
+    if(this.idleForward.isDone()) {
+        this.idle = false;
+        this.idleForward.elapsedTime = 0;
+    }
+    if(this.idleBackward.isDone()) {
+        this.idle = false;
+        this.idleBackward.elapsedTime = 0;
+    }
+
+    if(!this.idle && !this.back) {
+        this.x = this.x + this.game.clockTick * 500;
+    }
+    else if(!this.idle && this.back) {
+        this.x = this.x - this.game.clockTick * 500;
+    }
+    Entity.prototype.update.call(this);
+}
+
+Nightmare.prototype.draw = function (ctx) {
+    if(this.idle && this.back) {
+        this.idleBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.idle && !this.back) {
+        this.idleForward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(!this.idle && this.back) {
+        this.runBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else {
+        this.runForward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+}
+
+function Ghost(game, theX, theY) {
+    this.appearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 0, 64, 48, .15, 6, false, false);
+    this.disappearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 48, 64, 48, .15, 6, false, false);
+    this.idleA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 96, 64, 48, .15, 6, false, false);
+    this.scareA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 144, 64, 48, .15, 4, false, false);
+    this.appear = true;
+    this.disappear = false;
+    this.idle = false;
+    this.scare = false;
+    Entity.call(this, game, theX, theY   );
+}
+
+Ghost.prototype.update = function() {
+    if (this.appearA.isDone()) {
+        this.appearA.elapsedTime = 0;
+        this.appear = false;
+        this.idle = true;
+    }
+    else if(this.idleA.isDone()) {
+        this.idle = false;
+        this.scare = true;
+        this.idleA.elapsedTime = 0;
+    }
+    else if(this.scareA.isDone()) {
+        this.scare = false;
+        this.disappear = true;
+        this.scareA.elapsedTime = 0;
+    }
+    else if(this.disappearA.isDone()){
+        this.disappearA.elapsedTime = 0;
+        if(this.game.entities.Character) {
+            var ghost = new Ghost(this.game, (Math.floor(Math.random() * 301)) - 50 + this.game.entities.Character.x, -(Math.floor(Math.random() * 301)) + 50 + this.game.entities.Character.y);
+            this.game.addEntity(ghost);
+            this.removeFromWorld = true;
+            this.disappear = false;
+        }
+    }
+    Entity.prototype.update.call(this);
+}
+
+Ghost.prototype.draw = function (ctx) {
+    if(this.appear) {
+        this.appearA.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.idle) {
+        this.idleA.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.scare) {
+        this.scareA.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else if(this.disappear) {
+        this.disappearA.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    Entity.prototype.draw.call(this);
+}
 
 // the "main" code begins here
 // #region Main
@@ -745,6 +936,10 @@ ASSET_MANAGER.queueDownload("./img/dinoReverse.png");
 ASSET_MANAGER.queueDownload("./img/startScreen.png");
 ASSET_MANAGER.queueDownload("./img/bat.png");
 ASSET_MANAGER.queueDownload("./img/chest.png");
+ASSET_MANAGER.queueDownload("./img/ghost.png");
+ASSET_MANAGER.queueDownload("./img/nightmare.png");
+ASSET_MANAGER.queueDownload("./img/wolfsheet.png");
+
 
 ASSET_MANAGER.queueDownload("./img/skeleton.png");
 
