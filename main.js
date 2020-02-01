@@ -1,5 +1,4 @@
 
-
 // #region Animation
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
     this.spriteSheet = spriteSheet;
@@ -134,15 +133,34 @@ function MainCharacter(game) {
     this.back = false;
     this.attack = false;
     this.hp = 100;
-    this.radius = 64;
+    this.radius = 32;
     this.ground = 468;
-    Entity.call(this, game, 0, 468);
+    this.x = 0;
+    this.y = 468;
+    Entity.call(this, game, this.x, this.y);
 }
 
 MainCharacter.prototype = new Entity();
 MainCharacter.prototype.constructor = MainCharacter;
 
+// Character will get damaged if he collide with a trap (except when has fallen to the ground.)
+MainCharacter.prototype.collideTrap = function() {
+    var trapRadius = traps[0].radius;
+            // top collision
+    return (traps[0].y + trapRadius >= this.y && traps[0].y + trapRadius <= this.y + this.radius)
+            // left & right collision
+            && ((traps[0].x + trapRadius >= this.x + this.radius
+                && traps[0].x <= this.x + this.radius) || (traps[0].x + trapRadius >= this.x
+                && traps[0].x <= this.x));
+}
+
 MainCharacter.prototype.update = function () {
+
+    // detect collision for traps
+    if (this.collideTrap()) {
+        this.hp -= 1;
+    }
+
     if (this.game.space) {
         this.jumping = true; 
     }
@@ -294,7 +312,7 @@ Ball.prototype.draw = function (ctx) {
 //#region Spike Trap
 function Spike(game) {
     this.animation = new Animation(ASSET_MANAGER.getAsset("./img/traps.png"), 12, 62, 32, 32, 0.3, 1, true, true);
-    this.radius = 64;
+    this.radius = 32;
     this.ground = 462;
     Entity.call(this, game, 20, 20);
 }
@@ -303,7 +321,7 @@ Spike.prototype = new Entity();
 Spike.prototype.constructor = Spike;
 Spike.prototype.update = function() {
     if(this.y < 500) {
-        this.y = this.y + 1;
+        this.y = this.y + 5;
     }
     Entity.prototype.update.call(this);
 }
