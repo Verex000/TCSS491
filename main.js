@@ -132,6 +132,23 @@ HealthBar.prototype.draw = function (ctx) {
     Entity.prototype.draw.call(this);
 }
 // #endregion
+function Platform(game, theX, theY) {
+    this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 32, 1, 1, true, false);
+    Entity.call(this, game, theX, theY);
+}
+
+
+Platform.prototype = new Entity();
+Platform.prototype.constructor = Platform;
+
+Platform.prototype.update = function () {
+    Entity.prototype.update.call(this);
+}
+
+Platform.prototype.draw = function(ctx) {
+    this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    Entity.prototype.draw.call(this);
+}
 
 // #region Main Character
 function MainCharacter(game) {
@@ -939,6 +956,7 @@ ASSET_MANAGER.queueDownload("./img/chest.png");
 ASSET_MANAGER.queueDownload("./img/ghost.png");
 ASSET_MANAGER.queueDownload("./img/nightmare.png");
 ASSET_MANAGER.queueDownload("./img/wolfsheet.png");
+ASSET_MANAGER.queueDownload("./img/brickMed.png");
 
 
 ASSET_MANAGER.queueDownload("./img/skeleton.png");

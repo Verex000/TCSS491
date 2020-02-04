@@ -96,9 +96,13 @@ GameEngine.prototype.startInput = function () {
             var nightmare = new Nightmare(that, 200, true);
             var ghost = new Ghost(that, 500, 500)
             var attackWolf = new AttackWolf(that, 200);
+            var platform = new Platform(that, 200, 300);
+            var platform2 = new Platform(that, 232, 300);
+            var platform3 = new Platform(that, 264, 300);
 
-
-            
+            that.addEntity(platform3);
+            that.addEntity(platform2);
+            that.addEntity(platform);
             that.addEntity(bg);
             that.addEntity(healthbar);
             that.entities.Character = maincharacter;
