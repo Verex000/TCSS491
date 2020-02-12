@@ -103,7 +103,6 @@ GameEngine.prototype.startInput = function () {
             var attackWolf = new AttackWolf(that, 200);
 
             var map = new MapLevel(that);
-
             that.addEntity(bg);
             that.addEntity(map);
             that.addEntity(healthbar);

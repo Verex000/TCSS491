@@ -92,6 +92,21 @@ function isCollidedWH(game, theEntity) {
 
 // End
 
+function Camera() {
+    this.x = 0;
+    this.y = 0;
+}
+
+Camera.prototype.update = function(characterX, characterY) {
+    if(characterX > 640) {
+        this.x = characterX - 640;
+        this.y = characterY;
+    }
+    else{
+        this.x = 0;
+        this.y = 0;
+    }
+}
 // #region Animation
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
     this.spriteSheet = spriteSheet;
@@ -158,6 +173,7 @@ Animation.prototype.isDone = function () {
 
 // DialogPane.prototype.update = function () {
 // }
+
 
 // end dialog section
 
@@ -240,6 +256,23 @@ HealthBar.prototype.draw = function (ctx) {
     Entity.prototype.draw.call(this);
 }
 // #endregion
+function Platform(game, theX, theY) {
+    this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 32, 1, 1, true, false);
+    Entity.call(this, game, theX, theY);
+}
+
+
+Platform.prototype = new Entity();
+Platform.prototype.constructor = Platform;
+
+Platform.prototype.update = function () {
+    Entity.prototype.update.call(this);
+}
+
+Platform.prototype.draw = function(ctx) {
+    this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    Entity.prototype.draw.call(this);
+}
 
 // #region Main Character
 function MainCharacter(game) {
@@ -404,6 +437,13 @@ MainCharacter.prototype.update = function () {
         else {
             this.x = this.x - this.game.clockTick * 300
         }
+    }
+    if(this.game.camera) {
+        this.game.camera.update(this.x, 0);
+    }
+
+    if(this.x < 0) {
+        this.x = 0;
     }
     if(this.game.camera) {
         this.game.camera.update(this.x, 0);
@@ -1037,6 +1077,7 @@ function AttackWolf(game, theX) {
     this.height = 60;
     this.hp = 90;
     Entity.call(this, game, theX, 580);
+    Entity.call(this, game, theX, 450);
 }
 
 AttackWolf.prototype = new Entity();
@@ -1064,7 +1105,6 @@ AttackWolf.prototype.update = function () {
     if (this.hp <= 0) {
         this.removeFromWorld = true;
     }
-
     if(this.x > 600) {
         this.back = true;
         this.attack = true;
@@ -1228,6 +1268,10 @@ Ghost.prototype.update = function() {
         this.removeFromWorld = true;
     }
 
+    Entity.call(this, game, theX, theY);
+}
+
+Ghost.prototype.update = function() {
     if (this.appearA.isDone()) {
         this.appearA.elapsedTime = 0;
         this.appear = false;
@@ -1401,7 +1445,6 @@ GameOverScreen.prototype.draw = function () {
 GameOverScreen.prototype.update = function () {
 };
 
-
 // the "main" code begins here
 // #region Main
 
@@ -1423,6 +1466,7 @@ ASSET_MANAGER.queueDownload("./img/chest.png");
 ASSET_MANAGER.queueDownload("./img/ghost.png");
 ASSET_MANAGER.queueDownload("./img/nightmare.png");
 ASSET_MANAGER.queueDownload("./img/wolfsheet.png");
+ASSET_MANAGER.queueDownload("./img/brickMed.png");
 ASSET_MANAGER.queueDownload("./img/skeleton.png");
 ASSET_MANAGER.queueDownload("./img/brickBG_1200x700.png");
 ASSET_MANAGER.queueDownload("./img/tiles_32x32.png");
