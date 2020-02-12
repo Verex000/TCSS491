@@ -30,13 +30,64 @@ function onPlatform(theEntity) {
 
     for (let i = 0; i < platforms.length && !onPlat; i++) {
         var tile = platforms[i];
-        if (tile.y <= theEntity.y + theEntity.radius 
-            && tile.x + tile.radius > theEntity.x
-            && tile.x <= theEntity.x) {
-            onPlat = true;
-        }
+
+        if ((theEntity.y + theEntity.radius === tile.y)
+            && (theEntity.x <= tile.x + tile.radius 
+                && theEntity.x + theEntity.radius >= tile.x + tile.radius)) {
+                    onPlat = true;
+                }
+
+        // if (tile.y <= theEntity.y + theEntity.radius 
+        //     && tile.x + tile.radius > theEntity.x
+        //     && tile.x <= theEntity.x) {
+        //     onPlat = true;
+        // }
     }
     return onPlat;
+}
+
+function onPlatformWH(theEntity) {
+    onPlat = false;
+
+    for (let i = 0; i < platforms.length && !onPlat; i++) {
+        var tile = platforms[i];
+
+        if ((theEntity.y + theEntity.height === tile.y)
+            && (theEntity.x <= tile.x + tile.radius 
+                && theEntity.x + theEntity.width >= tile.x + tile.radius)) {
+                    onPlat = true;
+                }
+
+        // if (tile.y <= theEntity.y + theEntity.radius 
+        //     && tile.x + tile.radius > theEntity.x
+        //     && tile.x <= theEntity.x) {
+        //     onPlat = true;
+        // }
+    }
+    return onPlat;
+}
+
+// Check if a given entity collided with the MC
+function isCollided(game, theEntity) {
+    var mc = game.entities.Character;
+    if (theEntity.x < mc.x + mc.radius && theEntity.x + theEntity.radius > mc.x
+        && theEntity.y < mc.y + mc.radius && theEntity.y + theEntity.radius > mc.y) {
+            // console.log("collided with mc")
+            return true;
+        }
+    // console.log("did not collide");
+    return false;
+}
+
+function isCollidedWH(game, theEntity) {
+    var mc = game.entities.Character;
+    if (theEntity.x < mc.x + mc.radius && theEntity.x + theEntity.width > mc.x
+        && theEntity.y < mc.y + mc.radius && theEntity.y + theEntity.height > mc.y) {
+            // console.log("collided with mc")
+            return true;
+        }
+    // console.log("did not collide");
+    return false;
 }
 
 // End
@@ -157,6 +208,7 @@ function StartScreen(game, spritesheet) {
 StartScreen.prototype.draw = function () {
     this.ctx.drawImage(this.spritesheet,
                    this.x, this.y);
+
 };
 
 StartScreen.prototype.update = function () {
@@ -191,6 +243,8 @@ HealthBar.prototype.draw = function (ctx) {
 
 // #region Main Character
 function MainCharacter(game) {
+    this.game = game;
+
     this.walkAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 64, 64, 64, .1, 4, true, false);
     this.backWalkAnim= new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 0, 64, 64, .1, 4, true, false);
     this.attackBackAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 128, 64, 64, .1, 4, false, false);
@@ -249,19 +303,27 @@ MainCharacter.prototype.collideTrap = function() {
 
 MainCharacter.prototype.update = function () {
 
-    // detect collision for trapsd
+    // detect collision for traps
     if (this.collideTrap()) {
-        this.hp -= 1;
+        this.hp -= 2;
     }
 
     // fall if not on a platform
     if (!onPlatform(this)) {
         this.y += 3;
+    } else {
+        this.jumping = false;
     }
 
     // if fall off map, die
     if (this.y > 700) {
         this.hp = 0;
+        // this = null;
+    }
+
+    if (this.hp === 0) {
+        this.game.entities.push(new GameOverScreen(this.game));
+        // this = null;
     }
 
     if (this.game.space) {
@@ -425,10 +487,26 @@ function Spike(game) {
 Spike.prototype = new Entity();
 Spike.prototype.constructor = Spike;
 Spike.prototype.update = function() {
+    // var collidePlat = false;
     // fall if not on a platform
-    if (!onPlatform(this)) {
+    // for(var i = 0; i < platforms.length; i++) {
+    //     element = platforms[i];
+    //     collidePlat = (element.x < this.x + this.radius && element.x + element.radius > this.x
+    //         && element.y < this.y + this.radius && element.y + element.radius > this.y);
+    //     if (collidePlat) {
+    //         break;
+    //     }
+    // }
+
+    if (this.y < 670) {
         this.y += 5;
     }
+
+
+    // if (!onPlatform(this)) {
+    //     this.y += 3;
+    // }
+
     // if(this.y < 500) {
     //     this.y = this.y + 5;
     // }
@@ -482,7 +560,7 @@ Turkey.prototype.update = function() {
         }
     }
     // fall if not on a platform
-    if (!onPlatform(this)) {
+    if (onPlatform(this)) {
         this.y += 1;
     }
     Entity.prototype.update.call(this);
@@ -579,6 +657,8 @@ function Slime(game) {
     this.walkLeft = true;
     this.walkRight = false;
     this.jumpTime = 0;
+    this.game = game;
+    this.hp = 50;
     Entity.call(this, game, 300, 616);
 }
 
@@ -586,6 +666,23 @@ Slime.prototype = new Entity();
 Slime.prototype.constructor = Slime;
 
 Slime.prototype.update = function() {
+
+    // check for collision with mc
+    if (isCollided(this.game, this)) {
+        var mc = this.game.entities.Character;
+        if (mc.attack) {
+            // console.log("slime is attacked");
+            this.hp -= 5;
+        } else {
+            mc.hp -= 1;
+
+        }
+    }
+
+    if (this.hp <= 0) {
+        // console.log("sline hp :" + this.hp);
+        this.removeFromWorld = true;
+    }
     
     if(this.jumpTime >= 100) {
         this.jumping = true;
@@ -670,6 +767,8 @@ function Bat(game) {
     this.amplitude = 50;
     this.speed = 150;
     this.flyRight = true;
+    this.radius = 32;
+    this.hp = 50;
     Entity.call(this, game, 200, 400);
 }
 
@@ -677,6 +776,22 @@ Bat.prototype = new Entity();
 Bat.prototype.constructor = Bat;
 
 Bat.prototype.update = function () {
+
+    // check for collision with mc
+    if (isCollided(this.game, this)) {
+        var mc = this.game.entities.Character;
+        if (mc.attack) {
+            this.hp -= 5;
+        } else {
+            mc.hp -= 1;
+
+        }
+    }
+
+    if (this.hp <= 0) {
+        this.removeFromWorld = true;
+    }
+
     if(this.flyLeft) {
         //fly left
         this.x -= this.game.clockTick * this.speed;
@@ -722,6 +837,7 @@ function Skeleton(game) {
     this.speed = 80;
     this.radius = 55;
     this.ground = 605;
+    this.hp = 50;
     Entity.call(this, game, 300, this.ground);
 }
 Skeleton.prototype = new Entity();
@@ -733,7 +849,24 @@ Skeleton.prototype.update = function() {
         this.y += 1;
     }
 
-    if(this.attackTime >= 100) {
+    // check for collision with mc
+    if (isCollided(this.game, this)) {
+        var mc = this.game.entities.Character;
+        if (mc.attack) {
+            // console.log("skeleton is attacked");
+            this.hp -= 5;
+        } else {
+            mc.hp -= 1;
+
+        }
+    }
+
+    // if dead, remove from world
+    if (this.hp <= 0) {
+        this.removeFromWorld = true;
+    }
+
+    if (this.attackTime >= 100) {
         this.attacking = true;
     }
     if(this.attacking) {
@@ -900,8 +1033,10 @@ function AttackWolf(game, theX) {
     this.attackBack = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 240, 88, 60, .1, 9, false, false);
     this.attack = false;
     this.back = false;
-    this.radius = 60;
-    Entity.call(this, game, theX, 595);
+    this.width = 88;
+    this.height = 60;
+    this.hp = 90;
+    Entity.call(this, game, theX, 580);
 }
 
 AttackWolf.prototype = new Entity();
@@ -909,8 +1044,25 @@ AttackWolf.prototype.constructor = AttackWolf;
 
 AttackWolf.prototype.update = function () {
     // fall if not on a platform
-    if (!onPlatform(this)) {
+    if (!onPlatformWH(this)) {
         this.y += 1;
+    }
+
+        // check for collision with mc
+    if (isCollidedWH(this.game, this)) {
+        var mc = this.game.entities.Character;
+        if (mc.attack) {
+            // console.log("wolf is attacked");
+            this.hp -= 5;
+        } else {
+            mc.hp -= 1;
+
+        }
+    }
+
+    // if dead, remove from world
+    if (this.hp <= 0) {
+        this.removeFromWorld = true;
     }
 
     if(this.x > 600) {
@@ -969,6 +1121,9 @@ function Nightmare(game, theX, backbool) {
     this.idle = true;
     this.back = backbool;
     this.radius = 96;
+    this.width = 144;
+    this.height = 96;
+    this.hp = 100;
     Entity.call(this, game, theX, 560);
 }
 
@@ -977,8 +1132,24 @@ Nightmare.prototype.constructor = Nightmare;
 
 Nightmare.prototype.update = function () {
     // fall if not on a platform
-    if (!onPlatform(this)) {
+    if (!onPlatformWH(this)) {
         this.y += 1;
+    }
+
+    // check for collision with mc
+    if (isCollidedWH(this.game, this)) {
+        var mc = this.game.entities.Character;
+        if (mc.attack) {
+            // console.log("nightmare is attacked");
+            this.hp -= 5;
+        } else {
+            mc.hp -= 1;
+
+        }
+    }
+
+    if (this.hp <= 0) {
+        this.removeFromWorld = true;
     }
 
     if(this.x < 50) {
@@ -1033,10 +1204,30 @@ function Ghost(game, theX, theY) {
     this.disappear = false;
     this.idle = false;
     this.scare = false;
-    Entity.call(this, game, theX, theY   );
+    this.hp = 10;
+    this.width = 64;
+    this.height = 48;
+    Entity.call(this, game, theX, theY);
 }
 
 Ghost.prototype.update = function() {
+
+    // check for collision with mc
+    if (isCollidedWH(this.game, this)) {
+        var mc = this.game.entities.Character;
+        if (mc.attack) {
+            // console.log("wolf is attacked");
+            this.hp -= 5;
+        } else {
+            mc.hp -= 1;
+
+        }
+    }
+
+    if (this.hp <= 0) {
+        this.removeFromWorld = true;
+    }
+
     if (this.appearA.isDone()) {
         this.appearA.elapsedTime = 0;
         this.appear = false;
@@ -1095,16 +1286,17 @@ function Platform(game, theX, theY, tilePiece) {
 
     switch(tilePiece) {
         case 1:
-        this.tileAnim = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 32, 1, 1, true, false);
+        this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 32, 1, 1, true, false);
         break;
 
         case 2:
-        this.tileAnim = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 16, 1, 1, true, false);
+        this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 16, 1, 1, true, false);
         break;
     }
     
     Entity.call(this, game, theX, theY);
 }
+
 Platform.prototype = new Entity();
 Platform.prototype.constructor = Platform;
 
@@ -1113,16 +1305,106 @@ Platform.prototype.update = function() {
 }
 
 Platform.prototype.draw = function(ctx) {
-    this.tileAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 }
 // END PLATFORM
 
 
+function MapLevel(game) {
+    this.game = game;
+    Entity.call(this, game, 0, 0);
+    this.map = new Array(32);
+
+    for (var i = 0; i < 32; i++) {
+        this.map[i] = new Array(24);
+    }
+    this.sprites = new Array(2);
+
+    var testMap =   [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // right --->>>
+                     [1,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1],
+                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                     [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+
+    this.map = testMap;
+
+    this.sprites[0] = null;
+    this.sprites[1] = ASSET_MANAGER.getAsset("./img/tileBrickGreen.png");
+}
+
+MapLevel.prototype = new Entity();
+MapLevel.prototype.constructor = MapLevel;
+
+MapLevel.prototype.update = function() {
+    Entity.prototype.update.call(this);
+}
+
+MapLevel.prototype.draw = function (ctx) {
+    for (var i = 0; i < 24; i++) {
+        for (var j = 0; j < 32; j++) {
+            // check if sprite is null, if not, draw it
+            var sprite = this.sprites[this.map[j][i]];
+            if (sprite) {
+                // (sprite tile, x, y)
+                ctx.drawImage(sprite, i * 32 - this.game.camera.x, j * 32 - this.game.camera.y);
+                platforms.push(new Platform(this.game, i * 32 - this.game.camera.x, j * 32 - this.game.camera.y));
+            }
+        }
+    }
+    // Entity.prototype.draw.call(this);
+}
+
+function GameOverScreen(game) {
+    this.x = 0;
+    this.y = 0;
+    this.game = game;
+    this.ctx = game.ctx;
+};
+
+GameOverScreen.prototype.draw = function () {
+    this.game.pause = true;
+    this.ctx.fillStyle = "rgba(0, 0, 200, 0.7)";
+    this.ctx.fillRect(0, 0, 1200, 700);
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "100px Arial";
+    this.ctx.fillText("Game Over", 330, 350);
+};
+
+GameOverScreen.prototype.update = function () {
+};
 
 
 // the "main" code begins here
 // #region Main
+
 var ASSET_MANAGER = new AssetManager();
 
 // Queue all assets used in game:
@@ -1147,14 +1429,17 @@ ASSET_MANAGER.queueDownload("./img/tiles_32x32.png");
 ASSET_MANAGER.queueDownload("./img/brickSmall.png");
 ASSET_MANAGER.queueDownload("./img/brickMed.png");
 ASSET_MANAGER.queueDownload("./img/dirt_tiles.png");
+ASSET_MANAGER.queueDownload("./img/tileBrickGreen.png");
+
 
 // Download all assests before starting game
 ASSET_MANAGER.downloadAll(function () {
+
     console.log("starting up da sheild");
     var canvas = document.getElementById('gameWorld');
     var ctx = canvas.getContext('2d');
-
     var gameEngine = new GameEngine();
+
     gameEngine.init(ctx);
     gameEngine.start();
     gameEngine.addEntity(new StartScreen(gameEngine, ASSET_MANAGER.getAsset("./img/startScreen.png")));

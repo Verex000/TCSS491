@@ -4,8 +4,8 @@ var bgMusic = new Audio("./MoonlightTemptation.mp3");
 
 // # All traps, items, enemies
 var traps = [];
-var items = [];
-var enemies = [];
+// var items = [];
+// var enemies = [];
 var platforms = [];
 
 window.requestAnimFrame = (function () {
@@ -53,6 +53,7 @@ function GameEngine() {
     this.surfaceHeight = null;
     this.count = 0;
     this.music = false;
+    this.pause =false;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -85,7 +86,7 @@ GameEngine.prototype.startInput = function () {
             bgMusic.play();
             that.camera = new Camera();
 
-            // that.entities = [];
+            that.entities = [];
             var bg = new Background(that);
             var maincharacter = new MainCharacter(that);
             var healthbar = new HealthBar(that);
@@ -101,7 +102,10 @@ GameEngine.prototype.startInput = function () {
             var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
 
+            var map = new MapLevel(that);
+
             that.addEntity(bg);
+            that.addEntity(map);
             that.addEntity(healthbar);
 
             var plat = new Platform(that, 0, 668, 1);
@@ -116,21 +120,21 @@ GameEngine.prototype.startInput = function () {
             }
 
             for (var i = 1; i * 32 <= 608; i++) {
-                plat = new Platform(that, (32 * i) + 1312, 668, 1);
+                plat = new Platform(that, (32 * i) + 1376, 668, 1);
                 that.addEntity(plat);
                 platforms.push(plat);
             }
 
-            // Add level 1 platform
+            // // Add level 1 platform
             // for (var i = 1; i < 5; i++) {
             //     plat = new Platform(that, 32 * i, 636, 1);    // testing
             //     that.addEntity(plat);
             //     platforms.push(plat);
             // }
 
-            // Add level 2 platform
 
             that.entities.Character = maincharacter;
+            // that.addEntity(maincharacter);
             that.addEntity(slime);
             that.addEntity(turkey);
             that.addEntity(turkey2);
@@ -248,6 +252,20 @@ GameEngine.prototype.startInput = function () {
         e.preventDefault();
     }, false);
 
+    this.ctx.canvas.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+            console.log("paused")
+            that.togglePlay();
+            e.preventDefault();
+        }
+    }, false);
+}
+
+/**
+ * Toggle the play/pause feature when the play clicks the ESCAPE key.
+ */
+GameEngine.prototype.togglePlay = function () {
+    this.pause = !(this.pause);
 }
 
 GameEngine.prototype.addEntity = function (entity) {
@@ -267,30 +285,32 @@ GameEngine.prototype.draw = function () {
 }
 
 GameEngine.prototype.update = function () {
-    var entitiesCount = this.entities.length;
-    if(this.entities.Character != null) {
-        this.entities.Character.update();
-    }
-    for (var i = 0; i < entitiesCount; i++) {
-        var entity = this.entities[i];
-
-        if (!entity.removeFromWorld) {
-            entity.update();
+        var entitiesCount = this.entities.length;
+        if(this.entities.Character != null) {
+            this.entities.Character.update();
         }
-    }
-
-    for (var i = this.entities.length - 1; i >= 0; --i) {
-        if (this.entities[i].removeFromWorld) {
-            this.entities.splice(i, 1);
+        for (var i = 0; i < entitiesCount; i++) {
+            var entity = this.entities[i];
+    
+            if (!entity.removeFromWorld) {
+                entity.update();
+            }
         }
-    }
+    
+        for (var i = this.entities.length - 1; i >= 0; --i) {
+            if (this.entities[i].removeFromWorld) {
+                this.entities.splice(i, 1);
+            }
+        }
 }
 
 GameEngine.prototype.loop = function () {
-    this.clockTick = this.timer.tick();
-    this.update();
-    this.draw();
-    this.space = null;
+    if (!this.pause) {
+        this.clockTick = this.timer.tick();
+        this.update();
+        this.draw();
+        this.space = null;
+    }
 }
 
 function Entity(game, x, y) {
