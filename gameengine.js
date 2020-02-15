@@ -6,7 +6,6 @@ var bgMusic = new Audio("./MoonlightTemptation.mp3");
 var traps = [];
 // var items = [];
 // var enemies = [];
-var platforms = [];
 
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
@@ -48,6 +47,7 @@ function GameEngine() {
     this.l = null;
     this.p = null;
     this.camera = null;
+    this.platforms = [];
     this.space = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -88,7 +88,6 @@ GameEngine.prototype.startInput = function () {
 
             that.entities = [];
             var bg = new Background(that);
-            var maincharacter = new MainCharacter(that);
             var healthbar = new HealthBar(that);
             var slime = new Slime(that);
             var turkey = new Turkey(that, 200, 620);
@@ -109,42 +108,40 @@ GameEngine.prototype.startInput = function () {
 
             var plat = new Platform(that, 0, 668, 1);
             that.addEntity(plat);
-            platforms.push(plat);
+            that.platforms.push(plat);
 
-            // Add floor level 0 platform
-            for (var i = 1; i * 32 <= 1216; i++) {
-                plat = new Platform(that, 32 * i, 668, 1);
-                that.addEntity(plat);
-                platforms.push(plat);
-            }
+            // // Add floor level 0 platform
+            // for (var i = 1; i * 32 <= 1216; i++) {
+            //     plat = new Platform(that, 32 * i, 668, 1);
+            //     that.platforms.push(plat);
+            // }
 
-            for (var i = 1; i * 32 <= 608; i++) {
-                plat = new Platform(that, (32 * i) + 1376, 668, 1);
-                that.addEntity(plat);
-                platforms.push(plat);
-            }
+            // for (var i = 1; i * 32 <= 608; i++) {
+            //     plat = new Platform(that, (32 * i) + 1376, 668, 1);
+            //     that.platforms.push(plat);
+            // }
 
             // // Add level 1 platform
             // for (var i = 1; i < 5; i++) {
             //     plat = new Platform(that, 32 * i, 636, 1);    // testing
             //     that.addEntity(plat);
-            //     platforms.push(plat);
+            //     this.game.platforms.push(plat);
             // }
 
-
+            var maincharacter = new MainCharacter(that);
             that.entities.Character = maincharacter;
             // that.addEntity(maincharacter);
             that.addEntity(slime);
-            that.addEntity(turkey);
-            that.addEntity(turkey2);
-            that.addEntity(spike); 
-            that.addEntity(dino);
-            that.addEntity(bat);
-            that.addEntity(skeleton);
-            that.addEntity(chest);  
-            that.addEntity(nightmare);
-            that.addEntity(ghost);
-            that.addEntity(attackWolf);
+            // that.addEntity(turkey);
+            // that.addEntity(turkey2);
+            // that.addEntity(spike); 
+            // that.addEntity(dino);
+            // that.addEntity(bat);
+            // that.addEntity(skeleton);
+            // that.addEntity(chest);  
+            // that.addEntity(nightmare);
+            // that.addEntity(ghost);
+            // that.addEntity(attackWolf);
 
             traps.push(spike);
         }
@@ -280,6 +277,10 @@ GameEngine.prototype.draw = function () {
     if(this.entities.Character != null) {
         this.entities.Character.draw(this.ctx);
     }
+    for(var x = 0; x < this.platforms.length; x++) {
+        var plat = this.platforms[x];
+        this.platforms[x].draw(this.ctx);
+    }
     this.ctx.restore();
 }
 
@@ -293,6 +294,12 @@ GameEngine.prototype.update = function () {
     
             if (!entity.removeFromWorld) {
                 entity.update();
+            }
+        }
+        for(var x = 0; x < this.platforms.length; x++) {
+            var plat = this.platforms[x];
+            if(!plat.removeFromWorld) {
+                plat.update();
             }
         }
     
