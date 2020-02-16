@@ -90,23 +90,21 @@ function isCollidedWH(game, theEntity) {
     return false;
 }
 
+/**
+ * Check if 2 objects collide with each other.
+ * 
+ * @param object1 an object with height and width
+ * @param object2 an object with height and width
+ */
+function collided(object1, object2) {
+    return (object1.x < object2.x + object2.width && 
+        object1.x + object1.width > object2.x && 
+        object1.y < object2.y + object2.height && 
+        object1.y + object1.height > object2.y);
+}
+
 // End
 
-function Camera() {
-    this.x = 0;
-    this.y = 0;
-}
-
-Camera.prototype.update = function(characterX, characterY) {
-    if(characterX > 640) {
-        this.x = characterX - 640;
-        this.y = characterY;
-    }
-    else{
-        this.x = 0;
-        this.y = 0;
-    }
-}
 // #region Animation
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
     this.spriteSheet = spriteSheet;
@@ -162,40 +160,6 @@ Animation.prototype.isDone = function () {
     return (this.elapsedTime >= this.totalTime);
 }
 // #endregion
-
-// Dialog section
-// function DialogPane(ctx) {
-//     ctx.fillStyle = "white";
-//     ctx.font = "20px Verdana"
-//     ctx.fillText("Health : ");
-//     Entity.prototype.draw.call(this);
-// }
-
-// DialogPane.prototype.update = function () {
-// }
-
-
-// end dialog section
-
-// function Background(game) {
-//     Entity.call(this, game, 0, 400);
-//     this.radius = 200;
-// }
-
-
-// // #region Background
-// Background.prototype = new Entity();
-// Background.prototype.constructor = Background;
-
-// Background.prototype.update = function () {
-// }
-
-// Background.prototype.draw = function (ctx) {
-//     ctx.fillStyle = "ForestGreen";
-//     ctx.fillRect(0,500,1200,300);
-//     Entity.prototype.draw.call(this);
-// }
-// // #endregion 
 
 // Begin background
 function Background(game) {
@@ -256,23 +220,6 @@ HealthBar.prototype.draw = function (ctx) {
     Entity.prototype.draw.call(this);
 }
 // #endregion
-function Platform(game, theX, theY) {
-    this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 32, 1, 1, true, false);
-    Entity.call(this, game, theX, theY);
-}
-
-
-Platform.prototype = new Entity();
-Platform.prototype.constructor = Platform;
-
-Platform.prototype.update = function () {
-    Entity.prototype.update.call(this);
-}
-
-Platform.prototype.draw = function(ctx) {
-    this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    Entity.prototype.draw.call(this);
-}
 
 // #region Main Character
 function MainCharacter(game) {
@@ -280,8 +227,8 @@ function MainCharacter(game) {
 
     this.walkAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 64, 64, 64, .1, 4, true, false);
     this.backWalkAnim= new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 0, 64, 64, .1, 4, true, false);
-    this.attackBackAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 128, 64, 64, .1, 4, false, false);
-    this.attackForwardAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 192, 64, 64, .1, 4, false, false);
+    this.attackBackAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc_attack88x68.png"), 0, 68, 88, 68, .1, 4, false, true);
+    this.attackForwardAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc_attack88x68.png"), 0, 0, 88, 68, .1, 4, false, false);
     this.idleBackAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 0, 64, 64, .1, 1, true, false);
     this.idleAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 64, 64, 64, .1, 1, true, false);
     this.jumpForward = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 320, 64, 64, .2, 4, false, false);
@@ -293,48 +240,77 @@ function MainCharacter(game) {
     this.stand = true;
     this.back = false;
     this.attack = false;
-    // this.falling = false;
 
     this.maxHP = 100;
     this.hp = 100;
     this.radius = 64;
     this.ground = 592;
-    // this.x = 0;
-    // this.y = 590;
+    this.x = 0;
+    this.y = 592;
+    this.width = 40;
+    this.height = 64;
+
+    this.mainHit = {
+        x : this.x + 24,
+        y : this.y,
+        width : 22,
+        height : 60
+    };
+
+    this.hitboxFront = {
+        x : this.x + this.width, 
+        y : this.y,
+        width : 46,
+        height : 64
+    };
+
+    this.hitboxBack = {
+        x : this.x - 24, 
+        y : this.y,
+        width : 46,
+        height : 64
+    }
+
     Entity.call(this, game, 0, this.ground);
 }
+
+
 
 MainCharacter.prototype = new Entity();
 MainCharacter.prototype.constructor = MainCharacter;
 
-// Character will get damaged if he collide with a trap (except when has fallen to the ground.)
+// Character will get damaged if he collide with a trap (except when has fallen to the ground).
 MainCharacter.prototype.collideTrap = function() {
     var trapRadius = traps[0].radius;
             // top collision
     return (traps[0].y + trapRadius >= this.y && traps[0].y + trapRadius <= this.y + this.radius)
             // left & right collision
-            && ((traps[0].x + trapRadius <= this.x + this.radius
-                && traps[0].x + trapRadius >= this.x) || (traps[0].x >= this.x
-                && traps[0].x <= this.x + this.radius));
-            // && ((traps[0].x + trapRadius >= this.x + this.radius
-            //     && traps[0].x <= this.x + this.radius) || (traps[0].x + trapRadius >= this.x
-            //     && traps[0].x <= this.x));
+            && ((traps[0].x + trapRadius <= this.x + this.radius && traps[0].x + trapRadius >= this.x) 
+                || (traps[0].x >= this.x && traps[0].x <= this.x + this.radius));
 }
 
-// MainCharacter.prototype.onPlatform = function () {
-//     onPlat = false;
-
-//     for (let i = 0; i < platforms.length && !onPlat; i++) {
-//         var tile = platforms[i];
-//         if (tile.y <= this.y + this.radius && tile.x + tile.radius > this.x
-//             && tile.x <= this.x) {
-//             onPlat = true;
-//         }
-//     }
-//     return onPlat;
-// }
-
 MainCharacter.prototype.update = function () {
+
+    this.mainHit = {
+        x : this.x + 24 - this.game.camera.x,
+        y : this.y - this.game.camera.y,
+        width : 22,
+        height : 60
+    };
+
+    this.hitboxFront = {
+        x : this.x + this.width - this.game.camera.x, 
+        y :this.y - this.game.camera.y,
+        width : 46,
+        height : 64
+    };
+
+    this.hitboxBack = {
+        x : this.x - 24 - this.game.camera.x, 
+        y :this.y - this.game.camera.y,
+        width : 46,
+        height : 64
+    }
 
     // detect collision for traps
     if (this.collideTrap()) {
@@ -351,12 +327,10 @@ MainCharacter.prototype.update = function () {
     // if fall off map, die
     if (this.y > 700) {
         this.hp = 0;
-        // this = null;
     }
 
-    if (this.hp === 0) {
+    if (this.hp <= 0) {
         this.game.entities.push(new GameOverScreen(this.game));
-        // this = null;
     }
 
     if (this.game.space) {
@@ -445,18 +419,17 @@ MainCharacter.prototype.update = function () {
     if(this.x < 0) {
         this.x = 0;
     }
-    if(this.game.camera) {
-        this.game.camera.update(this.x, 0);
-    }
-
-    if(this.x < 0) {
-        this.x = 0;
-    }
 
     Entity.prototype.update.call(this);
 }
 
 MainCharacter.prototype.draw = function (ctx) {
+    // for testing main hit box
+    ctx.strokeStyle = "white";
+    ctx.beginPath();
+    ctx.rect(this.mainHit.x, this.y, this.mainHit.width, this.mainHit.height);
+    ctx.stroke();
+
     if (this.jumping && !this.back) {
         this.jumpForward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
@@ -464,10 +437,16 @@ MainCharacter.prototype.draw = function (ctx) {
         this.jumpBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.attack && this.back) {
-        this.attackBackAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        var box = this.hitboxBack;
+        ctx.fillStyle = "blue";
+        ctx.fillRect(box.x, box.y, box.width, box.height);
+        this.attackBackAnim.drawFrame(this.game.clockTick, ctx, this.x - 24 - this.game.camera.x, this.y - 2 - this.game.camera.y);
     }
     else if(this.attack && !this.back) {
-        this.attackForwardAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+            var box = this.hitboxFront;
+            ctx.fillStyle = "red";
+            ctx.fillRect(box.x, box.y, box.width, box.height);
+        this.attackForwardAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - 2 - this.game.camera.y);
     }
     else if(this.stand == false && this.back == false) {
         this.walkAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
@@ -541,15 +520,6 @@ Spike.prototype.update = function() {
     if (this.y < 670) {
         this.y += 5;
     }
-
-
-    // if (!onPlatform(this)) {
-    //     this.y += 3;
-    // }
-
-    // if(this.y < 500) {
-    //     this.y = this.y + 5;
-    // }
     Entity.prototype.update.call(this);
 }
 
@@ -699,6 +669,8 @@ function Slime(game) {
     this.jumpTime = 0;
     this.game = game;
     this.hp = 50;
+    this.width = 36;
+    this.height = 20;
     Entity.call(this, game, 300, 616);
 }
 
@@ -706,21 +678,26 @@ Slime.prototype = new Entity();
 Slime.prototype.constructor = Slime;
 
 Slime.prototype.update = function() {
+    var mc = this.game.entities.Character;
 
     // check for collision with mc
-    if (isCollided(this.game, this)) {
-        var mc = this.game.entities.Character;
-        if (mc.attack) {
-            // console.log("slime is attacked");
-            this.hp -= 5;
+    if (collided(mc.mainHit, this)) {
+        mc.hp -= 1;
+        if (mc.back) {
+            mc.x += 15;
         } else {
-            mc.hp -= 1;
-
+            mc.x -= 15;
         }
     }
 
+    if (mc.attack) {
+        if (collided(mc.hitboxBack, this) || collided(mc.hitboxFront, this)) {
+        this.hp -= 5;
+        }
+    }
+
+
     if (this.hp <= 0) {
-        // console.log("sline hp :" + this.hp);
         this.removeFromWorld = true;
     }
     
@@ -809,6 +786,8 @@ function Bat(game) {
     this.flyRight = true;
     this.radius = 32;
     this.hp = 50;
+    this.width = 30;
+    this.height = 30;
     Entity.call(this, game, 200, 400);
 }
 
@@ -816,15 +795,21 @@ Bat.prototype = new Entity();
 Bat.prototype.constructor = Bat;
 
 Bat.prototype.update = function () {
+    var mc = this.game.entities.Character;
 
     // check for collision with mc
-    if (isCollided(this.game, this)) {
-        var mc = this.game.entities.Character;
-        if (mc.attack) {
-            this.hp -= 5;
+    if (collided(mc.mainHit, this)) {
+        mc.hp -= 1;
+        if (mc.back) {
+            mc.x += 15;
         } else {
-            mc.hp -= 1;
+            mc.x -= 15;
+        }
+    }
 
+    if (mc.attack) {
+        if (collided(mc.hitboxBack, this) || collided(mc.hitboxFront, this)) {
+        this.hp -= 1;
         }
     }
 
@@ -878,6 +863,8 @@ function Skeleton(game) {
     this.radius = 55;
     this.ground = 605;
     this.hp = 50;
+    this.width = 20;
+    this.height = 64;
     Entity.call(this, game, 300, this.ground);
 }
 Skeleton.prototype = new Entity();
@@ -890,14 +877,21 @@ Skeleton.prototype.update = function() {
     }
 
     // check for collision with mc
-    if (isCollided(this.game, this)) {
-        var mc = this.game.entities.Character;
-        if (mc.attack) {
-            // console.log("skeleton is attacked");
-            this.hp -= 5;
-        } else {
-            mc.hp -= 1;
+    var mc = this.game.entities.Character;
 
+    // check for collision with mc
+    if (collided(mc.mainHit, this)) {
+        mc.hp -= 1;
+        if (mc.back) {
+            mc.x += 15;
+        } else {
+            mc.x -= 15;
+        }
+    }
+
+    if (mc.attack) {
+        if (collided(mc.hitboxBack, this) || collided(mc.hitboxFront, this)) {
+        this.hp -= 1;
         }
     }
 
@@ -1077,7 +1071,6 @@ function AttackWolf(game, theX) {
     this.height = 60;
     this.hp = 90;
     Entity.call(this, game, theX, 580);
-    Entity.call(this, game, theX, 450);
 }
 
 AttackWolf.prototype = new Entity();
@@ -1089,15 +1082,21 @@ AttackWolf.prototype.update = function () {
         this.y += 1;
     }
 
-        // check for collision with mc
-    if (isCollidedWH(this.game, this)) {
-        var mc = this.game.entities.Character;
-        if (mc.attack) {
-            // console.log("wolf is attacked");
-            this.hp -= 5;
-        } else {
-            mc.hp -= 1;
+    var mc = this.game.entities.Character;
 
+    // check for collision with mc
+    if (collided(mc.mainHit, this)) {
+        mc.hp -= 1;
+        if (mc.back) {
+            mc.x += 15;
+        } else {
+            mc.x -= 15;
+        }
+    }
+
+    if (mc.attack) {
+        if (collided(mc.hitboxBack, this) || collided(mc.hitboxFront, this)) {
+        this.hp -= 1;
         }
     }
 
@@ -1105,6 +1104,7 @@ AttackWolf.prototype.update = function () {
     if (this.hp <= 0) {
         this.removeFromWorld = true;
     }
+
     if(this.x > 600) {
         this.back = true;
         this.attack = true;
@@ -1176,15 +1176,20 @@ Nightmare.prototype.update = function () {
         this.y += 1;
     }
 
+    var mc = this.game.entities.Character;
     // check for collision with mc
-    if (isCollidedWH(this.game, this)) {
-        var mc = this.game.entities.Character;
-        if (mc.attack) {
-            // console.log("nightmare is attacked");
-            this.hp -= 5;
+    if (collided(mc.mainHit, this)) {
+        mc.hp -= 1;
+        if (mc.back) {
+            mc.x += 15;
         } else {
-            mc.hp -= 1;
+            mc.x -= 15;
+        }
+    }
 
+    if (mc.attack) {
+        if (collided(mc.hitboxBack, this) || collided(mc.hitboxFront, this)) {
+        this.hp -= 1;
         }
     }
 
@@ -1252,15 +1257,20 @@ function Ghost(game, theX, theY) {
 
 Ghost.prototype.update = function() {
 
+    var mc = this.game.entities.Character;
     // check for collision with mc
-    if (isCollidedWH(this.game, this)) {
-        var mc = this.game.entities.Character;
-        if (mc.attack) {
-            // console.log("wolf is attacked");
-            this.hp -= 5;
+    if (collided(mc.mainHit, this)) {
+        mc.hp -= 1;
+        if (mc.back) {
+            mc.x += 15;
         } else {
-            mc.hp -= 1;
+            mc.x -= 15;
+        }
+    }
 
+    if (mc.attack) {
+        if (collided(mc.hitboxBack, this) || collided(mc.hitboxFront, this)) {
+        this.hp -= 1;
         }
     }
 
@@ -1268,10 +1278,6 @@ Ghost.prototype.update = function() {
         this.removeFromWorld = true;
     }
 
-    Entity.call(this, game, theX, theY);
-}
-
-Ghost.prototype.update = function() {
     if (this.appearA.isDone()) {
         this.appearA.elapsedTime = 0;
         this.appear = false;
@@ -1334,7 +1340,7 @@ function Platform(game, theX, theY, tilePiece) {
         break;
 
         case 2:
-        this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 16, 1, 1, true, false);
+        // this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 16, 1, 1, true, false);
         break;
     }
     
@@ -1445,6 +1451,7 @@ GameOverScreen.prototype.draw = function () {
 GameOverScreen.prototype.update = function () {
 };
 
+
 // the "main" code begins here
 // #region Main
 
@@ -1466,7 +1473,6 @@ ASSET_MANAGER.queueDownload("./img/chest.png");
 ASSET_MANAGER.queueDownload("./img/ghost.png");
 ASSET_MANAGER.queueDownload("./img/nightmare.png");
 ASSET_MANAGER.queueDownload("./img/wolfsheet.png");
-ASSET_MANAGER.queueDownload("./img/brickMed.png");
 ASSET_MANAGER.queueDownload("./img/skeleton.png");
 ASSET_MANAGER.queueDownload("./img/brickBG_1200x700.png");
 ASSET_MANAGER.queueDownload("./img/tiles_32x32.png");
@@ -1474,6 +1480,7 @@ ASSET_MANAGER.queueDownload("./img/brickSmall.png");
 ASSET_MANAGER.queueDownload("./img/brickMed.png");
 ASSET_MANAGER.queueDownload("./img/dirt_tiles.png");
 ASSET_MANAGER.queueDownload("./img/tileBrickGreen.png");
+ASSET_MANAGER.queueDownload("./img/mc_attack88x68.png");
 
 
 // Download all assests before starting game
@@ -1487,22 +1494,5 @@ ASSET_MANAGER.downloadAll(function () {
     gameEngine.init(ctx);
     gameEngine.start();
     gameEngine.addEntity(new StartScreen(gameEngine, ASSET_MANAGER.getAsset("./img/startScreen.png")));
-
-    // var gameEngine = new GameEngine();
-    // var bg = new Background(gameEngine);
-    // var maincharacter = new MainCharacter(gameEngine);
-    // var healthbar = new HealthBar(gameEngine);
-	// var slime = new Slime(gameEngine);
-	// var turkey = new Turkey(gameEngine);
-	// var spike = new Spike(gameEngine);
-
-
-    // gameEngine.addEntity(bg);
-    // gameEngine.addEntity(healthbar);
-    // gameEngine.entities.Character = maincharacter;
-	// gameEngine.addEntity(slime);
-	// gameEngine.addEntity(turkey);
-	// gameEngine.addEntity(spike);
- 
 });
 // #endregion

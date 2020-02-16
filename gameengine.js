@@ -103,6 +103,7 @@ GameEngine.prototype.startInput = function () {
             var attackWolf = new AttackWolf(that, 200);
 
             var map = new MapLevel(that);
+
             that.addEntity(bg);
             that.addEntity(map);
             that.addEntity(healthbar);
@@ -124,16 +125,7 @@ GameEngine.prototype.startInput = function () {
                 platforms.push(plat);
             }
 
-            // // Add level 1 platform
-            // for (var i = 1; i < 5; i++) {
-            //     plat = new Platform(that, 32 * i, 636, 1);    // testing
-            //     that.addEntity(plat);
-            //     platforms.push(plat);
-            // }
-
-
             that.entities.Character = maincharacter;
-            // that.addEntity(maincharacter);
             that.addEntity(slime);
             that.addEntity(turkey);
             that.addEntity(turkey2);
