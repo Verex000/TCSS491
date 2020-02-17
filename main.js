@@ -269,6 +269,7 @@ function Platform(game, theX, theY) {
     this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 32, 1, 1, true, false);
     Entity.call(this, game, theX, theY);
     this.platform = true;
+    this.collideBottom = false;
     this.boundingbox = new BoundingBox(theX,theY,32,32);
 }
 
@@ -290,6 +291,7 @@ function Wall(game, theX, theY) {
     Entity.call(this, game, theX, theY);
     this.platform = false;
     this.wall = true;
+    this.collideBottom = false;
     this.boundingbox = new BoundingBox(theX,theY,32,32);
 }
 
@@ -305,11 +307,12 @@ Wall.prototype.draw = function(ctx) {
     Entity.prototype.draw.call(this);
 }
 
-function WallPlatform(game, theX, theY) {
+function WallPlatform(game, theX, theY, collideBot, isPlatform) {
     this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 32, 1, 1, true, false);
     Entity.call(this, game, theX, theY);
-    this.platform = true;
+    this.platform = isPlatform;
     this.wall = true;
+    this.collideBottom = collideBot;
     this.boundingbox = new BoundingBox(theX,theY,32,32);
 }
 
@@ -324,6 +327,7 @@ WallPlatform.prototype.draw = function(ctx) {
     this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 }
+
 // #region Main Character
 function MainCharacter(game) {
     this.game = game;
@@ -355,7 +359,7 @@ function MainCharacter(game) {
     this.platform = this.game.platforms[0];
     this.checkPoint = {x: 50, y: 544};
     
-    this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
+    this.boundingbox = new BoundingBox(this.x+10, this.y, 44,64);
     // this.x = 0;
     // this.y = 590;
     Entity.call(this, game, 50, 544);
@@ -392,7 +396,7 @@ MainCharacter.prototype.collideTrap = function() {
 // }
 
 MainCharacter.prototype.update = function () {
-    this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
+    this.boundingbox = new BoundingBox(this.x+10, this.y, 44,64);
     // detect collision for traps
     if (this.collideTrap()) {
         this.hp -= 2;
@@ -465,7 +469,7 @@ MainCharacter.prototype.update = function () {
         var height = (4 * duration - 4 * duration * duration) * this.jumpHeight;
         this.y = this.base - height;
         this.lastbottom = this.boundingbox.bottom;
-        this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
+        this.boundingbox = new BoundingBox(this.x+10, this.y, 44,64);
         for(var z = 0; z < this.game.platforms.length; z++) {
             var pf = this.game.platforms[z];
             if(pf.platform && this.boundingbox.collide(pf.boundingbox) && this.lastbottom < pf.boundingbox.top)  {
@@ -475,7 +479,7 @@ MainCharacter.prototype.update = function () {
                 this.jumpForward.elapsedTime = 0;
                 this.jumpBackward.elapsedTime = 0;
                 console.log("collide on top");
-                this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
+                this.boundingbox = new BoundingBox(this.x+10, this.y, 44,64);
             }
         }
         
@@ -483,7 +487,7 @@ MainCharacter.prototype.update = function () {
     if(this.falling) {
         this.y += (this.game.clockTick / this.fallForward.totalTime * 4 * this.jumpHeight);
         this.lastbottom = this.boundingbox.bottom;
-        this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
+        this.boundingbox = new BoundingBox(this.x+10, this.y, 44,64);
         for (var i = 0; i < this.game.platforms.length; i++) {
             var pf = this.game.platforms[i];
             if (pf.platform && this.boundingbox.collide(pf.boundingbox) && this.lastbottom - 60 < pf.boundingbox.top) {
@@ -493,7 +497,7 @@ MainCharacter.prototype.update = function () {
                 this.fallForward.elapsedTime = 0;
                 this.fallBackward.elapsedTime = 0;
                 console.log(this.platform.x + "    " + this.platform.y);
-                this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
+                this.boundingbox = new BoundingBox(this.x+10, this.y, 44,64);
             }
         }
 
@@ -505,10 +509,19 @@ MainCharacter.prototype.update = function () {
         }
     }
     if(this.attack) {
+        if(this.attackForwardAnim.elapsedTime > this.attackBackAnim.elapsedTime) {
+            this.attackBackAnim.elapsedTime = this.attackForwardAnim.elapsedTime;
+        }
+        else {
+            this.attackForwardAnim.elapsedTime = this.attackBackAnim.elapsedTime;
+        }
         if (this.attackForwardAnim.elapsedTime + this.game.clockTick > this.attackForwardAnim.totalTime) {
             this.attackForwardAnim.elapsedTime = 0;
             this.attackBackAnim.elapsedTime = 0;
             this.attack = false;
+        }
+        if(this.jumping) {
+            this.jumpForward.elapsedTime = this.jumpForward.elapsedTime + this.game.clockTick;
         }
     }
 
@@ -537,15 +550,15 @@ MainCharacter.prototype.update = function () {
             if(this.boundingbox.right > wall.boundingbox.left && this.boundingbox.right < wall.boundingbox.right 
                 && this.boundingbox.top + 19 < wall.boundingbox.bottom) {
                     this.x = this.x - this.game.clockTick * 300
-                    this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
+                    this.boundingbox = new BoundingBox(this.x+10, this.y, 44,64);
             } 
             else if(this.boundingbox.left < wall.boundingbox.right && this.boundingbox.left > wall.boundingbox.left 
                 && this.boundingbox.top + 19 < wall.boundingbox.bottom) {
                     this.x = this.x + this.game.clockTick * 300
-                    this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
+                    this.boundingbox = new BoundingBox(this.x+10, this.y, 44,64);
             }
             
-            else if(wall.platform && this.boundingbox.top < wall.boundingbox.bottom && wall.boundingbox.top < this.boundingbox.bottom 
+            else if(wall.collideBottom && this.boundingbox.top < wall.boundingbox.bottom && wall.boundingbox.top < this.boundingbox.bottom 
                 ) {
                 this.y = wall.boundingbox.bottom + 10;
                 this.falling = true;
@@ -1508,17 +1521,17 @@ function MapLevel(game) {
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3 ,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,2,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,0,0,0,0,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,3,1,1,1,1,1,1,1,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,2,2,2,2,2,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,3,3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,3,3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,6,6,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,5,0,0,0,0,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,5,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,0,0,0,0,6,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,6,0,0,0,0,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,3,1,1,1,1,1,1,1,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
@@ -1528,6 +1541,9 @@ function MapLevel(game) {
     this.sprites[1] = 1;
     this.sprites[2] = 2;
     this.sprites[3] = 3;
+    this.sprites[4] = 4;
+    this.sprites[5] = 5;
+    this.sprites[6] = 6;
 
     for (var i = 0; i < 125; i++) {
         for (var j = 0; j < 24; j++) {
@@ -1535,10 +1551,11 @@ function MapLevel(game) {
             var sprite = this.sprites[this.map[j][i]];
             if (sprite) {
                 if(sprite == 1) {
-                    this.game.platforms.push(new Platform(this.game, i * 32, j * 32));
+                    //this.game.platforms.push(new Platform(this.game, i * 32, j * 32));
+                    this.game.platforms.push(new Wall(this.game, i * 32, j * 32));
                 }
                 else if(sprite == 2) {
-                    this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32));
+                    this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32, true, true));
                 }
                 else if(sprite == 3) {
                     this.game.platforms.push(new Wall(this.game, i * 32, j * 32));
@@ -1546,6 +1563,12 @@ function MapLevel(game) {
                 else if(sprite == 4) {
                     this.game.entities.push(new Platform(this.game, i * 32, j * 32));
                     //Makes it so the character doesnt have to check if they are colliding.
+                }
+                else if(sprite == 5) {
+                    this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32, false, true));
+                }
+                else if(sprite == 6){
+                    this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32, true, false));
                 }
             }
         }
