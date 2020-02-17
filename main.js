@@ -353,6 +353,7 @@ function MainCharacter(game) {
     this.radius = 64;
     this.ground = 592;
     this.platform = this.game.platforms[0];
+    this.checkPoint = {x: 50, y: 544};
     
     this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
     // this.x = 0;
@@ -399,7 +400,9 @@ MainCharacter.prototype.update = function () {
 
     // if fall off map, die
     if (this.y > 700) {
-        this.hp = 0;
+        this.hp = this.hp - 20;
+        this.x = this.checkPoint.x;
+        this.y = this.checkPoint.y;
         // this = null;
     }
 
@@ -540,7 +543,7 @@ MainCharacter.prototype.update = function () {
                     this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
             }
             
-            if(wall.platform && this.boundingbox.top < wall.boundingbox.bottom && wall.boundingbox.top < this.boundingbox.bottom 
+            else if(wall.platform && this.boundingbox.top < wall.boundingbox.bottom && wall.boundingbox.top < this.boundingbox.bottom 
                 ) {
                 this.y = wall.boundingbox.bottom + 10;
                 this.falling = true;
@@ -558,6 +561,7 @@ MainCharacter.prototype.update = function () {
     if(this.x < 0) {
         this.x = 0;
     }
+    this.checkPointUpdate();
     Entity.prototype.update.call(this);
 }
 
@@ -601,6 +605,12 @@ MainCharacter.prototype.draw = function (ctx) {
 }
 // #endregion
 
+
+MainCharacter.prototype.checkPointUpdate = function() {
+    if(this.x > 2000) {
+        this.checkPoint = {x: 2100, y: 608};
+    }
+}
 //#region Ball
 function Ball(game) {
     this.thrown = new Animation(ASSET_MANAGER.getAsset("./img/ballsprite.png"), 0, 0, 32, 32, .05, 3, true, false);
