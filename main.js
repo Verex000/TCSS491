@@ -398,6 +398,8 @@ MainCharacter.prototype.update = function () {
         this.hp -= 2;
     }
 
+    
+
     // if fall off map, die
     if (this.y > 700) {
         this.hp = this.hp - 20;
@@ -534,12 +536,12 @@ MainCharacter.prototype.update = function () {
             
             if(this.boundingbox.right > wall.boundingbox.left && this.boundingbox.right < wall.boundingbox.right 
                 && this.boundingbox.top + 19 < wall.boundingbox.bottom) {
-                    this.x = wall.boundingbox.left - 65;
+                    this.x = this.x - this.game.clockTick * 300
                     this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
             } 
             else if(this.boundingbox.left < wall.boundingbox.right && this.boundingbox.left > wall.boundingbox.left 
                 && this.boundingbox.top + 19 < wall.boundingbox.bottom) {
-                    this.x = wall.boundingbox.right;
+                    this.x = this.x + this.game.clockTick * 300
                     this.boundingbox = new BoundingBox(this.x + 10, this.y + 10, 54, 54);
             }
             
@@ -583,10 +585,10 @@ MainCharacter.prototype.draw = function (ctx) {
     else if(this.jumping && this.back) {
         this.jumpBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
-    else if (this.falling && !this.back) {
+    else if (this.falling && !this.back && this.y > this.platform.top) {
         this.fallForward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
-    else if(this.falling && this.back) {
+    else if(this.falling && this.back && this.y > this.platform.top) {
         this.fallBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.stand == false && this.back == false) {
