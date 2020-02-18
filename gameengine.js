@@ -48,6 +48,7 @@ function GameEngine() {
     this.p = null;
     this.camera = null;
     this.platforms = [];
+    this.cosmeticEntities = [];
     this.space = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -144,6 +145,10 @@ GameEngine.prototype.startInput = function () {
             // that.addEntity(attackWolf);
 
             traps.push(spike);
+            that.addEntity(new Dart(that, 3500, 490));
+            that.addEntity(new Dart(that, 3500, 522));
+            that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
+            that.cosmeticEntities.push(new DartTrap(that, 3520, 512));
         }
 
     }, false);
@@ -281,10 +286,20 @@ GameEngine.prototype.draw = function () {
         var plat = this.platforms[x];
         this.platforms[x].draw(this.ctx);
     }
+    for(var z = 0; z < this.cosmeticEntities.length; z++) {
+        var cosmetic = this.cosmeticEntities[z];
+        cosmetic.draw(this.ctx);
+    }
     this.ctx.restore();
 }
 
 GameEngine.prototype.update = function () {
+    for(var x = 0; x < this.platforms.length; x++) {
+        var plat = this.platforms[x];
+        if(!plat.removeFromWorld) {
+            plat.update();
+        }
+    }
         var entitiesCount = this.entities.length;
         if(this.entities.Character != null) {
             this.entities.Character.update();
@@ -296,10 +311,10 @@ GameEngine.prototype.update = function () {
                 entity.update();
             }
         }
-        for(var x = 0; x < this.platforms.length; x++) {
-            var plat = this.platforms[x];
-            if(!plat.removeFromWorld) {
-                plat.update();
+        for(var z = 0; z < this.cosmeticEntities.length; z++) {
+            var cosmetic = this.cosmeticEntities[z];
+            if(!cosmetic.removeFromWorld) {
+                cosmetic.update();
             }
         }
     
