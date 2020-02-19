@@ -103,7 +103,7 @@ GameEngine.prototype.startInput = function () {
 
             that.addEntity(bg);
             that.addEntity(map);
-            that.addEntity(healthbar);
+            that.cosmeticEntities.push(healthbar);
 
             var maincharacter = new MainCharacter(that);
             that.entities.Character = maincharacter;

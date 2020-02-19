@@ -612,16 +612,16 @@ MainCharacter.prototype.update = function () {
 }
 
 MainCharacter.prototype.draw = function (ctx) {
-    ctx.beginPath();
-    ctx.lineWidth = "4";
-    ctx.strokeStyle = "black";
-    ctx.rect(this.platform.x - this.game.camera.x, this.platform.y - this.game.camera.y, 42, 32);
-    ctx.stroke();
+    // ctx.beginPath();
+    // ctx.lineWidth = "4";
+    // ctx.strokeStyle = "black";
+    // ctx.rect(this.platform.x - this.game.camera.x, this.platform.y - this.game.camera.y, 42, 32);
+    // ctx.stroke();
 
-    this.game.ctx.strokeStyle = "white";
-    this.game.ctx.beginPath();
-    this.game.ctx.rect(this.boundingbox.x - this.game.camera.x, this.boundingbox.y - this.game.camera.y, this.boundingbox.width, this.boundingbox.height);
-    this.game.ctx.stroke();
+    // this.game.ctx.strokeStyle = "white";
+    // this.game.ctx.beginPath();
+    // this.game.ctx.rect(this.boundingbox.x - this.game.camera.x, this.boundingbox.y - this.game.camera.y, this.boundingbox.width, this.boundingbox.height);
+    // this.game.ctx.stroke();
 
     if(this.attack && this.back) {
         this.attackBackAnim.drawFrame(this.game.clockTick, ctx, this.x - 24 - this.game.camera.x, this.y - 2 - this.game.camera.y);
