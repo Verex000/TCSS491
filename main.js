@@ -868,8 +868,11 @@ function Skeleton(game) {
     this.walkRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 64, 64, 64, 0.25, 4, true, true);
     this.attackLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 64, 192, 64, 64, 0.15, 3, false, true);
     this.attackRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 256, 64, 64, 0.15, 3, false, true);
+    this.deathAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 128, 64, 64, 0.2, 5, false, false);
+    this.startAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 128, 64, 64, 0.3, 5, false, true);
+    this.idleAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 198, 64, 64, 1, 1, true, false);
     this.attacking = false;
-    this.attackTime = 0;
+    //this.attackTime = 0;
     this.attackLeft = false;
     this.attackRight = true;
     this.walkLeft = false;
@@ -878,12 +881,21 @@ function Skeleton(game) {
     this.radius = 55;
     this.ground = 605;
     this.hp = 50;
+    this.detectMc = false;
+    this.detectAnimation = false;
+    this.start = 1;
     Entity.call(this, game, 300, this.ground);
 }
 Skeleton.prototype = new Entity();
 Skeleton.prototype.constructor = Skeleton;
 
 Skeleton.prototype.update = function() {
+
+    // if dead, remove from world
+    if (this.hp <= 0 && this.deathAnimation.isDone()) {
+        this.removeFromWorld = true;
+    }
+
     // fall if not on a platform
     if (!onPlatform(this)) {
         this.y += 1;
@@ -901,18 +913,86 @@ Skeleton.prototype.update = function() {
         }
     }
 
-    // if dead, remove from world
-    if (this.hp <= 0) {
-        this.removeFromWorld = true;
+
+    var mc = this.game.entities.Character;
+    //idle Animation
+    if(this.x < this.game.camera.x || this.x > this.game.camera.x 
+        || this.y < this.game.camera.y || this.y > this.game.camera.y) {
+            this.detectMC = false;
+            this.detectAnimation = false;
+
+    }
+    //MC is in range
+    if(Math.abs(this.x - mc.x) <= 300) {
+        this.detectMc = true;
+        if(this.start == 1) {
+            this.startAnimation = true;
+            this.start--;
+        }
+    }
+    //Walk towards MC
+    if(this.detectMC && this.startAnimation.isDone()) {
+       //MC is to the left of this and getting further, and on the same level
+       if(mc.x - this.x < -250 && Math.abs(mc.y - this.y) == 0) {
+           this.x -= this.game.clockTick * this.speed;
+           this.walkLeft = true;
+           this.walkRight = false;
+           this.attackLeft = true;
+           this.attackRight = false;
+       }
+       //MC is to the right of this and getting further, and on the same level
+       if(mc.x - this.x > 250 && Math.abs(mc.y - this.y) == 0) {
+           this.x += this.game.clockTick * this.speed;
+           this.walkRight = true;
+           this.walkLeft = false;
+           this.attackRight = true;
+           this.attackLeft = false;
+       }
+
+       //MC is left of this, but getting closer
+       if(mc.x - this.x >= -250 && Math.abs(mc.y - this.y) == 0) {
+           this.x += this.game.clockTick * this.speed;
+           this.walkRight = true;
+           this.walkLeft = false;
+           this.attackRight = false;
+           this.attackLeft = true;
+       }
+       //MC is right of this, but getting closer
+       if(mc.x - this.x < 250 && Math.abs(mc.y - this.y) == 0) {
+           this.x -= this.game.clockTick * this.speed;
+           this.walkRight = false;
+           this.walkLeft = true;
+           this.attackRight = false;
+           this.attackLeft = true;
+       }
+
     }
 
-    if (this.attackTime >= 100) {
+
+    if (this.attackTime >= 100 && this.startAnimation.isDone() && Math.abs(mc.x - this.x) <= 250) {
         this.attacking = true;
     }
-    if(this.attacking) {
-        this.walkLeft ? this.attackLeft = true : this.attackRight = true;
+    if(this.attacking && this.startAnimation.isDone()) {
+        var direction = null;
+        //Walk left, attack left
+        if(this.walkLeft && this.attackLeft) {
+            direction = false;
+        }
+        //Walk left, attack right
+        else if(this.walkLeft && !this.attackLeft) {
+            direction = true;
+        }
+        //Walk right, attack right
+        else if(!this.walkLeft && !this.attackLeft) {
+            direction = true;
+        }
+        //Walk right, attack left
+        else {
+            direction = false;
+        }
+        //this.walkLeft ? this.attackLeft = true : this.attackRight = true;
         if(this.attackLeftAnimation.isDone() || this.attackRightAnimation.isDone()) {
-            let bone = new SkeletonBone(this.game, this.x + 1, this.y - 5, this.walkRight);
+            let bone = new SkeletonBone(this.game, this.x + 1, this.y - 5, direction);
             this.game.addEntity(bone);
             this.attackLeftAnimation.elapsedTime = 0;
             this.attackRightAnimation.elapsedTime = 0;
@@ -920,26 +1000,26 @@ Skeleton.prototype.update = function() {
             this.attackTime = 0;
         }
     }
-    else {
-        if(this.walkLeft) {
-            this.x -= this.game.clockTick * this.speed;
-            if(this.x <= 100) {
-                this.walkLeft = false;
-                this.walkRight = true;
-                this.attackRight = true;
-                this.attackLeft = false;
-            }
-        }
-        else {
-            this.x += this.game.clockTick * this.speed;
-            if(this.x >= 700) {
-                this.walkRight = false;
-                this.walkLeft = true;
-                this.attackLeft = true;
-                this.attackRight = false;
-            }
-        }
-    }
+    // else {
+    //     if(this.walkLeft) {
+    //         this.x -= this.game.clockTick * this.speed;
+    //         if(this.x <= 100) {
+    //             this.walkLeft = false;
+    //             this.walkRight = true;
+    //             this.attackRight = true;
+    //             this.attackLeft = false;
+    //         }
+    //     }
+    //     else {
+    //         this.x += this.game.clockTick * this.speed;
+    //         if(this.x >= 700) {
+    //             this.walkRight = false;
+    //             this.walkLeft = true;
+    //             this.attackLeft = true;
+    //             this.attackRight = false;
+    //         }
+    //     }
+    // }
     this.attackTime++;
 
     Entity.prototype.update.call(this);
@@ -947,23 +1027,34 @@ Skeleton.prototype.update = function() {
 }
 
 Skeleton.prototype.draw = function(ctx) {
-    if(this.attacking) {
-        if(this.attackLeft) {
-            this.attackLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-        }
-        else {
-            this.attackRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-        }
+    if(this.hp <= 0) {
+        this.deathAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
-        if(this.walkLeft) {
-            this.walkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        if(this.detectMC && this.detectAnimation) {
+            this.startAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        }
+        else if(!this.detectMC) {
+            this.idleAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+            this.start++;
+        }
+        else if(this.attacking) {
+            if(this.attackLeft) {
+                this.attackLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+            }
+            else {
+                this.attackRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+            }
         }
         else {
-            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+            if(this.walkLeft) {
+                this.walkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+            }
+            else {
+                this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+            }
         }
     }
-
     Entity.prototype.draw.call(this);
 
 }
@@ -982,8 +1073,15 @@ SkeletonBone.prototype.constructor = SkeletonBone;
 
 SkeletonBone.prototype.update = function() {
     // fall if not on a platform
-    if (!onPlatform(this)) {
-        this.y += 1;
+    // if (!onPlatform(this)) {
+    //     this.y += 1;
+    // }
+
+    // check for collision with mc
+    if (isCollided(this.game, this)) {
+        var mc = this.game.entities.Character;
+        mc.hp -= 5;
+        this.removeFromWorld = true;
     }
 
     if(this.y >= this.ground) {
