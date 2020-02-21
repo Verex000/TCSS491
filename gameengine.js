@@ -1,8 +1,7 @@
 // This game shell was happily copied from Googler Seth Ladd's "Bad Aliens" game and his Google IO talk in 2011
 
+// Global variables
 var bgMusic = new Audio("./MoonlightTemptation.mp3");
-
-var traps = [];
 
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
@@ -88,18 +87,28 @@ GameEngine.prototype.startInput = function () {
             var bg = new Background(that);
             var map = new MapLevel(that);
             var healthbar = new HealthBar(that);
-            var slime = new Slime(that);
-            var turkey = new Turkey(that, 200, 620);
-            var turkey2 = new Turkey(that, 800, 620);
+
+            var slime = new Slime(that, 1700, 632, 1700, 2400);
+            var slime2 = new Slime(that, 2000, 632, 1700, 2400);
+            var slime3 = new Slime(that, 2200, 632, 1700, 2400);
+            var slime4 = new Slime(that, 1450, 600, 1450, 1586);
+
+            var turkey = new Turkey(that, 2530, 542);
+            var turkey2 = new Turkey(that, 2560, 560);
+
             var fallingspike = new FallingSpike(that, 200, 20);
-            var spike = new Spike(that, 100, 620);
+            var spike = new Spike(that, 320, 620);
             var dino = new Dino(that);
             var bat = new Bat(that);
             var skeleton = new Skeleton(that);
-            var chest = new Chest(that);
+
+            var chest = new Chest(that, 1560, 590);
+            var chest2 = new Chest(that, 2560, 520);
+
             var nightmare = new Nightmare(that, 200, true);
             var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
+            var lever = new Lever(that, )
 
             that.addEntity(bg);
             that.addEntity(map);
@@ -107,22 +116,26 @@ GameEngine.prototype.startInput = function () {
 
             var maincharacter = new MainCharacter(that);
             that.entities.Character = maincharacter;
-            // that.addEntity(maincharacter);
             that.addEntity(slime);
-            // that.addEntity(turkey);
+            that.addEntity(slime2);
+            that.addEntity(slime3);
+            that.addEntity(slime4);
+            that.addEntity(turkey);
+
             // that.addEntity(turkey2);
             that.addEntity(fallingspike);
             that.addEntity(spike);
             // that.addEntity(dino);
             // that.addEntity(bat);
             // that.addEntity(skeleton);
-            // that.addEntity(chest);  
+            that.addEntity(chest);
+            that.addEntity(chest2);
             // that.addEntity(nightmare);
             // that.addEntity(ghost);
             // that.addEntity(attackWolf);
 
-            traps.push(fallingspike);
-            traps.push(spike);
+            // traps.push(fallingspike);
+            // traps.push(spike);
             that.addEntity(new Dart(that, 3500, 490));
             that.addEntity(new Dart(that, 3500, 522));
             that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
