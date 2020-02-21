@@ -88,14 +88,15 @@ GameEngine.prototype.startInput = function () {
             var bg = new Background(that);
             var map = new MapLevel(that);
             var healthbar = new HealthBar(that);
-            var slime = new Slime(that);
+            var slime = new Slime(that, 2848, 632, 2080, 2848, 632);
+            var slime2 = new Slime(that, 572, 632, 32, 832, 632);
             var turkey = new Turkey(that, 200, 620);
             var turkey2 = new Turkey(that, 800, 620);
             var fallingspike = new FallingSpike(that, 200, 20);
             var spike = new Spike(that, 100, 620);
             var dino = new Dino(that);
             var bat = new Bat(that);
-            var skeleton = new Skeleton(that);
+            var skeleton = new Skeleton(that, 640, 672, 64);
             var chest = new Chest(that);
             var nightmare = new Nightmare(that, 200, true);
             var ghost = new Ghost(that, 600, 600);
@@ -109,6 +110,8 @@ GameEngine.prototype.startInput = function () {
             that.entities.Character = maincharacter;
             // that.addEntity(maincharacter);
             that.addEntity(slime);
+            that.addEntity(slime2);
+            //that.addEntity(skeleton);
             // that.addEntity(turkey);
             // that.addEntity(turkey2);
             that.addEntity(fallingspike);
@@ -310,6 +313,7 @@ GameEngine.prototype.loop = function () {
         this.space = null;
     }
 }
+
 
 function Entity(game, x, y) {
     this.game = game;

@@ -63,6 +63,21 @@ function distance(a, b) {
 };
 // End
 
+function onPlatform(entity) {
+    for(let i = 0; i < entity.game.platforms.length; i++) {
+        if(entity.boundingbox.collide(entity.game.platforms[i].boundingbox)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// function onWall(entity) {
+//     for(let i = 0; i < entity.game.wall) {
+//         if(entity.boundingbox.collide(entity.game.walls))
+//     }
+// }
+
 // #region Animation
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
     this.spriteSheet = spriteSheet;
@@ -895,30 +910,53 @@ Dino.prototype.draw = function (ctx) {
 //end region
 
 //#region Slime
-function Slime(game) {
+function Slime(game, spawnX, spawnY, leftBound, rightBound, ground) {
     this.jumpAnimation = new Animation(ASSET_MANAGER.getAsset("./img/slimeEnemy.png"), 0, 0, 64, 64, 0.15, 5, false, true);
     this.animation = new Animation(ASSET_MANAGER.getAsset("./img/slimeEnemy.png"), 0, 64, 64, 64, 0.3, 3, true, true);
     this.walkRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/slimeEnemy.png"), 192, 64, 64, 64, 0.3, 3, true, true);
+    this.deathAnimation = new Animation(ASSET_MANAGER.getAsset("./img/slimeEnemy.png"), 64, 128, 64, 64, 0.35, 3, false, false);
     this.jumping = false;
     this.speed = 100;
     this.radius = 40;
     this.width = 40;
     this.height = 40;
-    this.ground = 634;
+    this.ground = ground;
     this.walkLeft = true;
     this.walkRight = false;
     this.jumpTime = 0;
     this.game = game;
     this.hp = 50;
-    Entity.call(this, game, 2800, 700);
+    this.leftBoundX = leftBound;
+    this.rightBoundX = rightBound;
+    this.spawnX = spawnX;
+    this.spawnY = spawnY;
+    this.boudingbox = new BoundingBox(spawnX, spawnY, 64, 64);
+    Entity.call(this, game, spawnX, spawnY);
 }
 
 Slime.prototype = new Entity();
 Slime.prototype.constructor = Slime;
 
 Slime.prototype.update = function() {
+    // console.log("Slime limitX: " + this.xDistanceLimit);
+    // console.log("Slime spawnX: " + this.spawnX);
+    // console.log("Slime spawnY: " + this.spawnY);
     var mc = this.game.entities.Character;
-    if (collided(mc.boundingbox, this)) {
+    this.boundingbox = new BoundingBox(this.x, this.y, 64, 64);
+    if (this.hp <= 0 && this.deathAnimation.isDone()) {
+        this.removeFromWorld = true;
+    }
+
+    // fall if not on a platform
+    if (!onPlatform(this)) {
+        this.y++;
+    }
+
+    if(this.y > this.ground) {
+        this.hp = -1;
+    }
+
+    if (collided(mc.boundingbox, this) && this.hp > 0) {
         mc.hp -= 1;
         if (mc.back) {
             mc.x += 15;
@@ -931,14 +969,20 @@ Slime.prototype.update = function() {
         this.hp -= 5;
         }
     }
-    if (this.hp <= 0) {
-        this.removeFromWorld = true;
-    }
+
     
     if(this.jumpTime >= 100) {
         this.jumping = true;
     }
-    if(this.jumping) {
+    if(mc.x < this.x && this.x > this.leftBoundX) {
+        this.walkLeft = true;
+        this.walkRight = false;
+    }
+    else if(mc.x > this.x && this.x < this.rightBoundX ) {
+        this.walkLeft = false;
+        this.walkRight = true;
+    }
+    if(this.jumping && this.hp > 0) {
         if(this.jumpAnimation.isDone()) {
             this.jumpAnimation.elapsedTime = 0;
             this.jumping = false;
@@ -953,30 +997,32 @@ Slime.prototype.update = function() {
         this.jumpTime = 0;
         if(this.walkLeft) {
             this.x -= this.game.clockTick * this.speed;
-            if(this.x <= 2100) {
+            if(this.x <= this.leftBoundX) {
+                console.log("Slime Left Bound Reached: " + this.leftBoundX);
                 this.walkLeft = false;
                 this.walkRight = true;
             }
         }
         else {
             this.x += this.game.clockTick * this.speed;
-            if(this.x >= 2800) {
+            if(this.x >= this.rightBoundX) {
+                console.log("Slime right Bound Reached: " + this.rightBoundX);
                 this.walkRight = false;
                 this.walkLeft = true;
             }
         }
     }
     else {
-        if(this.walkLeft) {
+        if(this.walkLeft && this.hp > 0) {
             this.x -= this.game.clockTick * this.speed;
-            if(this.x <= 2100) {
+            if(this.x <= this.leftBoundX) {
                 this.walkLeft = false;
                 this.walkRight = true;
             }
         }
-        else {
+        else if(this.walkRight && this.hp > 0) {
             this.x += this.game.clockTick * this.speed;
-            if(this.x >= 2800) {
+            if(this.x >= this.rightBoundX) {
                 this.walkRight = false;
                 this.walkLeft = true;
             }
@@ -989,15 +1035,20 @@ Slime.prototype.update = function() {
 }
 
 Slime.prototype.draw = function (ctx) {
-    if (this.jumping) {
-        this.jumpAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    if(this.hp <= 0) {
+        this.deathAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
-        if(this.walkLeft) {
-            this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        if (this.jumping) {
+            this.jumpAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
         else {
-            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+            if(this.walkLeft) {
+                this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+            }
+            else {
+                this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+            }
         }
     }
     Entity.prototype.draw.call(this);
@@ -1067,7 +1118,7 @@ Bat.prototype.draw = function(ctx) {
 //#endregion
 
 //#region Skeleton
-function Skeleton(game) {
+function Skeleton(game, spawnX, spawnY, limitX) {
     this.walkLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 0, 64, 64, 0.25, 4, true, true);
     this.walkRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 64, 64, 64, 0.25, 4, true, true);
     this.attackLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 64, 192, 64, 64, 0.15, 3, false, true);
@@ -1076,19 +1127,21 @@ function Skeleton(game) {
     this.startAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 128, 64, 64, 0.3, 5, false, true);
     this.idleAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 198, 64, 64, 1, 1, true, false);
     this.attacking = false;
-    //this.attackTime = 0;
+    this.attackTime = 0;
     this.attackLeft = false;
     this.attackRight = true;
     this.walkLeft = false;
     this.walkRight = true;
     this.speed = 80;
     this.radius = 55;
-    this.ground = 605;
+    this.ground = spawnY;
     this.hp = 50;
     this.detectMc = false;
     this.detectAnimation = false;
     this.start = 1;
-    Entity.call(this, game, 300, this.ground);
+    this.startX = spawnX;
+    this.xDistanceLimit = limitX;
+    Entity.call(this, game, spawnX, spawnY);
 }
 Skeleton.prototype = new Entity();
 Skeleton.prototype.constructor = Skeleton;
@@ -1101,9 +1154,9 @@ Skeleton.prototype.update = function() {
     }
 
     // fall if not on a platform
-    // if (!onPlatform(this)) {
-    //     this.y += 1;
-    // }
+    if (!onPlatform(this)) {
+        this.y += 1;
+    }
 
     // check for collision with mc
     if (isCollided(this.game, this)) {
@@ -1120,22 +1173,22 @@ Skeleton.prototype.update = function() {
 
     var mc = this.game.entities.Character;
     //idle Animation
-    if(this.x < this.game.camera.x || this.x > this.game.camera.x 
-        || this.y < this.game.camera.y || this.y > this.game.camera.y) {
-            this.detectMC = false;
-            this.detectAnimation = false;
+    // if(this.x < this.game.camera.x || this.x > this.game.camera.x 
+    //     || this.y < this.game.camera.y || this.y > this.game.camera.y) {
+    //         this.detectMC = false;
+    //         this.detectAnimation = false;
 
-    }
+    // }
     //MC is in range
     if(Math.abs(this.x - mc.x) <= 300) {
         this.detectMc = true;
-        if(this.start == 1) {
-            this.startAnimation = true;
-            this.start--;
-        }
+        // if(this.start == 1) {
+        //     this.startAnimation = true;
+        //     this.start--;
+        // }
     }
     //Walk towards MC
-    if(this.detectMC && this.startAnimation.isDone()) {
+    if(this.detectMC) {
        //MC is to the left of this and getting further, and on the same level
        if(mc.x - this.x < -250 && Math.abs(mc.y - this.y) == 0) {
            this.x -= this.game.clockTick * this.speed;
@@ -1173,10 +1226,10 @@ Skeleton.prototype.update = function() {
     }
 
 
-    if (this.attackTime >= 100 && this.startAnimation.isDone() && Math.abs(mc.x - this.x) <= 250) {
+    if (this.attackTime >= 100  && Math.abs(mc.x - this.x) <= 250) {
         this.attacking = true;
     }
-    if(this.attacking && this.startAnimation.isDone()) {
+    if(this.attacking) {
         var direction = null;
         //Walk left, attack left
         if(this.walkLeft && this.attackLeft) {
@@ -1235,14 +1288,14 @@ Skeleton.prototype.draw = function(ctx) {
         this.deathAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else {
-        if(this.detectMC && this.detectAnimation) {
-            this.startAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-        }
-        else if(!this.detectMC) {
-            this.idleAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-            this.start++;
-        }
-        else if(this.attacking) {
+        // if(this.detectMC && this.detectAnimation) {
+        //     this.startAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        // }
+        // else if(!this.detectMC) {
+        //     this.idleAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        //     this.start++;
+        // }
+        if(this.attacking) {
             if(this.attackLeft) {
                 this.attackLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
             }
@@ -1266,7 +1319,7 @@ Skeleton.prototype.draw = function(ctx) {
 function SkeletonBone(game, skeletonX, skeletonY, direction) {
     this.animation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 192, 256, 64, 64, 0.2, 3, true, true);
     this.speed = 300;
-    this.ground = 687;
+    this.ground = skeletonY + 100;
     this.radius = 16;
     this.direction = direction;
     Entity.call(this, game, skeletonX, skeletonY);
@@ -1293,7 +1346,7 @@ SkeletonBone.prototype.update = function() {
     if(this.y >= this.ground) {
         this.removeFromWorld = true;
     }
-    if(this.x > 1200 || this.x < 0) {
+    if(this.x > 15936 || this.x < 0) {
         this.removeFromWorld = true;
     }
 
@@ -1683,6 +1736,15 @@ function MapLevel(game) {
     }
     this.sprites = new Array(7);
 
+    /** 
+    this.sprites[0] = null;
+    this.sprites[1] = 1;        // can, walk on, can jump though bottom
+    this.sprites[2] = 2;        // can walk on, can't jump through bottom
+    this.sprites[3] = 3;        // can't walk through
+    this.sprites[4] = 4;        // cosmetic
+    this.sprites[5] = 5;        // can walk on
+    this.sprites[6] = 6;        // corner piece (coliide w/ bottom)
+    */
     var testMap =  
      [[3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
      [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
