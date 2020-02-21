@@ -2,11 +2,7 @@
 
 var bgMusic = new Audio("./MoonlightTemptation.mp3");
 
-// # All traps, items, enemies
 var traps = [];
-// var items = [];
-// var enemies = [];
-var platforms = [];
 
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
@@ -48,6 +44,8 @@ function GameEngine() {
     this.l = null;
     this.p = null;
     this.camera = null;
+    this.platforms = [];
+    this.cosmeticEntities = [];
     this.space = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -88,12 +86,13 @@ GameEngine.prototype.startInput = function () {
 
             that.entities = [];
             var bg = new Background(that);
-            var maincharacter = new MainCharacter(that);
+            var map = new MapLevel(that);
             var healthbar = new HealthBar(that);
             var slime = new Slime(that);
             var turkey = new Turkey(that, 200, 620);
             var turkey2 = new Turkey(that, 800, 620);
-            var spike = new Spike(that);
+            var fallingspike = new FallingSpike(that, 200, 20);
+            var spike = new Spike(that, 100, 620);
             var dino = new Dino(that);
             var bat = new Bat(that);
             var skeleton = new Skeleton(that);
@@ -102,51 +101,32 @@ GameEngine.prototype.startInput = function () {
             var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
 
-            var map = new MapLevel(that);
             that.addEntity(bg);
             that.addEntity(map);
-            that.addEntity(healthbar);
+            that.cosmeticEntities.push(healthbar);
 
-            var plat = new Platform(that, 0, 668, 1);
-            that.addEntity(plat);
-            platforms.push(plat);
-
-            // Add floor level 0 platform
-            for (var i = 1; i * 32 <= 1216; i++) {
-                plat = new Platform(that, 32 * i, 668, 1);
-                that.addEntity(plat);
-                platforms.push(plat);
-            }
-
-            for (var i = 1; i * 32 <= 608; i++) {
-                plat = new Platform(that, (32 * i) + 1376, 668, 1);
-                that.addEntity(plat);
-                platforms.push(plat);
-            }
-
-            // // Add level 1 platform
-            // for (var i = 1; i < 5; i++) {
-            //     plat = new Platform(that, 32 * i, 636, 1);    // testing
-            //     that.addEntity(plat);
-            //     platforms.push(plat);
-            // }
-
-
+            var maincharacter = new MainCharacter(that);
             that.entities.Character = maincharacter;
             // that.addEntity(maincharacter);
             that.addEntity(slime);
-            that.addEntity(turkey);
-            that.addEntity(turkey2);
-            that.addEntity(spike); 
-            that.addEntity(dino);
-            that.addEntity(bat);
-            that.addEntity(skeleton);
-            that.addEntity(chest);  
-            that.addEntity(nightmare);
-            that.addEntity(ghost);
-            that.addEntity(attackWolf);
+            // that.addEntity(turkey);
+            // that.addEntity(turkey2);
+            that.addEntity(fallingspike);
+            that.addEntity(spike);
+            // that.addEntity(dino);
+            // that.addEntity(bat);
+            // that.addEntity(skeleton);
+            // that.addEntity(chest);  
+            // that.addEntity(nightmare);
+            // that.addEntity(ghost);
+            // that.addEntity(attackWolf);
 
+            traps.push(fallingspike);
             traps.push(spike);
+            that.addEntity(new Dart(that, 3500, 490));
+            that.addEntity(new Dart(that, 3500, 522));
+            that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
+            that.cosmeticEntities.push(new DartTrap(that, 3520, 512));
         }
 
     }, false);
@@ -280,10 +260,24 @@ GameEngine.prototype.draw = function () {
     if(this.entities.Character != null) {
         this.entities.Character.draw(this.ctx);
     }
+    for(var x = 0; x < this.platforms.length; x++) {
+        // var plat = this.platforms[x];
+        this.platforms[x].draw(this.ctx);
+    }
+    for(var z = 0; z < this.cosmeticEntities.length; z++) {
+        var cosmetic = this.cosmeticEntities[z];
+        cosmetic.draw(this.ctx);
+    }
     this.ctx.restore();
 }
 
 GameEngine.prototype.update = function () {
+    for(var x = 0; x < this.platforms.length; x++) {
+        var plat = this.platforms[x];
+        if(!plat.removeFromWorld) {
+            plat.update();
+        }
+    }
         var entitiesCount = this.entities.length;
         if(this.entities.Character != null) {
             this.entities.Character.update();
@@ -295,7 +289,12 @@ GameEngine.prototype.update = function () {
                 entity.update();
             }
         }
-    
+        for(var z = 0; z < this.cosmeticEntities.length; z++) {
+            var cosmetic = this.cosmeticEntities[z];
+            if(!cosmetic.removeFromWorld) {
+                cosmetic.update();
+            }
+        }
         for (var i = this.entities.length - 1; i >= 0; --i) {
             if (this.entities[i].removeFromWorld) {
                 this.entities.splice(i, 1);
