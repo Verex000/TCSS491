@@ -1,5 +1,6 @@
 // This game shell was happily copied from Googler Seth Ladd's "Bad Aliens" game and his Google IO talk in 2011
 
+// Global variables
 var bgMusic = new Audio("./MoonlightTemptation.mp3");
 
 var traps = [];
@@ -101,6 +102,7 @@ GameEngine.prototype.startInput = function () {
             var nightmare = new Nightmare(that, 200, true);
             var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
+            var lever = new Lever(that, )
 
             that.addEntity(bg);
             that.addEntity(map);
@@ -108,7 +110,6 @@ GameEngine.prototype.startInput = function () {
 
             var maincharacter = new MainCharacter(that);
             that.entities.Character = maincharacter;
-            // that.addEntity(maincharacter);
             that.addEntity(slime);
             that.addEntity(slime2);
             //that.addEntity(skeleton);

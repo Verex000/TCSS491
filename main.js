@@ -1,3 +1,7 @@
+// Global variables
+var gates = new Array();
+// var curGateIndex = 0;
+
 // Camera scrolling section
 
 function Camera() {
@@ -170,6 +174,7 @@ StartScreen.prototype.update = function () {
 
 // #region HealthBar
 function HealthBar(game) {
+    this.game = game;
     Entity.call(this, game, 0, 400);
     this.radius = 200;
 }
@@ -181,15 +186,28 @@ HealthBar.prototype.update = function () {
 }
 
 HealthBar.prototype.draw = function (ctx) {
+    mc = this.game.entities.Character;
+
     ctx.fillStyle = "Red";
-    ctx.fillRect(0,0,this.game.entities.Character.hp,30);
+    ctx.fillRect(0,0, mc.hp, 30);
     ctx.fillStyle = "White";
-    ctx.fillRect(this.game.entities.Character.hp,0,100-this.game.entities.Character.hp,30);
+    ctx.fillRect(mc.hp, 0, mc.maxHP - mc.hp, 30);
     ctx.beginPath();
     ctx.lineWidth = "4";
     ctx.strokeStyle = "black";
     ctx.rect(1, 1, 100, 30);
     ctx.stroke();
+
+    ctx.fillStyle = "black";
+    ctx.font = "12px Verdana";
+    ctx.fillText(mc.hp + "/" + mc.maxHP, 30, 20);
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(0,30, 101, 16);
+    ctx.fillStyle = "white";
+    ctx.font = "12px Verdana";
+    ctx.fillText("POWER: " + mc.attackPower, 20, 42);
+
     Entity.prototype.draw.call(this);
 }
 // #endregion
@@ -836,6 +854,35 @@ Turkey.prototype.draw = function(ctx) {
 }
 //#endregion
 
+function Sword(game, x, y) {
+    this.game = game;
+    this.animation = new Animation(ASSET_MANAGER.getAsset("./img/sword40x39.png"), 0, 0, 39, 38, 1, 1, true, false);
+    this.radius = 39;
+    this.ground = y;
+    Entity.call(this, game, x, y);
+}
+Sword.prototype = new Entity();
+Sword.prototype.constructor = Sword;
+
+// Check if collided with MC; return true if collided, false, otherwise
+Sword.prototype.collided = function() {
+    var charact = this.game.entities.Character;
+    return distance(this, charact) <= this.radius / 1.9 + charact.radius / 1.9;
+}
+
+Sword.prototype.update = function() {
+    if (this.collided()) {
+        this.game.entities.Character.attackPower += 5;
+        this.removeFromWorld = true;
+    }
+    Entity.prototype.update.call(this);
+}
+
+Sword.prototype.draw = function(ctx) {
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    Entity.prototype.draw.call(this);
+}
+
 //Dino region
 function Dino(game) {
     this.animation = new Animation(ASSET_MANAGER.getAsset("./img/dino.png"), 0, 0, 960 / 5, 576 / 3, 0.3, 10, true, false);
@@ -1076,7 +1123,7 @@ Bat.prototype.update = function () {
     if (isCollided(this.game, this)) {
         var mc = this.game.entities.Character;
         if (mc.attack) {
-            this.hp -= 5;
+            this.hp -= mc.attackPower;
         } else {
             mc.hp -= 1;
 
@@ -1123,9 +1170,6 @@ function Skeleton(game, spawnX, spawnY, limitX) {
     this.walkRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 64, 64, 64, 0.25, 4, true, true);
     this.attackLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 64, 192, 64, 64, 0.15, 3, false, true);
     this.attackRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 256, 64, 64, 0.15, 3, false, true);
-    this.deathAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 128, 64, 64, 0.2, 5, false, false);
-    this.startAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 128, 64, 64, 0.3, 5, false, true);
-    this.idleAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 198, 64, 64, 1, 1, true, false);
     this.attacking = false;
     this.attackTime = 0;
     this.attackLeft = false;
@@ -1147,16 +1191,10 @@ Skeleton.prototype = new Entity();
 Skeleton.prototype.constructor = Skeleton;
 
 Skeleton.prototype.update = function() {
-
-    // if dead, remove from world
-    if (this.hp <= 0 && this.deathAnimation.isDone()) {
-        this.removeFromWorld = true;
-    }
-
     // fall if not on a platform
-    if (!onPlatform(this)) {
-        this.y += 1;
-    }
+    // if (!onPlatform(this)) {
+    //     this.y += 1;
+    // }
 
     // check for collision with mc
     if (isCollided(this.game, this)) {
@@ -1249,7 +1287,7 @@ Skeleton.prototype.update = function() {
         }
         //this.walkLeft ? this.attackLeft = true : this.attackRight = true;
         if(this.attackLeftAnimation.isDone() || this.attackRightAnimation.isDone()) {
-            let bone = new SkeletonBone(this.game, this.x + 1, this.y - 5, direction);
+            let bone = new SkeletonBone(this.game, this.x + 1, this.y - 5, this.walkRight);
             this.game.addEntity(bone);
             this.attackLeftAnimation.elapsedTime = 0;
             this.attackRightAnimation.elapsedTime = 0;
@@ -1257,26 +1295,26 @@ Skeleton.prototype.update = function() {
             this.attackTime = 0;
         }
     }
-    // else {
-    //     if(this.walkLeft) {
-    //         this.x -= this.game.clockTick * this.speed;
-    //         if(this.x <= 100) {
-    //             this.walkLeft = false;
-    //             this.walkRight = true;
-    //             this.attackRight = true;
-    //             this.attackLeft = false;
-    //         }
-    //     }
-    //     else {
-    //         this.x += this.game.clockTick * this.speed;
-    //         if(this.x >= 700) {
-    //             this.walkRight = false;
-    //             this.walkLeft = true;
-    //             this.attackLeft = true;
-    //             this.attackRight = false;
-    //         }
-    //     }
-    // }
+    else {
+        if(this.walkLeft) {
+            this.x -= this.game.clockTick * this.speed;
+            if(this.x <= 100) {
+                this.walkLeft = false;
+                this.walkRight = true;
+                this.attackRight = true;
+                this.attackLeft = false;
+            }
+        }
+        else {
+            this.x += this.game.clockTick * this.speed;
+            if(this.x >= 700) {
+                this.walkRight = false;
+                this.walkLeft = true;
+                this.attackLeft = true;
+                this.attackRight = false;
+            }
+        }
+    }
     this.attackTime++;
 
     Entity.prototype.update.call(this);
@@ -1304,14 +1342,10 @@ Skeleton.prototype.draw = function(ctx) {
             }
         }
         else {
-            if(this.walkLeft) {
-                this.walkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-            }
-            else {
-                this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-            }
+            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         }
     }
+
     Entity.prototype.draw.call(this);
 
 }
@@ -1370,7 +1404,8 @@ SkeletonBone.prototype.draw = function(ctx) {
 //#endregion
 
 //#region Chest
-function Chest(game) {
+function Chest(game, theX, theY) {
+    this.game = game;
     this.openingAnimation = new Animation(ASSET_MANAGER.getAsset("./img/chest.png"), 0, 0, 64, 64, 0.1, 6, false, false);
     this.closedAnimation = new Animation(ASSET_MANAGER.getAsset("./img/chest.png"), 0, 0, 64, 64, 1, 1, true, false);
     this.openedAnimation = new Animation(ASSET_MANAGER.getAsset("./img/chest.png"), 320, 0, 64, 64, 1, 1, true, false);
@@ -1379,11 +1414,22 @@ function Chest(game) {
     this.open = false;
     this.opening = false;
     this.openTime = 0;
-    Entity.call(this, game, 400, this.ground);
+    this.boundingbox = new BoundingBox(theX, theY, 42, 64);
+    Entity.call(this, game, theX, theY);
 }
 
 Chest.prototype = new Entity();
 Chest.prototype.constructor = Chest;
+Chest.prototype.collidePlat = function() {
+    collide = false;
+    for (var i = 0; i < this.game.platforms.length; i++) {
+        collide = this.boundingbox.collide(this.game.platforms[i].boundingbox);
+        if (collide) {
+            return true;
+        }
+    }
+    return collide;
+}
 
 Chest.prototype.update = function() {
     // fall if not on a platform
@@ -1402,8 +1448,8 @@ Chest.prototype.update = function() {
     if(this.open) {
         this.openTime++;
         if(this.openTime >= 150) {
-            turkey = new Turkey(this.game, this.x - this.game.camera.x, this.y - this.game.camera.y);
-            this.game.addEntity(turkey);
+            sword = new Sword(this.game, this.x, this.y - this.game.camera.y);
+            this.game.addEntity(sword);
             this.removeFromWorld = true;
         }
     }
@@ -1415,7 +1461,7 @@ Chest.prototype.draw = function(ctx) {
         this.openingAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if(this.open && this.open) {
-        this.openedAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        this.openedAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - 6 - this.game.camera.y);
     }
     else {
         this.closedAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
@@ -1781,6 +1827,7 @@ function MapLevel(game) {
      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,3,0,0,3,4,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,3,0,0,3,4,3,0,0,3,3,3,0,0,3,3,3,0,0,0,0,0,3,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
+    
     this.map = testMap;
 
     this.sprites[0] = null;
@@ -1853,7 +1900,7 @@ GameOverScreen.prototype.draw = function () {
     this.ctx.fillStyle = "rgba(0, 0, 200, 0.7)";
     this.ctx.fillRect(0, 0, 1200, 700);
     this.ctx.fillStyle = "white";
-    this.ctx.font = "100px Arial";
+    this.ctx.font = "100px Impact";
     this.ctx.fillText("Game Over", 330, 350);
 };
 
@@ -1902,7 +1949,6 @@ ASSET_MANAGER.queueDownload("./img/shuriken.png");
 
 // Download all assests before starting game
 ASSET_MANAGER.downloadAll(function () {
-
     console.log("starting up da sheild");
     var canvas = document.getElementById('gameWorld');
     var ctx = canvas.getContext('2d');
@@ -1911,22 +1957,5 @@ ASSET_MANAGER.downloadAll(function () {
     gameEngine.init(ctx);
     gameEngine.start();
     gameEngine.addEntity(new StartScreen(gameEngine, ASSET_MANAGER.getAsset("./img/startScreen.png")));
-
-    // var gameEngine = new GameEngine();
-    // var bg = new Background(gameEngine);
-    // var maincharacter = new MainCharacter(gameEngine);
-    // var healthbar = new HealthBar(gameEngine);
-	// var slime = new Slime(gameEngine);
-	// var turkey = new Turkey(gameEngine);
-	// var spike = new Spike(gameEngine);
-
-
-    // gameEngine.addEntity(bg);
-    // gameEngine.addEntity(healthbar);
-    // gameEngine.entities.Character = maincharacter;
-	// gameEngine.addEntity(slime);
-	// gameEngine.addEntity(turkey);
-	// gameEngine.addEntity(spike);
- 
 });
 // #endregion
