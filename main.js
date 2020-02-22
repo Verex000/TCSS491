@@ -1607,7 +1607,7 @@ function MiniBoss(game) {
     this.attackTime = 0;
     this.width = 298;
     this.height = 298;
-    this.hp = 1000;
+    this.hp = 5000;
 
     Entity.call(this, game, 600, 420);
     //Entity.call(this, game, theX, 600);
@@ -1624,11 +1624,17 @@ MiniBoss.prototype.update = function () {
     if (collided(mc.boundingbox, this)) {
         if (mc.attack) {
             this.hp -= 10;
-            this.attack = true;
+            if(this.attackTime < 0) {
+                this.attackTime = 10;
+                this.attack = true;
+            } else {
+                this.attackTime -= 1;
+            }
             
-        } else if (this.attack) {
+            
+        } 
+        if (this.attack && this.attackTime === 0) {
             mc.hp -= 1;
-
         }
     }
 
@@ -1665,12 +1671,14 @@ MiniBoss.prototype.update = function () {
     if(this.attackSlashRev.elapsedTime + this.game.clockTick > this.attackSlashRev.totalTime  ) {
         
         this.attackSlashRev.elapsedTime = 0;
+        this.attackTime = 0;
         this.attack = false;
         this.stillFighting = true;
     }
 
     if(this.attackSlash.elapsedTime + this.game.clockTick > this.attackSlash.totalTime ) {
         this.attackSlash.elapsedTime = 0;
+        this.attackTime = 0;
         this.attack = false;
         this.stillFighting = true;
     }
