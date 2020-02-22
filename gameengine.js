@@ -466,9 +466,9 @@ GameEngine.prototype.startInput = function () {
 
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
-        var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startgame.png"), 90, 400);
+        var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
         var control = new Menu(that, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
-        var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startgameHigh.png"), 90, 400);
+        var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
         var control2 = new Menu(that, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
         if (String.fromCharCode(e.which) === 'W') {
             that.startScreenCount++;
@@ -489,9 +489,9 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
-        var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startgame.png"), 90, 400);
+        var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
         var control = new Menu(that, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
-        var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startgameHigh.png"), 90, 400);
+        var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
         var control2 = new Menu(that, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
         if (String.fromCharCode(e.which) === 'S') {
             that.startScreenCount++;
