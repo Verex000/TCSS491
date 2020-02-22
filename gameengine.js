@@ -43,6 +43,7 @@ function GameEngine() {
     this.r = null;
     this.l = null;
     this.p = null;
+    this.enemies = [];
     this.camera = null;
     this.platforms = [];
     this.gates = [];
@@ -99,6 +100,7 @@ GameEngine.prototype.startInput = function () {
             var slime6 = new Slime(that, 416, -170, 416, 1140);
             var slime7 = new Slime(that, 700, -170, 416, 1140);
             var slime8 = new Slime(that, 900, -170, 416, 1140);
+            var slime9 = new Slime(that, 4288, 600, 3712, 4288);
 
 
             var bat = new Bat(that, 7232, 544, 5026, 7200, 64);
@@ -109,8 +111,10 @@ GameEngine.prototype.startInput = function () {
 
             // 64 - 84 = -20
             var skeleton = new Skeleton(that, 3000, -20, 3000, 3300);
-            var skeleton2 = new Skeleton(that, 4416, 555, 3648, 4288);
+            var skeleton2 = new Skeleton(that, 4200, 555, 3648, 4288);
             var skeleton3 = new Skeleton(that, 750, 236, 192, 704);
+            var skeleton4 = new Skeleton(that, 4608, 555, 4608, 5000);
+            var skeleton5 = new Skeleton(that, 5000, 555, 4608, 5000);
 
 
             var dino = new Dino(that);
@@ -201,6 +205,9 @@ GameEngine.prototype.startInput = function () {
             that.addEntity(spike);
 
             // dart trap on level 1
+            that.addEntity(new Dart(that, 2614, 500, 1664));
+            that.cosmeticEntities.push(new DartTrap(that, 2624, 480));
+
             that.addEntity(new Dart(that, 3500, 490, 2784));
             that.addEntity(new Dart(that, 3500, 522, 2784));
             that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
@@ -224,24 +231,27 @@ GameEngine.prototype.startInput = function () {
 
 
             // enemies
-            that.addEntity(slime);
-            that.addEntity(slime2);
-            that.addEntity(slime3);
-            that.addEntity(slime4);
-            that.addEntity(slime5);
-            that.addEntity(slime6);
-            that.addEntity(slime7);
-            that.addEntity(slime8);
+            that.enemies.push(slime);
+            that.enemies.push(slime2);
+            that.enemies.push(slime3);
+            that.enemies.push(slime4);
+            that.enemies.push(slime5);
+            that.enemies.push(slime6);
+            that.enemies.push(slime7);
+            that.enemies.push(slime8);
+            that.enemies.push(slime9);
 
 
-            that.addEntity(bat);
-            that.addEntity(bat2);
-            that.addEntity(bat3);
-            that.addEntity(bat4);
+            that.enemies.push(bat);
+            that.enemies.push(bat2);
+            that.enemies.push(bat3);
+            that.enemies.push(bat4);
 
-            that.addEntity(skeleton);
-            that.addEntity(skeleton2);
-            that.addEntity(skeleton3);
+            that.enemies.push(skeleton);
+            that.enemies.push(skeleton2);
+            that.enemies.push(skeleton3);
+            that.enemies.push(skeleton4);
+            that.enemies.push(skeleton5);
 
             // that.addEntity(dino);
             // that.addEntity(skeleton);
@@ -385,6 +395,9 @@ GameEngine.prototype.draw = function () {
     for (var i = 0; i < this.entities.length; i++) {
         this.entities[i].draw(this.ctx);
     }
+    for (var i = 0; i < this.enemies.length; i++) {
+        this.enemies[i].draw(this.ctx);
+    }
     if(this.entities.Character != null) {
         this.entities.Character.draw(this.ctx);
     }
@@ -410,12 +423,6 @@ GameEngine.prototype.update = function () {
             plat.update();
         }
     }
-    // for(var x = 0; x < this.gates.length; x++) {
-    //     var plat = this.gates[x];
-    //     if(!plat.removeFromWorld) {
-    //         plat.update();
-    //     }
-    // }
         var entitiesCount = this.entities.length;
         if(this.entities.Character != null) {
             this.entities.Character.update();
@@ -423,6 +430,12 @@ GameEngine.prototype.update = function () {
         for (var i = 0; i < entitiesCount; i++) {
             var entity = this.entities[i];
     
+            if (!entity.removeFromWorld) {
+                entity.update();
+            }
+        }
+        for (var i = 0; i < this.enemies.length; i++) {
+            var entity = this.enemies[i];
             if (!entity.removeFromWorld) {
                 entity.update();
             }
@@ -441,6 +454,11 @@ GameEngine.prototype.update = function () {
         for (var i = this.platforms.length - 1; i >= 0; --i) {
             if (this.platforms[i].removeFromWorld) {
                 this.platforms.splice(i, 1);
+            }
+        }
+        for (var i = this.enemies.length - 1; i >= 0; --i) {
+            if (this.enemies[i].removeFromWorld) {
+                this.enemies.splice(i, 1);
             }
         }
 }

@@ -384,9 +384,9 @@ function MainCharacter(game) {
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 44, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
 
-    //Entity.call(this, game, 50, 544);
-    Entity.call(this, game, 2464, -416);
-    // Entity.call(this, game, 50, 544);
+    Entity.call(this, game, 50, 544);
+    // Entity.call(this, game, 2464, -416);
+    // Entity.call(this, game, 4608, 640);
     //Entity.call(this, game, 6500, 200);
     // Entity.call(this, game, 7100, 400);
 }
@@ -992,7 +992,7 @@ Slime.prototype.update = function() {
     }
 
     if (collided(mc.boundingbox, this) && this.hp > 0) {
-        mc.hp -= 1;
+        mc.hp -= 2;
         mc.damaged = true;
         if (mc.back) {
             mc.x += 15;
@@ -1175,7 +1175,7 @@ Bat.prototype.update = function () {
 }
 
 Bat.prototype.draw = function(ctx) {
-    if(this.flyLeft) {
+    if(!this.flyRight) {
         this.flyLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.5);
     }
     else {
@@ -1205,7 +1205,7 @@ function Skeleton(game, spawnX, spawnY, minX, maxX) {
     this.width = 64;
     this.height = 64;
     this.ground = spawnY;
-    this.hp = 10;
+    this.hp = 25;
     this.inRange = false;
     this.idle = true;
     this.startX = spawnX;
