@@ -94,11 +94,26 @@ GameEngine.prototype.startInput = function () {
             var slime = new Slime(that, 1700, 632, 1700, 2400);
             var slime2 = new Slime(that, 2000, 632, 1700, 2400);
             var slime3 = new Slime(that, 2200, 632, 1700, 2400);
-            var slime4 = new Slime(that, 1450, 600, 1450, 1586);
+            var slime4 = new Slime(that, 1450, 600, 1450, 1578);
+            var slime5 = new Slime(that, 3712, 600, 3712, 4288);
+            var slime6 = new Slime(that, 416, -170, 416, 1140);
+            var slime7 = new Slime(that, 700, -170, 416, 1140);
+            var slime8 = new Slime(that, 900, -170, 416, 1140);
+
+
+            var bat = new Bat(that, 7232, 544, 5026, 7200, 64);
+            var bat2 = new Bat(that, 5026, 544, 5026, 7200, 64);
+            var bat3 = new Bat(that, 1932, 60, 1088, 1856, 64);
+            var bat4 = new Bat(that, 192, 192, 192, 768, 96);
+
+
+            // 64 - 84 = -20
+            var skeleton = new Skeleton(that, 3000, -20, 3000, 3300);
+            var skeleton2 = new Skeleton(that, 4416, 555, 3648, 4288);
+            var skeleton3 = new Skeleton(that, 750, 236, 192, 704);
+
 
             var dino = new Dino(that);
-            var bat = new Bat(that);
-            var skeleton = new Skeleton(that);
             var nightmare = new Nightmare(that, 200, true);
             var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
@@ -107,7 +122,8 @@ GameEngine.prototype.startInput = function () {
             // items
             var turkey1 = new Turkey(that, 2540, 540);
             var turkey2 = new Turkey(that, 2670, 450);
-            var turkey3 = new Turkey(that, 6650, 200);
+            var turkey3 = new Turkey(that, 224, -288);
+            var turkey4 = new Turkey(that, 6650, 200);
 
             // traps
             var fallingspike1 = new FallingSpike(that, 512, 480);
@@ -152,6 +168,7 @@ GameEngine.prototype.startInput = function () {
             that.addEntity(turkey1);
             that.addEntity(turkey2);
             that.addEntity(turkey3);
+            that.addEntity(turkey4);
 
             that.addEntity(chest);
             that.addEntity(chest2);
@@ -211,9 +228,22 @@ GameEngine.prototype.startInput = function () {
             that.addEntity(slime2);
             that.addEntity(slime3);
             that.addEntity(slime4);
+            that.addEntity(slime5);
+            that.addEntity(slime6);
+            that.addEntity(slime7);
+            that.addEntity(slime8);
+
+
+            that.addEntity(bat);
+            that.addEntity(bat2);
+            that.addEntity(bat3);
+            that.addEntity(bat4);
+
+            that.addEntity(skeleton);
+            that.addEntity(skeleton2);
+            that.addEntity(skeleton3);
 
             // that.addEntity(dino);
-            // that.addEntity(bat);
             // that.addEntity(skeleton);
 
             // that.addEntity(nightmare);
