@@ -1967,6 +1967,7 @@ MiniBoss.prototype.update = function () {
     
     // }
 
+
     if(this.hitRev.isDone()) {
         this.hitRev.elapsedTime = 0;
         this.attack = true;

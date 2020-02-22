@@ -200,9 +200,6 @@ GameEngine.prototype.startInput = function () {
             var slime8 = new Slime(that, 900, -170, 416, 1140);
             var slime9 = new Slime(that, 4288, 600, 3712, 4288);
 
-            // var miniBoss = new MiniBoss(that);
-            // var slime10 = new Slime(that, 2848, 100, 2848, 3290);
-
 
             var bat = new Bat(that, 7232, 544, 5026, 7200, 64);
             var bat2 = new Bat(that, 5026, 544, 5026, 7200, 64);
@@ -410,6 +407,8 @@ GameEngine.prototype.startInput = function () {
             that.enemies.push(skeleton4);
             that.enemies.push(skeleton5);
             that.enemies.push(skeleton6);
+
+            that.enemies.push(miniBoss);
 
             that.enemies.push(miniBoss);
 
