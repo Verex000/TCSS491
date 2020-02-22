@@ -7,7 +7,7 @@
         body{ background:#666; }
         button{ border:none; cursor:pointer; outline:none; }
         button#mutebtn{
-            background:url(img/mute.png) no-repeat;
+            background:url(img/unmute.png) no-repeat;
             
             width:128px;
             height:128px;
@@ -27,7 +27,6 @@
             audio = new Audio();
             audio.src = "SOTNDracula.mp3";
             audio.loop = true;
-            audio.play();
             mutebtn = document.getElementById("mutebtn");
             mutebtn.addEventListener("click", mute);
 
@@ -37,6 +36,7 @@
                     mutebtn.style.background = "url(img/mute.png) no-repeat";
                 } else {
                     audio.muted = true;
+                    audio.play();
                     mutebtn.style.background = "url(img/unmute.png) no-repeat";
                 }
             }
