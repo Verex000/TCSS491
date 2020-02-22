@@ -96,13 +96,13 @@ GameEngine.prototype.startInput = function () {
             var fallingspike = new FallingSpike(that, 200, 20);
             var spike = new Spike(that, 100, 620);
             var dino = new Dino(that);
-            var bat = new Bat(that);
+            var bat = new Bat(that, 3488, 80, 2816, 3488, 32);
             var skeleton = new Skeleton(that, 640, 672, 64);
             var chest = new Chest(that);
             var nightmare = new Nightmare(that, 200, true);
             var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
-            var lever = new Lever(that, )
+            //var lever = new Lever(that, )
 
             that.addEntity(bg);
             that.addEntity(map);
@@ -118,7 +118,7 @@ GameEngine.prototype.startInput = function () {
             that.addEntity(fallingspike);
             that.addEntity(spike);
             // that.addEntity(dino);
-            // that.addEntity(bat);
+            that.addEntity(bat);
             // that.addEntity(skeleton);
             // that.addEntity(chest);  
             // that.addEntity(nightmare);

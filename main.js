@@ -977,6 +977,7 @@ function Slime(game, spawnX, spawnY, leftBound, rightBound, ground) {
     this.rightBoundX = rightBound;
     this.spawnX = spawnX;
     this.spawnY = spawnY;
+    this.damagedTimer = 0;
     this.boudingbox = new BoundingBox(spawnX, spawnY, 64, 64);
     Entity.call(this, game, spawnX, spawnY);
 }
@@ -985,18 +986,9 @@ Slime.prototype = new Entity();
 Slime.prototype.constructor = Slime;
 
 Slime.prototype.update = function() {
-    // console.log("Slime limitX: " + this.xDistanceLimit);
-    // console.log("Slime spawnX: " + this.spawnX);
-    // console.log("Slime spawnY: " + this.spawnY);
     var mc = this.game.entities.Character;
-    this.boundingbox = new BoundingBox(this.x, this.y, 64, 64);
     if (this.hp <= 0 && this.deathAnimation.isDone()) {
         this.removeFromWorld = true;
-    }
-
-    // fall if not on a platform
-    if (!onPlatform(this)) {
-        this.y++;
     }
 
     if(this.y > this.ground) {
@@ -1005,6 +997,7 @@ Slime.prototype.update = function() {
 
     if (collided(mc.boundingbox, this) && this.hp > 0) {
         mc.hp -= 1;
+        mc.damaged = true;
         if (mc.back) {
             mc.x += 15;
         } else {
@@ -1013,7 +1006,21 @@ Slime.prototype.update = function() {
     }
     if (mc.attack) {
         if (collided(mc.hitBoxBack, this) || collided(mc.hitBoxFront, this)) {
-        this.hp -= 5;
+            if(this.damagedTimer <= 0) {
+                this.hp -= 5;
+                if(mc.back) {
+                    this.x -= 15;
+                }
+                else {
+                    this.x += 15;
+                }
+                this.damagedTimer = mc.attackForwardAnim.totalTime;
+                // console.log("Slime hit by MC");
+                // console.log("Slime Health: " + this.hp);
+            }
+            else {
+                this.damagedTimer -= this.game.clockTick;
+            }
         }
     }
 
@@ -1045,7 +1052,6 @@ Slime.prototype.update = function() {
         if(this.walkLeft) {
             this.x -= this.game.clockTick * this.speed;
             if(this.x <= this.leftBoundX) {
-                console.log("Slime Left Bound Reached: " + this.leftBoundX);
                 this.walkLeft = false;
                 this.walkRight = true;
             }
@@ -1053,7 +1059,6 @@ Slime.prototype.update = function() {
         else {
             this.x += this.game.clockTick * this.speed;
             if(this.x >= this.rightBoundX) {
-                console.log("Slime right Bound Reached: " + this.rightBoundX);
                 this.walkRight = false;
                 this.walkLeft = true;
             }
@@ -1103,15 +1108,18 @@ Slime.prototype.draw = function (ctx) {
 //#endregion
 
 //#region Bat
-function Bat(game) {
+function Bat(game, spawnX, spawnY, leftBound, rightBound, amplitude) {
     this.flyRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/bat.png"), 0, 32, 32, 32, 0.05, 4, true, true);
     this.flyLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/bat.png"), 0, 96, 32, 32, 0.05, 4, true, true);
-    this.amplitude = 50;
+    this.amplitude = amplitude;
     this.speed = 150;
     this.flyRight = true;
     this.radius = 32;
-    this.hp = 50;
-    Entity.call(this, game, 200, 400);
+    this.hp = 10;
+    this.leftBound = leftBound;
+    this.rightBound = rightBound;
+    this.spawnY = spawnY;
+    Entity.call(this, game, spawnX, spawnY);
 }
 
 Bat.prototype = new Entity();
@@ -1119,37 +1127,46 @@ Bat.prototype.constructor = Bat;
 
 Bat.prototype.update = function () {
 
-    // check for collision with mc
-    if (isCollided(this.game, this)) {
-        var mc = this.game.entities.Character;
-        if (mc.attack) {
-            this.hp -= mc.attackPower;
+    var mc = this.game.entities.Character;
+    if (collided(mc.boundingbox, this) && this.hp > 0) {
+        mc.hp -= 1;
+        console.log("Bat Collided with Mc");
+        if (mc.back) {
+            mc.x += 15;
         } else {
-            mc.hp -= 1;
-
+            mc.x -= 15;
+        }
+    }
+    if (mc.attack) {
+        if (collided(mc.hitBoxBack, this) || collided(mc.hitBoxFront, this)) {
+            console.log("MC attacked Bat");
+            console.log("Bat Health: " + this.hp);
+            this.hp -= 5;
         }
     }
 
     if (this.hp <= 0) {
         this.removeFromWorld = true;
     }
-
-    if(this.flyLeft) {
-        //fly left
-        this.x -= this.game.clockTick * this.speed;
-        if(this.x <= 100) {
-            this.flyLeft = false;
-        }
-    }
     else {
-        //fly right
-        this.x += this.game.clockTick * this.speed;
-        if(this.x >= 700) {
-            this.flyLeft = true;
+        if(!this.flyRight) {
+            if(this.x > this.leftBound) {
+                this.x -= this.game.clockTick * this.speed;
+            }
+            else {
+                this.flyRight = true;
+            }
+        }
+        else {
+            if(this.x < this.rightBound) {
+                this.x += this.game.clockTick * this.speed;
+            }
+            else {
+                this.flyRight = false;
+            }
         }
     }
-    this.y = 200 - Math.sin(this.x / 25) * this.amplitude;
-
+    this.y = this.spawnY - Math.sin(this.x / 25) * this.amplitude;
     Entity.prototype.update.call(this);
 }
 
