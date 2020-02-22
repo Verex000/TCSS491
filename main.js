@@ -571,7 +571,7 @@ MainCharacter.prototype.update = function () {
                 this.platform = pf;
                 this.fallForward.elapsedTime = 0;
                 this.fallBackward.elapsedTime = 0;
-                console.log(this.platform.x + "    " + this.platform.y);
+                //console.log(this.platform.x + "    " + this.platform.y);
                 this.boundingbox = new BoundingBox(this.x + 24, this.y, 22, 64);
                 this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
                 this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
