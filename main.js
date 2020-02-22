@@ -1885,7 +1885,7 @@ Lever.prototype.draw = function(ctx) {
 }
 
 // Begin mini Boss
-function MiniBoss(game) {
+function MiniBoss(game, spawnX, spawnY) {
     this.attackSlashRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlashRev.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
     this.attackSlash = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlash.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
     this.idle = new Animation(ASSET_MANAGER.getAsset("./img/miniBossIdle.png"), 0, 0, 729 / 3, 234, .1, 3, true, false);
@@ -1896,6 +1896,8 @@ function MiniBoss(game) {
     this.fightingAni = new Animation(ASSET_MANAGER.getAsset("./img/miniBossFighting.png"), 0, 0, 220, 206, .5, 2, true, false);
     this.still = true;
     this.attackTimer = 0;
+    this.bossIdle = true;
+    this.found = false;
     this.stillFighting = false;
     this.attack = false;
     this.gotHit = false;
@@ -1905,7 +1907,7 @@ function MiniBoss(game) {
     this.height = 298;
     this.hp = 5000;
 
-    Entity.call(this, game, 600, 420);
+    Entity.call(this, game, spawnX, spawnY);
     //Entity.call(this, game, theX, 600);
 }
 
@@ -1931,15 +1933,18 @@ MiniBoss.prototype.update = function () {
             
         } 
         if (this.attack && this.attackTime === 0) {
-            mc.hp -= 1;
+            mc.hp -= 3;
         }
     }
-
+    
+    
     if(this.game.entities.Character) {
         if(this.game.entities.Character.x - this.x > -32 && this.game.entities.Character.x - this.x < 0) {
+            this.found = true;
         }
         else {
             if(this.game.entities.Character.x - this.x > 38 && this.game.entities.Character.x - this.x < 70) {
+                this.found = true;
             }
             else {
             }
@@ -1953,6 +1958,9 @@ MiniBoss.prototype.update = function () {
         }
     
     }
+    
+
+    
 
 
     if(this.hitRev.isDone()) {
@@ -1989,14 +1997,16 @@ MiniBoss.prototype.update = function () {
 
     if (this.hp <= 0) {
         this.removeFromWorld = true;
+        this.game.cosmeticEntities.push(new GameWonScreen(this.game));
     }
-
+    if(this.found) {
     if(this.back) {
         this.x = this.x - this.game.clockTick * 100
     }
 else {
         this.x = this.x + this.game.clockTick * 100
  }
+}
     
     
 
@@ -2010,12 +2020,12 @@ MiniBoss.prototype.draw = function (ctx) {
         
     } else if (this.attack === true  && this.back) {
         console.log("ATTACK");
-        this.attackSlashRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 85);
+        this.attackSlashRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 100);
 
         
 
     } else if ( this.stillFighting && this.back ) {
-        this.fightingAniRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y + 30);
+        this.fightingAniRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 30, this.y - this.game.camera.y + 25);
     
     }else if(this.gotHit  && this.back === false) {
         this.hit.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y - 50);
@@ -2023,12 +2033,14 @@ MiniBoss.prototype.draw = function (ctx) {
             
     } else if (this.attack  && this.back === false) {
         console.log("ATTACK");
-        this.attackSlash.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 85);
+        this.attackSlash.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 100);
       
     
     } else if ( this.stillFighting && this.back === false) {
-            this.fightingAni.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y + 30);
+            this.fightingAni.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 30, this.y - this.game.camera.y + 25);
     } else if (this.back) {
+        this.idleRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    } else if (this.bossIdle) {
         this.idleRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     } else  {
         this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
@@ -2142,12 +2154,31 @@ MapLevel.prototype.update = function() {
 MapLevel.prototype.draw = function (ctx) {
 }
 
+function GameWonScreen(game) {
+    this.x = 0;
+    this.y = 0;
+    this.game = game;
+    this.ctx = game.ctx;
+};
+GameWonScreen.prototype.draw = function () {
+    this.ctx.fillStyle = "rgba(0, 0, 200, 0.7)";
+    this.ctx.fillRect(0, 0, 1200, 700);
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "100px Impact";
+    this.ctx.fillText("You Won!", 330, 350);
+};
+
+GameWonScreen.prototype.update = function () {
+    this.game.pause = true;
+};
+
 function GameOverScreen(game) {
     this.x = 0;
     this.y = 0;
     this.game = game;
     this.ctx = game.ctx;
 };
+
 
 GameOverScreen.prototype.draw = function () {
     this.ctx.fillStyle = "rgba(0, 0, 200, 0.7)";
@@ -2201,6 +2232,7 @@ ASSET_MANAGER.queueDownload("./img/miniBossIdleRev.png");
 ASSET_MANAGER.queueDownload("./img/miniBossFightingRev.png");
 ASSET_MANAGER.queueDownload("./img/miniBossHitRev.png");
 ASSET_MANAGER.queueDownload("./img/miniBossAttackSlashRev.png");
+ASSET_MANAGER.queueDownload("./img/winScreen.png");
 
 ASSET_MANAGER.queueDownload("./img/miniBossIdle.png");
 ASSET_MANAGER.queueDownload("./img/miniBossFighting.png");

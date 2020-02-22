@@ -201,6 +201,8 @@ GameEngine.prototype.startInput = function () {
             var slime7 = new Slime(that, 700, -170, 416, 1140);
             var slime8 = new Slime(that, 900, -170, 416, 1140);
             var slime9 = new Slime(that, 4288, 600, 3712, 4288);
+
+            var miniBoss = new MiniBoss(that);
             // var slime10 = new Slime(that, 2848, 100, 2848, 3290);
 
 
@@ -223,7 +225,7 @@ GameEngine.prototype.startInput = function () {
             var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
 
-            var miniBoss = new MiniBoss(that);
+            var miniBoss = new MiniBoss(that, 7725, -200);
             
             
 
@@ -358,6 +360,8 @@ GameEngine.prototype.startInput = function () {
             that.enemies.push(skeleton3);
             that.enemies.push(skeleton4);
             that.enemies.push(skeleton5);
+
+            that.enemies.push(miniBoss);
 
             // that.addEntity(dino);
             // that.addEntity(skeleton);
