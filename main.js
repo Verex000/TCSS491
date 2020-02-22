@@ -384,8 +384,8 @@ function MainCharacter(game) {
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 44, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
 
-    Entity.call(this, game, 50, 544);
-    // Entity.call(this, game, 2464, -416);
+    //Entity.call(this, game, 50, 544);
+    Entity.call(this, game, 2464, -416);
     // Entity.call(this, game, 7100, 400);
 }
 
@@ -983,9 +983,10 @@ function Slime(game, theX, theY, minX, maxX) {
     this.walkRight = false;
     this.jumpTime = 0;
     this.game = game;
-    this.hp = 150;
+    this.hp = 15;
     this.maxX = maxX;
     this.minX = minX;
+    this.damagedTimer = 0;
     Entity.call(this, game, theX, theY);
     // Entity.call(this, game, 2800, 700);
 }
@@ -999,7 +1000,7 @@ Slime.prototype.update = function() {
         this.removeFromWorld = true;
     }
 
-    if(this.y > this.ground) {
+    if(this.y > this.ground ) {
         this.hp = -1;
     }
 
@@ -1015,16 +1016,16 @@ Slime.prototype.update = function() {
     if (mc.attack) {
         if (collided(mc.hitBoxBack, this) || collided(mc.hitBoxFront, this)) {
             if(this.damagedTimer <= 0) {
-                this.hp -= 5;
+                this.hp -= mc.attackPower;
                 if(mc.back) {
-                    this.x -= 15;
+                    this.x -= 30;
                 }
                 else {
-                    this.x += 15;
+                    this.x += 30;
                 }
                 this.damagedTimer = mc.attackForwardAnim.totalTime;
-                // console.log("Slime hit by MC");
-                // console.log("Slime Health: " + this.hp);
+                console.log("Slime hit by MC");
+                console.log("Slime Health: " + this.hp);
             }
             else {
                 this.damagedTimer -= this.game.clockTick;
@@ -1035,6 +1036,14 @@ Slime.prototype.update = function() {
     
     if(this.jumpTime >= 100) {
         this.jumping = true;
+    }
+    if(mc.x < this.x && this.x > this.minX && Math.abs(this.x - mc.x) <= 100) {
+        this.walkLeft = true;
+        this.walkRight = false;
+    }
+    if(mc.x > this.x && this.x < this.maxX && Math.abs(this.x - mc.x) <= 100) {
+        this.walkRight = true;
+        this.walkLeft = false;
     }
     if(mc.x < this.x && this.x > this.leftBoundX) {
         this.walkLeft = true;
@@ -1070,7 +1079,7 @@ Slime.prototype.update = function() {
             }
          }
     }
-    else {
+    else if(this.hp > 0) {
         if(this.walkLeft) {
             this.x -= this.game.clockTick * this.speed;
             if(this.x <= this.minX) {
@@ -1117,10 +1126,12 @@ function Bat(game, spawnX, spawnY, leftBound, rightBound, amplitude) {
     this.flyRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/bat.png"), 0, 32, 32, 32, 0.05, 4, true, true);
     this.flyLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/bat.png"), 0, 96, 32, 32, 0.05, 4, true, true);
     this.amplitude = amplitude;
-    this.speed = 150;
+    this.speed = 225;
     this.flyRight = true;
     this.radius = 32;
-    this.hp = 10;
+    this.hp = 5;
+    this.width = 32;
+    this.height = 32;
     this.leftBound = leftBound;
     this.rightBound = rightBound;
     this.spawnY = spawnY;
@@ -1133,8 +1144,14 @@ Bat.prototype.constructor = Bat;
 Bat.prototype.update = function () {
 
     var mc = this.game.entities.Character;
+    if (this.hp <= 0) {
+        this.removeFromWorld = true;
+    }
+
+    var mc = this.game.entities.Character;
     if (collided(mc.boundingbox, this) && this.hp > 0) {
         mc.hp -= 1;
+        mc.damaged = true;
         console.log("Bat Collided with Mc");
         if (mc.back) {
             mc.x += 15;
@@ -1146,29 +1163,24 @@ Bat.prototype.update = function () {
         if (collided(mc.hitBoxBack, this) || collided(mc.hitBoxFront, this)) {
             console.log("MC attacked Bat");
             console.log("Bat Health: " + this.hp);
-            this.hp -= 5;
+            this.hp -= mc.attackPower;
         }
     }
 
-    if (this.hp <= 0) {
-        this.removeFromWorld = true;
-    }
-    else {
-        if(!this.flyRight) {
-            if(this.x > this.leftBound) {
-                this.x -= this.game.clockTick * this.speed;
-            }
-            else {
-                this.flyRight = true;
-            }
+    if(!this.flyRight) {
+        if(this.x > this.leftBound) {
+            this.x -= this.game.clockTick * this.speed;
         }
         else {
-            if(this.x < this.rightBound) {
-                this.x += this.game.clockTick * this.speed;
-            }
-            else {
-                this.flyRight = false;
-            }
+            this.flyRight = true;
+        }
+    }
+    else {
+        if(this.x < this.rightBound) {
+            this.x += this.game.clockTick * this.speed;
+        }
+        else {
+            this.flyRight = false;
         }
     }
     this.y = this.spawnY - Math.sin(this.x / 25) * this.amplitude;
@@ -1177,21 +1189,24 @@ Bat.prototype.update = function () {
 
 Bat.prototype.draw = function(ctx) {
     if(this.flyLeft) {
-        this.flyLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        this.flyLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.5);
     }
     else {
-        this.flyRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        this.flyRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.5);
     }
     Entity.prototype.draw.call(this);
 }
 //#endregion
 
 //#region Skeleton
-function Skeleton(game, spawnX, spawnY, limitX) {
+function Skeleton(game, spawnX, spawnY, minX, maxX) {
     this.walkLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 0, 64, 64, 0.25, 4, true, true);
     this.walkRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 64, 64, 64, 0.25, 4, true, true);
     this.attackLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 64, 192, 64, 64, 0.15, 3, false, true);
     this.attackRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 256, 64, 64, 0.15, 3, false, true);
+    this.deathAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 128, 64, 64, 0.15, 5, false, false );
+    this.startAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 128, 64, 64, 0.3, 5, false, true );
+    this.idleAnimation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 0, 192, 64, 64, 0.3, 1, true, true);
     this.attacking = false;
     this.attackTime = 0;
     this.attackLeft = false;
@@ -1200,116 +1215,83 @@ function Skeleton(game, spawnX, spawnY, limitX) {
     this.walkRight = true;
     this.speed = 80;
     this.radius = 55;
+    this.width = 64;
+    this.height = 64;
     this.ground = spawnY;
-    this.hp = 50;
-    this.detectMc = false;
-    this.detectAnimation = false;
-    this.start = 1;
+    this.hp = 10;
+    this.inRange = false;
+    this.idle = true;
     this.startX = spawnX;
-    this.xDistanceLimit = limitX;
+    this.damagedTimer = 0;
+    this.minX = minX;
+    this.maxX = maxX;
     Entity.call(this, game, spawnX, spawnY);
 }
 Skeleton.prototype = new Entity();
 Skeleton.prototype.constructor = Skeleton;
 
 Skeleton.prototype.update = function() {
-    // fall if not on a platform
-    // if (!onPlatform(this)) {
-    //     this.y += 1;
-    // }
-
-    // check for collision with mc
-    if (isCollided(this.game, this)) {
-        var mc = this.game.entities.Character;
-        if (mc.attack) {
-            // console.log("skeleton is attacked");
-            this.hp -= 5;
-        } else {
-            mc.hp -= 1;
-
-        }
-    }
 
 
     var mc = this.game.entities.Character;
-    //idle Animation
-    // if(this.x < this.game.camera.x || this.x > this.game.camera.x 
-    //     || this.y < this.game.camera.y || this.y > this.game.camera.y) {
-    //         this.detectMC = false;
-    //         this.detectAnimation = false;
-
-    // }
+    if (this.hp <= 0 && this.deathAnimation.isDone()) {
+        this.removeFromWorld = true;
+    }
+    if (collided(mc.boundingbox, this) && this.hp > 0) {
+        mc.hp -= 1;
+        mc.damaged = true;
+        if (mc.back) {
+            mc.x += 15;
+        } else {
+            mc.x -= 15;
+        }
+    }
     //MC is in range
-    if(Math.abs(this.x - mc.x) <= 300) {
-        this.detectMc = true;
-        // if(this.start == 1) {
-        //     this.startAnimation = true;
-        //     this.start--;
-        // }
+    if(Math.abs(this.x - mc.x) <= 300 && Math.abs(this.y - mc.y) <= 100) {
+        this.inRange = true;
     }
-    //Walk towards MC
-    if(this.detectMC) {
-       //MC is to the left of this and getting further, and on the same level
-       if(mc.x - this.x < -250 && Math.abs(mc.y - this.y) == 0) {
-           this.x -= this.game.clockTick * this.speed;
-           this.walkLeft = true;
-           this.walkRight = false;
-           this.attackLeft = true;
-           this.attackRight = false;
-       }
-       //MC is to the right of this and getting further, and on the same level
-       if(mc.x - this.x > 250 && Math.abs(mc.y - this.y) == 0) {
-           this.x += this.game.clockTick * this.speed;
-           this.walkRight = true;
-           this.walkLeft = false;
-           this.attackRight = true;
-           this.attackLeft = false;
-       }
-
-       //MC is left of this, but getting closer
-       if(mc.x - this.x >= -250 && Math.abs(mc.y - this.y) == 0) {
-           this.x += this.game.clockTick * this.speed;
-           this.walkRight = true;
-           this.walkLeft = false;
-           this.attackRight = false;
-           this.attackLeft = true;
-       }
-       //MC is right of this, but getting closer
-       if(mc.x - this.x < 250 && Math.abs(mc.y - this.y) == 0) {
-           this.x -= this.game.clockTick * this.speed;
-           this.walkRight = false;
-           this.walkLeft = true;
-           this.attackRight = false;
-           this.attackLeft = true;
-       }
-
+    else {
+        this.inRange = false;
+    }
+    if (mc.attack) {
+        if (collided(mc.hitBoxBack, this) || collided(mc.hitBoxFront, this)) {
+            if(this.damagedTimer <= 0) {
+                this.hp -= mc.attackPower;
+                if(mc.back) {
+                    this.x -= 30;
+                }
+                else {
+                    this.x += 30;
+                }
+                this.damagedTimer = mc.attackForwardAnim.totalTime;
+                console.log("Bone boi hit by MC");
+                console.log("Bone boi Health: " + this.hp);
+            }
+            else {
+                this.damagedTimer -= this.game.clockTick;
+            }
+        }
     }
 
-
-    if (this.attackTime >= 100  && Math.abs(mc.x - this.x) <= 250) {
+    if (this.attackTime >= 100  && this.inRange) {
         this.attacking = true;
     }
     if(this.attacking) {
-        var direction = null;
-        //Walk left, attack left
-        if(this.walkLeft && this.attackLeft) {
+        var direction = true;
+        if(mc.x <= this.x) {
             direction = false;
+            this.attackLeft = true;
+            this.attackRight = false;
         }
-        //Walk left, attack right
-        else if(this.walkLeft && !this.attackLeft) {
-            direction = true;
-        }
-        //Walk right, attack right
-        else if(!this.walkLeft && !this.attackLeft) {
-            direction = true;
-        }
-        //Walk right, attack left
         else {
-            direction = false;
+            direction = true;
+            this.attackRight = true;
+            this.attackLeft = false;
         }
-        //this.walkLeft ? this.attackLeft = true : this.attackRight = true;
         if(this.attackLeftAnimation.isDone() || this.attackRightAnimation.isDone()) {
-            let bone = new SkeletonBone(this.game, this.x + 1, this.y - 5, this.walkRight);
+           // range = Math.sqrt(Math.abs(this.x - mc.x)) / 100;
+           range = 0;
+            let bone = new SkeletonBone(this.game, this.x, this.y, direction, 1 + range);
             this.game.addEntity(bone);
             this.attackLeftAnimation.elapsedTime = 0;
             this.attackRightAnimation.elapsedTime = 0;
@@ -1317,23 +1299,19 @@ Skeleton.prototype.update = function() {
             this.attackTime = 0;
         }
     }
-    else {
+    else if(this.hp > 0) {
         if(this.walkLeft) {
             this.x -= this.game.clockTick * this.speed;
-            if(this.x <= 100) {
+            if(this.x <= this.minX) {
                 this.walkLeft = false;
                 this.walkRight = true;
-                this.attackRight = true;
-                this.attackLeft = false;
             }
         }
         else {
             this.x += this.game.clockTick * this.speed;
-            if(this.x >= 700) {
+            if(this.x >= this.maxX) {
                 this.walkRight = false;
                 this.walkLeft = true;
-                this.attackLeft = true;
-                this.attackRight = false;
             }
         }
     }
@@ -1345,26 +1323,24 @@ Skeleton.prototype.update = function() {
 
 Skeleton.prototype.draw = function(ctx) {
     if(this.hp <= 0) {
-        this.deathAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        this.deathAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.3);
     }
     else {
-        // if(this.detectMC && this.detectAnimation) {
-        //     this.startAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-        // }
-        // else if(!this.detectMC) {
-        //     this.idleAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-        //     this.start++;
-        // }
         if(this.attacking) {
             if(this.attackLeft) {
-                this.attackLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+                this.attackLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.3);
             }
             else {
-                this.attackRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+                this.attackRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.3);
             }
         }
         else {
-            this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+            if(this.walkLeft) {
+                this.walkLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.3);
+            }
+            else {
+                this.walkRightAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.3);
+            }
         }
     }
 
@@ -1372,12 +1348,17 @@ Skeleton.prototype.draw = function(ctx) {
 
 }
 
-function SkeletonBone(game, skeletonX, skeletonY, direction) {
-    this.animation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 192, 256, 64, 64, 0.2, 3, true, true);
+function SkeletonBone(game, skeletonX, skeletonY, direction, range) {
+    this.animation = new Animation(ASSET_MANAGER.getAsset("./img/skeleton.png"), 192, 256, 64, 64, 0.3, 3, true, true);
     this.speed = 300;
     this.ground = skeletonY + 100;
     this.radius = 16;
+    this.width = 64;
+    this.height = 64;
     this.direction = direction;
+    this.range = range;
+    this.x0 = skeletonX;
+    this.y0 = skeletonY;
     Entity.call(this, game, skeletonX, skeletonY);
 }
 
@@ -1385,43 +1366,46 @@ SkeletonBone.prototype = new Entity();
 SkeletonBone.prototype.constructor = SkeletonBone;
 
 SkeletonBone.prototype.update = function() {
-    // fall if not on a platform
-    // if (!onPlatform(this)) {
-    //     this.y += 1;
+
+
+    var mc = this.game.entities.Character;
+
+    if (collided(mc.boundingbox, this)) {
+        mc.hp -= 15;
+        mc.damaged = true;
+        if (mc.back) {
+            mc.x += 15;
+        } else {
+            mc.x -= 15;
+        }
+        this.removeFromWorld = true;
+    }
+
+    // if(this.y >= 800) {
+    //     this.removeFromWorld = true;
     // }
-
-
-    // check for collision with mc
-    if (isCollided(this.game, this)) {
-        var mc = this.game.entities.Character;
-        mc.hp -= 5;
+    if(this.x > this.x0 + 300 || this.x < this.x0 - 300) {
         this.removeFromWorld = true;
     }
 
+    // let deltaX = this.animation.elapsedTime / this.animation.totalTime;
+    // let totalHeight = this.y + 10;
 
-    if(this.y >= this.ground) {
-        this.removeFromWorld = true;
-    }
-    if(this.x > 15936 || this.x < 0) {
-        this.removeFromWorld = true;
-    }
-
-    let deltaX = this.animation.elapsedTime / this.animation.totalTime;
-    let totalHeight = this.y + 10;
-
-    let deltaY = totalHeight * (-4 * (deltaX * deltaX - deltaX));
-    this.y = this.ground - deltaY;
+    // let deltaY = totalHeight * (-4 * (deltaX * deltaX - deltaX));
+    // this.y = this.ground - deltaY;
     if(this.direction) {
-        this.x += this.game.clockTick * this.speed;
+        this.x += this.game.clockTick * this.speed * this.range;
     }
     else {
-        this.x -= this.game.clockTick * this.speed;
+        this.x -= this.game.clockTick * this.speed * this.range;
     }
+    // this.x = 10 * Math.cos(Math.PI / 2) * this.game.clockTick;
+    // this.y = 10 * Math.sin(Math.PI / 2) * this.game.clockTick - 0.5 * 4 * Math.exp(this.game.clockTick, 2);
     Entity.prototype.update.call(this);
 }
 
 SkeletonBone.prototype.draw = function(ctx) {
-    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.3);
 }
 //#endregion
 
