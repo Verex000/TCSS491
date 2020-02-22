@@ -2232,7 +2232,7 @@ ASSET_MANAGER.queueDownload("./img/miniBossIdleRev.png");
 ASSET_MANAGER.queueDownload("./img/miniBossFightingRev.png");
 ASSET_MANAGER.queueDownload("./img/miniBossHitRev.png");
 ASSET_MANAGER.queueDownload("./img/miniBossAttackSlashRev.png");
-ASSET_MANAGER.queueDownload("./img/winScreen.png");
+
 
 ASSET_MANAGER.queueDownload("./img/miniBossIdle.png");
 ASSET_MANAGER.queueDownload("./img/miniBossFighting.png");
