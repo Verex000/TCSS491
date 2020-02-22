@@ -33,6 +33,7 @@ Timer.prototype.tick = function () {
 
 function GameEngine() {
     this.entities = [];
+    this.openNext = false;
     this.entities.Character = null;
     this.showOutlines = false;
     this.a = null;
@@ -44,8 +45,10 @@ function GameEngine() {
     this.p = null;
     this.controlScreen = false;
     this.startGame = true;
+    this.enemies = [];
     this.camera = null;
     this.platforms = [];
+    this.gates = [];
     this.cosmeticEntities = [];
     this.space = null;
     this.surfaceWidth = null;
@@ -187,15 +190,34 @@ GameEngine.prototype.startInput = function () {
             var bg = new Background(that);
             var map = new MapLevel(that);
             var healthbar = new HealthBar(that);
-            var slime = new Slime(that);
-            var turkey = new Turkey(that, 200, 620);
-            var turkey2 = new Turkey(that, 800, 620);
-            var fallingspike = new FallingSpike(that, 200, 20);
-            var spike = new Spike(that, 100, 620);
+
+            // enemies
+            var slime = new Slime(that, 1700, 632, 1700, 2400);
+            var slime2 = new Slime(that, 2000, 632, 1700, 2400);
+            var slime3 = new Slime(that, 2200, 632, 1700, 2400);
+            var slime4 = new Slime(that, 1450, 600, 1450, 1578);
+            var slime5 = new Slime(that, 3712, 600, 3712, 4288);
+            var slime6 = new Slime(that, 416, -170, 416, 1140);
+            var slime7 = new Slime(that, 700, -170, 416, 1140);
+            var slime8 = new Slime(that, 900, -170, 416, 1140);
+            var slime9 = new Slime(that, 4288, 600, 3712, 4288);
+
+
+            var bat = new Bat(that, 7232, 544, 5026, 7200, 64);
+            var bat2 = new Bat(that, 5026, 544, 5026, 7200, 64);
+            var bat3 = new Bat(that, 1932, 60, 1088, 1856, 64);
+            var bat4 = new Bat(that, 192, 192, 192, 768, 96);
+
+
+            // 64 - 84 = -20
+            var skeleton = new Skeleton(that, 3000, -20, 3000, 3300);
+            var skeleton2 = new Skeleton(that, 4200, 555, 3648, 4288);
+            var skeleton3 = new Skeleton(that, 750, 236, 192, 704);
+            var skeleton4 = new Skeleton(that, 4608, 555, 4608, 5000);
+            var skeleton5 = new Skeleton(that, 5000, 555, 4608, 5000);
+
+
             var dino = new Dino(that);
-            var bat = new Bat(that);
-            var skeleton = new Skeleton(that);
-            var chest = new Chest(that);
             var nightmare = new Nightmare(that, 200, true);
             var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
@@ -204,33 +226,158 @@ GameEngine.prototype.startInput = function () {
             
             
 
+            //var lever = new Lever(that, )
+
+            // items
+            var turkey1 = new Turkey(that, 2540, 540);
+            var turkey2 = new Turkey(that, 2670, 450);
+            var turkey3 = new Turkey(that, 224, -288);
+            var turkey4 = new Turkey(that, 6650, 200);
+
+            // traps
+            var fallingspike1 = new FallingSpike(that, 512, 480);
+            var fallingspike2 = new FallingSpike(that, 544, 480);
+            var fallingspike3 = new FallingSpike(that, 576, 480);
+            var fallingspike4 = new FallingSpike(that, 608, 480);
+            var fallingspike5 = new FallingSpike(that, 640, 480);
+            var fallingspike6 = new FallingSpike(that, 672, 480);
+            var fallingspike7 = new FallingSpike(that, 704, 480);
+            var fallingspike8 = new FallingSpike(that, 736, 480);
+
+            var fallingspike9 = new FallingSpike(that, 864, 320);
+            var fallingspike10 = new FallingSpike(that, 928, 320);
+            var fallingspike11 = new FallingSpike(that, 960, 320);
+            var fallingspike12 = new FallingSpike(that, 1024, 320);
+            var fallingspike13 = new FallingSpike(that, 1056, 320);
+
+            var fallingspike14 = new FallingSpike(that, 1728, -224);
+            var fallingspike15 = new FallingSpike(that, 1536, -96);
+            var fallingspike16 = new FallingSpike(that, 1376, -96);
+            var fallingspike17 = new FallingSpike(that, 1344, -96);
+
+
+            var spike = new Spike(that, 320, 620);
+
+            var chest = new Chest(that, 1560, 590);
+            var chest2 = new Chest(that, 2575, 510);
+            var chest3 = new Chest(that, 7910, 310);
+            var chest4 = new Chest(that, 1485, -224);
+            
+            var lever = new Lever(that, 7910, 450);
+
+            // ADD ENTITIES
             that.addEntity(bg);
             that.addEntity(map);
             that.cosmeticEntities.push(healthbar);
 
             var maincharacter = new MainCharacter(that);
             that.entities.Character = maincharacter;
-            // that.addEntity(maincharacter);
-            that.addEntity(slime);
-            // that.addEntity(turkey);
-            // that.addEntity(turkey2);
-            that.addEntity(fallingspike);
+
+            // items
+            that.addEntity(turkey1);
+            that.addEntity(turkey2);
+            that.addEntity(turkey3);
+            that.addEntity(turkey4);
+
+            that.addEntity(chest);
+            that.addEntity(chest2);
+            that.addEntity(chest3);
+            that.addEntity(chest4);
+            
+            that.addEntity(lever);
+
+            // traps
+            that.addEntity(fallingspike1);
+            that.addEntity(fallingspike2);
+            that.addEntity(fallingspike3);
+            that.addEntity(fallingspike4);
+            that.addEntity(fallingspike5);
+            that.addEntity(fallingspike6);
+            that.addEntity(fallingspike7);
+            that.addEntity(fallingspike8);
+
+            that.addEntity(fallingspike9);
+            that.addEntity(fallingspike10);
+            that.addEntity(fallingspike11);
+            that.addEntity(fallingspike12);
+            that.addEntity(fallingspike13);
+
+            that.addEntity(fallingspike14);
+            that.addEntity(fallingspike15);
+            that.addEntity(fallingspike16);
+            that.addEntity(fallingspike17);
+
             that.addEntity(spike);
+
+            // dart trap on level 1
+            that.addEntity(new Dart(that, 2614, 500, 1664));
+            that.cosmeticEntities.push(new DartTrap(that, 2624, 480));
+
+            that.addEntity(new Dart(that, 3500, 490, 2784));
+            that.addEntity(new Dart(that, 3500, 522, 2784));
+            that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
+            that.cosmeticEntities.push(new DartTrap(that, 3520, 512));
+
+            // dart trap on level 2
+            that.addEntity(new Dart(that, 396, -118, 32));
+            that.cosmeticEntities.push(new DartTrap(that, 416, -128));
+
+            that.addEntity(new Dart(that, 2188, -278, 1984));
+            that.cosmeticEntities.push(new DartTrap(that, 2208, -288));
+
+            that.addEntity(new Dart(that, 2380, -182, 2208));
+            that.cosmeticEntities.push(new DartTrap(that, 2400, -192));
+
+            that.addEntity(new Dart(that, 5356, 106, 5216));
+            that.cosmeticEntities.push(new DartTrap(that, 5376, 96));
+
+            that.addEntity(new Dart(that, 5814, 106, 5568));
+            that.cosmeticEntities.push(new DartTrap(that, 5824, 96));
+
+
+            // enemies
+            that.enemies.push(slime);
+            that.enemies.push(slime2);
+            that.enemies.push(slime3);
+            that.enemies.push(slime4);
+            that.enemies.push(slime5);
+            that.enemies.push(slime6);
+            that.enemies.push(slime7);
+            that.enemies.push(slime8);
+            that.enemies.push(slime9);
+
+
+            that.enemies.push(bat);
+            that.enemies.push(bat2);
+            that.enemies.push(bat3);
+            that.enemies.push(bat4);
+
+            that.enemies.push(skeleton);
+            that.enemies.push(skeleton2);
+            that.enemies.push(skeleton3);
+            that.enemies.push(skeleton4);
+            that.enemies.push(skeleton5);
+
             // that.addEntity(dino);
-            // that.addEntity(bat);
             // that.addEntity(skeleton);
-            // that.addEntity(chest);  
+
             // that.addEntity(nightmare);
             // that.addEntity(ghost);
             // that.addEntity(attackWolf);
 
-            that.addEntity(miniBoss);
-            traps.push(fallingspike);
-            traps.push(spike);
-            that.addEntity(new Dart(that, 3500, 490));
-            that.addEntity(new Dart(that, 3500, 522));
-            that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
-            that.cosmeticEntities.push(new DartTrap(that, 3520, 512));
+            // that.addEntity(miniBoss);
+            // traps.push(fallingspike);
+            // traps.push(spike);
+            // that.addEntity(new Dart(that, 3500, 490));
+            // that.addEntity(new Dart(that, 3500, 522));
+            // that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
+            // that.cosmeticEntities.push(new DartTrap(that, 3520, 512));
+            // traps.push(fallingspike);
+            // traps.push(spike);
+
+            // 
+
+        
 
 
                 // that.camera = new Camera();
@@ -437,12 +584,19 @@ GameEngine.prototype.draw = function () {
     for (var i = 0; i < this.entities.length; i++) {
         this.entities[i].draw(this.ctx);
     }
+    for (var i = 0; i < this.enemies.length; i++) {
+        this.enemies[i].draw(this.ctx);
+    }
     if(this.entities.Character != null) {
         this.entities.Character.draw(this.ctx);
     }
     for(var x = 0; x < this.platforms.length; x++) {
         // var plat = this.platforms[x];
         this.platforms[x].draw(this.ctx);
+    }
+    for(var z = 0; z < this.gates.length; z++) {
+        var gate = this.gates[z];
+        gate.draw(this.ctx);
     }
     for(var z = 0; z < this.cosmeticEntities.length; z++) {
         var cosmetic = this.cosmeticEntities[z];
@@ -469,6 +623,12 @@ GameEngine.prototype.update = function () {
                 entity.update();
             }
         }
+        for (var i = 0; i < this.enemies.length; i++) {
+            var entity = this.enemies[i];
+            if (!entity.removeFromWorld) {
+                entity.update();
+            }
+        }
         for(var z = 0; z < this.cosmeticEntities.length; z++) {
             var cosmetic = this.cosmeticEntities[z];
             if(!cosmetic.removeFromWorld) {
@@ -478,6 +638,16 @@ GameEngine.prototype.update = function () {
         for (var i = this.entities.length - 1; i >= 0; --i) {
             if (this.entities[i].removeFromWorld) {
                 this.entities.splice(i, 1);
+            }
+        }
+        for (var i = this.platforms.length - 1; i >= 0; --i) {
+            if (this.platforms[i].removeFromWorld) {
+                this.platforms.splice(i, 1);
+            }
+        }
+        for (var i = this.enemies.length - 1; i >= 0; --i) {
+            if (this.enemies[i].removeFromWorld) {
+                this.enemies.splice(i, 1);
             }
         }
 }
@@ -490,6 +660,7 @@ GameEngine.prototype.loop = function () {
         this.space = null;
     }
 }
+
 
 function Entity(game, x, y) {
     this.game = game;
