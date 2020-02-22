@@ -68,11 +68,9 @@ GameEngine.prototype.init = function (ctx) {
     this.surfaceHeight = this.ctx.canvas.height;
     this.startInput();
     this.timer = new Timer();
-    console.log('game initialized');
 }
 
 GameEngine.prototype.start = function () {
-    console.log("starting game");
     var that = this;
     (function gameLoop() {
         that.loop();
@@ -195,15 +193,12 @@ GameEngine.prototype.startInput = function () {
             var slime = new Slime(that, 1700, 632, 1700, 2400);
             var slime2 = new Slime(that, 2000, 632, 1700, 2400);
             var slime3 = new Slime(that, 2200, 632, 1700, 2400);
-            var slime4 = new Slime(that, 1450, 600, 1450, 1578);
+            var slime4 = new Slime(that, 1450, 600, 1445, 1500);
             var slime5 = new Slime(that, 3712, 600, 3712, 4288);
             var slime6 = new Slime(that, 416, -170, 416, 1140);
             var slime7 = new Slime(that, 700, -170, 416, 1140);
             var slime8 = new Slime(that, 900, -170, 416, 1140);
             var slime9 = new Slime(that, 4288, 600, 3712, 4288);
-
-            var miniBoss = new MiniBoss(that);
-            // var slime10 = new Slime(that, 2848, 100, 2848, 3290);
 
 
             var bat = new Bat(that, 7232, 544, 5026, 7200, 64);
@@ -218,6 +213,7 @@ GameEngine.prototype.startInput = function () {
             var skeleton3 = new Skeleton(that, 750, 236, 192, 704);
             var skeleton4 = new Skeleton(that, 4608, 555, 4608, 5000);
             var skeleton5 = new Skeleton(that, 5000, 555, 4608, 5000);
+            var skeleton6 = new Skeleton(that, 4320, -340, 4320, 4864);
 
 
             var dino = new Dino(that);
@@ -236,6 +232,11 @@ GameEngine.prototype.startInput = function () {
             var turkey2 = new Turkey(that, 2670, 450);
             var turkey3 = new Turkey(that, 224, -288);
             var turkey4 = new Turkey(that, 6650, 200);
+            var turkey5 = new Turkey(that, 7136, -224);
+            var turkey6 = new Turkey(that, 4870, -330);
+            var turkey7 = new Turkey(that, 2272, -332);
+            var turkey8 = new Turkey(that, 4512, 476);
+            var turkey9 = new Turkey(that, 5472, 60);
 
             // traps
             var fallingspike1 = new FallingSpike(that, 512, 480);
@@ -252,26 +253,39 @@ GameEngine.prototype.startInput = function () {
             var fallingspike11 = new FallingSpike(that, 960, 320);
             var fallingspike12 = new FallingSpike(that, 1024, 320);
             var fallingspike13 = new FallingSpike(that, 1056, 320);
-
+            
+            // level 2
             var fallingspike14 = new FallingSpike(that, 1728, -224);
             var fallingspike15 = new FallingSpike(that, 1536, -96);
             var fallingspike16 = new FallingSpike(that, 1376, -96);
             var fallingspike17 = new FallingSpike(that, 1344, -96);
 
+            // var fallingspike18 = new FallingSpike(that, 2816, -384);
+            // var fallingspike19 = new FallingSpike(that, 2912, -384);
+            // var fallingspike20 = new FallingSpike(that, 3008, -384);
+            // var fallingspike21 = new FallingSpike(that, 3104, -384);
+            // var fallingspike22 = new FallingSpike(that, 3200, -384);
+            // var fallingspike23 = new FallingSpike(that, 3296, -384);
 
             var spike = new Spike(that, 320, 620);
 
+            // level 2
+            var spike2 = new Spike(that, 3936, 288);
+            var spike3 = new Spike(that, 3968, 288);
+
+            // items
             var chest = new Chest(that, 1560, 590);
             var chest2 = new Chest(that, 2575, 510);
             var chest3 = new Chest(that, 7910, 310);
             var chest4 = new Chest(that, 1485, -224);
+            var chest5 = new Chest(that, 4896, -320);
+            var chest6 = new Chest(that, 4992, 132);
             
             var lever = new Lever(that, 7910, 450);
 
             // ADD ENTITIES
             that.addEntity(bg);
             that.addEntity(map);
-            that.cosmeticEntities.push(healthbar);
 
             var maincharacter = new MainCharacter(that);
             that.entities.Character = maincharacter;
@@ -281,11 +295,18 @@ GameEngine.prototype.startInput = function () {
             that.addEntity(turkey2);
             that.addEntity(turkey3);
             that.addEntity(turkey4);
+            that.addEntity(turkey5);
+            that.addEntity(turkey6);
+            that.addEntity(turkey7);
+            that.addEntity(turkey8);
+            that.addEntity(turkey9);
 
             that.addEntity(chest);
             that.addEntity(chest2);
             that.addEntity(chest3);
             that.addEntity(chest4);
+            that.addEntity(chest5);
+            that.addEntity(chest6);
             
             that.addEntity(lever);
 
@@ -310,7 +331,16 @@ GameEngine.prototype.startInput = function () {
             that.addEntity(fallingspike16);
             that.addEntity(fallingspike17);
 
+            // that.addEntity(fallingspike18);
+            // that.addEntity(fallingspike19);
+            // that.addEntity(fallingspike20);
+            // that.addEntity(fallingspike21);
+            // that.addEntity(fallingspike22);
+            // that.addEntity(fallingspike23);
+
             that.addEntity(spike);
+            that.addEntity(spike2);
+            that.addEntity(spike3);
 
             // dart trap on level 1
             that.addEntity(new Dart(that, 2614, 500, 1664));
@@ -331,11 +361,27 @@ GameEngine.prototype.startInput = function () {
             that.addEntity(new Dart(that, 2380, -182, 2208));
             that.cosmeticEntities.push(new DartTrap(that, 2400, -192));
 
+            that.addEntity(new Dart(that, 4854, 84, 3936));
+            that.cosmeticEntities.push(new DartTrap(that, 4864, 64));
+            that.addEntity(new Dart(that, 4854, 116, 3936));
+            that.cosmeticEntities.push(new DartTrap(that, 4864, 96));
+            that.addEntity(new Dart(that, 4854, 148, 3936));
+            that.cosmeticEntities.push(new DartTrap(that, 4864, 128));
+
+            that.addEntity(new Dart(that, 5056, -86, 3936));
+            that.cosmeticEntities.push(new DartTrap(that, 5056, -96));
+            that.addEntity(new Dart(that, 5056, -54, 3936));
+            that.cosmeticEntities.push(new DartTrap(that, 5056, -64));
+            that.addEntity(new Dart(that, 5056, -22, 3936));
+            that.cosmeticEntities.push(new DartTrap(that, 5056, -32));
+
             that.addEntity(new Dart(that, 5356, 106, 5216));
             that.cosmeticEntities.push(new DartTrap(that, 5376, 96));
 
             that.addEntity(new Dart(that, 5814, 106, 5568));
             that.cosmeticEntities.push(new DartTrap(that, 5824, 96));
+
+            that.cosmeticEntities.push(healthbar);
 
 
             // enemies
@@ -360,6 +406,9 @@ GameEngine.prototype.startInput = function () {
             that.enemies.push(skeleton3);
             that.enemies.push(skeleton4);
             that.enemies.push(skeleton5);
+            that.enemies.push(skeleton6);
+
+            that.enemies.push(miniBoss);
 
             that.enemies.push(miniBoss);
 
@@ -527,10 +576,10 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
 
-    this.ctx.canvas.addEventListener("keyup", function (e) {
-        if (String.fromCharCode(e.which) === 'R') that.r = true;
-        e.preventDefault();
-    }, false);
+    // this.ctx.canvas.addEventListener("keyup", function (e) {
+    //     if (String.fromCharCode(e.which) === 'R') that.r = true;
+    //     e.preventDefault();
+    // }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         if (String.fromCharCode(e.which) === 'E') that.e = true;
@@ -565,7 +614,6 @@ GameEngine.prototype.startInput = function () {
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         if (String.fromCharCode(e.which) === "P") {
-            console.log("paused")
             that.togglePlay();
             e.preventDefault();
         }
@@ -573,7 +621,7 @@ GameEngine.prototype.startInput = function () {
 }
 
 /**
- * Toggle the play/pause feature when the play clicks the ESCAPE key.
+ * Toggle the play/pause feature when the play clicks the P key.
  */
 GameEngine.prototype.togglePlay = function () {
     this.pause = !(this.pause);
