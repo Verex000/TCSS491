@@ -102,6 +102,7 @@ GameEngine.prototype.startInput = function () {
             var nightmare = new Nightmare(that, 200, true);
             var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
+            //var lever = new Lever(that, )
 
             // items
             var turkey1 = new Turkey(that, 2540, 540);
@@ -422,6 +423,7 @@ GameEngine.prototype.loop = function () {
         this.space = null;
     }
 }
+
 
 function Entity(game, x, y) {
     this.game = game;
