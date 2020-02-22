@@ -200,6 +200,10 @@ GameEngine.prototype.startInput = function () {
             var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
 
+            var miniBoss = new MiniBoss(that);
+            
+            
+
             that.addEntity(bg);
             that.addEntity(map);
             that.cosmeticEntities.push(healthbar);
@@ -220,6 +224,7 @@ GameEngine.prototype.startInput = function () {
             // that.addEntity(ghost);
             // that.addEntity(attackWolf);
 
+            that.addEntity(miniBoss);
             traps.push(fallingspike);
             traps.push(spike);
             that.addEntity(new Dart(that, 3500, 490));

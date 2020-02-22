@@ -1590,25 +1590,26 @@ Ghost.prototype.draw = function (ctx) {
 
 
 // Begin mini Boss
-function MiniBoss(game, theX) {
-    this.walkBack = new Animation(ASSET_MANAGER.getAsset("./img/miniBoss.png"), 0, 290, 235, 230, .1, 2, true, false);
-    this.walk = new Animation(ASSET_MANAGER.getAsset("./img/miniBoss.png"), 0, 290, 235, 230, .1, 2, true, false);
-    this.attackSlashRev = new Animation(ASSET_MANAGER.getAsset("./img/slashAttackRevv.png"), 0, 0, 10416 / 7, 350, .2, 7, false, false);
-    this.idle = new Animation(ASSET_MANAGER.getAsset("./img/miniBoss.png"), 0, 0, 249, 245, .1, 3, true, true);
-    this.idleRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossRev.png"), 0, 0, 253, 245, 1, 3, true, false);
-    this.hitRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossRev.png"), 760, 0, 253, 245, .5, 1, true, false);
-    this.fightingAni = new Animation(ASSET_MANAGER.getAsset("./img/miniBossRev2.png"), 0, 290, 235, 230, .5, 2, true, false);
+function MiniBoss(game) {
+    this.attackSlashRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlashRev.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
+    this.attackSlash = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlash.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
+    this.idle = new Animation(ASSET_MANAGER.getAsset("./img/miniBossIdle.png"), 0, 0, 729 / 3, 234, .1, 3, true, false);
+    this.idleRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossIdleRev.png"), 0, 0, 729 / 3, 234, .5, 3, true, false);
+    this.hitRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossHitRev.png"), 0, 0, 222, 280, .5, 1, false, false);
+    this.hit = new Animation(ASSET_MANAGER.getAsset("./img/miniBossHit.png"), 0, 0, 222, 280, .5, 1, false, false);
+    this.fightingAniRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossFightingRev.png"), 0, 0, 220, 206, .5, 2, true, false);
+    this.fightingAni = new Animation(ASSET_MANAGER.getAsset("./img/miniBossFighting.png"), 0, 0, 220, 206, .5, 2, true, false);
     this.still = true;
     this.stillFighting = false;
     this.attack = false;
     this.gotHit = false;
     this.back = false;
     this.attackTime = 0;
-    this.preAttack = false;
     this.width = 298;
     this.height = 298;
-    this.hp = 10000;
-    Entity.call(this, game, 1700, 390);
+    this.hp = 1000;
+
+    Entity.call(this, game, 600, 420);
     //Entity.call(this, game, theX, 600);
 }
 
@@ -1616,131 +1617,122 @@ MiniBoss.prototype = new Entity();
 MiniBoss.prototype.constructor = MiniBoss;
 
 MiniBoss.prototype.update = function () {
-    // fall if not on a platform
-    if (!onPlatformWH(this)) {
-        //this.y += 1;
-    }
+   
 
-        // check for collision with mc
-    if (isCollidedWH(this.game, this)) {
-        var mc = this.game.entities.Character;
+    var mc = this.game.entities.Character;
+
+    if (collided(mc.boundingbox, this)) {
         if (mc.attack) {
-            // console.log("wolf is attacked");
-            this.hp -= 20;
-            this.gotHit = true;
-        
-        } else if (this.attack === true) {
+            this.hp -= 10;
+            this.attack = true;
+            
+        } else if (this.attack) {
             mc.hp -= 1;
-        
-        } else {
-          
 
         }
     }
 
-    if(this.attackSlashRev.isDone()) {
+    if(this.game.entities.Character) {
+        if(this.game.entities.Character.x - this.x > -32 && this.game.entities.Character.x - this.x < 0) {
+        }
+        else {
+            if(this.game.entities.Character.x - this.x > 38 && this.game.entities.Character.x - this.x < 70) {
+            }
+            else {
+            }
+        }
+        
+        if(this.game.entities.Character.x - this.x > 40) {
+            this.back = false;
+        }
+        else {
+            this.back = true;
+        }
+    
+    }
+
+
+    if(this.hitRev.isDone()) {
+        this.hitRev.elapsedTime = 0;
+        this.attack = true;
+    }
+
+    if(this.hit.isDone()) {
+        this.hitRev.elapsedTime = 0;
+        this.attack = true;
+    }
+
+    if(this.attackSlashRev.elapsedTime + this.game.clockTick > this.attackSlashRev.totalTime  ) {
+        
+        this.attackSlashRev.elapsedTime = 0;
         this.attack = false;
         this.stillFighting = true;
-        this.attackSlashRev.elapsedTime = 0;
+    }
+
+    if(this.attackSlash.elapsedTime + this.game.clockTick > this.attackSlash.totalTime ) {
+        this.attackSlash.elapsedTime = 0;
+        this.attack = false;
+        this.stillFighting = true;
+    }
+    if(this.fightingAniRev.isDone()) {
+        
+        this.fightingAniRev.elapsedTime = 0;
+        this.attack = false;
+        this.stillFighting = true;
     }
 
 
     if (this.hp <= 0) {
         this.removeFromWorld = true;
     }
-    // if(this.x > 600) {
-    //     this.back = true;
-    //     this.attack = true;
-    // }
-    // else if(this.x < 50) {
-    //     this.back = false;
-    //     this.attack = true;
-    // }
-
-    // if(this.attackF.isDone()) {
-    //     this.back = false;
-    //     this.attackF.elapsedTime = 0;
-    //     this.attackBack.elapsedTime = 0;
-    //     this.attack = false;
-    // }
-    // else if(this.attackBack.isDone()) {
-    //     this.back = true;
-    //     this.attackF.elapsedTime = 0;
-    //     this.attackBack.elapsedTime = 0;
-    //     this.attack = false;
-    // }
-    
 
     if(this.back) {
-            //this.x = this.x - this.game.clockTick * 75
-        }
-    else {
-            //this.x = this.x + this.game.clockTick * 75
-     }
-    this.attackTime++;
+        this.x = this.x - this.game.clockTick * 100
+    }
+else {
+        this.x = this.x + this.game.clockTick * 100
+ }
+    
+    
+
     Entity.prototype.update.call(this);
 }
 
 MiniBoss.prototype.draw = function (ctx) {
 
+    if(this.gotHit  && this.back) {
+        this.hitRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y - 50);
+        
+    } else if (this.attack === true  && this.back) {
+        console.log("ATTACK");
+        this.attackSlashRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 85);
 
-    if(this.gotHit ) {
-        this.hitRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-        this.gotHit = false;
-        this.attack = true;
-    // } else if (this.attack) {
-    //     //this.attackSlash.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y); 
-    //     this.attack = false;
-    } else if (this.attack === true ) {
-        this.attackSlashRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y - 25);
+        
 
-
-    } else if ( this.stillFighting) {
-        this.fightingAni.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y + 50);
-    } else {
+    } else if ( this.stillFighting && this.back ) {
+        this.fightingAniRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y + 30);
+    
+    }else if(this.gotHit  && this.back === false) {
+        this.hit.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y - 50);
+            //this.gotHit = false;
+            
+    } else if (this.attack  && this.back === false) {
+        console.log("ATTACK");
+        this.attackSlash.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 85);
+      
+    
+    } else if ( this.stillFighting && this.back === false) {
+            this.fightingAni.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y + 30);
+    } else if (this.back) {
         this.idleRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-        this.attack = false;
+    } else  {
+        this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        
     }
+
     Entity.prototype.draw.call(this);
 }
 
-// // BEGIN PLATFORM
-
-// // Key piece:
-// // 1 - bright brick medium (32 x 32 px)
-// // 2 - bright brick half-size (32 X 16 px)
-// // 3 - right round
-// function Platform(game, theX, theY, tilePiece) {
-//     this.game = game;
-//     this.radius = 32;
-//     // this.x = theX;
-//     // this.y = theY;
-
-//     switch(tilePiece) {
-//         case 1:
-//         this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 32, 1, 1, true, false);
-//         break;
-
-//         case 2:
-//         this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 16, 1, 1, true, false);
-//         break;
-//     }
-    
-//     Entity.call(this, game, theX, theY);
-// }
-
-// Platform.prototype = new Entity();
-// Platform.prototype.constructor = Platform;
-
-// Platform.prototype.update = function() {
-//     Entity.prototype.update.call(this);
-// }
-
-// Platform.prototype.draw = function(ctx) {
-//     this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-//     Entity.prototype.draw.call(this);
-// }
-// // END PLATFORM
 
 
 function MapLevel(game) {
@@ -1904,6 +1896,16 @@ ASSET_MANAGER.queueDownload("./img/miniBossRev.png");
 ASSET_MANAGER.queueDownload("./img/slashAttackRev.png");
 ASSET_MANAGER.queueDownload("./img/slashAttackRevv.png");
 ASSET_MANAGER.queueDownload("./img/miniBossRev2.png");
+
+ASSET_MANAGER.queueDownload("./img/miniBossIdleRev.png");
+ASSET_MANAGER.queueDownload("./img/miniBossFightingRev.png");
+ASSET_MANAGER.queueDownload("./img/miniBossHitRev.png");
+ASSET_MANAGER.queueDownload("./img/miniBossAttackSlashRev.png");
+
+ASSET_MANAGER.queueDownload("./img/miniBossIdle.png");
+ASSET_MANAGER.queueDownload("./img/miniBossFighting.png");
+ASSET_MANAGER.queueDownload("./img/miniBossHit.png");
+ASSET_MANAGER.queueDownload("./img/miniBossAttackSlash.png");
 
 ASSET_MANAGER.queueDownload("./img/controlScreen.jpg");
 ASSET_MANAGER.queueDownload("./img/skeleton.png");
