@@ -1900,7 +1900,7 @@ function MiniBoss(game, spawnX, spawnY) {
     this.attackTime = 0;
     this.width = 298;
     this.height = 298;
-    this.hp = 5000;
+    this.hp = 15000;
 
     Entity.call(this, game, spawnX, spawnY);
     //Entity.call(this, game, theX, 600);
