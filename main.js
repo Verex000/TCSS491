@@ -1068,6 +1068,7 @@ Slime.prototype.update = function() {
             this.x += this.game.clockTick * this.speed;
             if(this.x >= this.maxX) {
             }
+         }
     }
     else {
         if(this.walkLeft) {
