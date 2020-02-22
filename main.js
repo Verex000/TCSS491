@@ -551,7 +551,6 @@ MainCharacter.prototype.update = function () {
                 this.platform = pf;
                 this.fallForward.elapsedTime = 0;
                 this.fallBackward.elapsedTime = 0;
-                console.log(this.platform.x + "    " + this.platform.y);
                 this.boundingbox = new BoundingBox(this.x + 24, this.y, 22, 64);
                 this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
                 this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
@@ -1012,8 +1011,6 @@ Slime.prototype.update = function() {
                     this.x += 30;
                 }
                 this.damagedTimer = mc.attackForwardAnim.totalTime;
-                console.log("Slime hit by MC");
-                console.log("Slime Health: " + this.hp);
             }
             else {
                 this.damagedTimer -= this.game.clockTick;
@@ -1141,7 +1138,6 @@ Bat.prototype.update = function () {
     if (collided(mc.boundingbox, this.boundingbox) && this.hp > 0) {
         mc.hp -= 1;
         mc.damaged = true;
-        console.log("Bat Collided with Mc");
         if (mc.back) {
             mc.x += 15;
         } else {
@@ -1150,8 +1146,6 @@ Bat.prototype.update = function () {
     }
     if (mc.attack) {
         if (collided(mc.hitBoxBack, this.boundingbox) || collided(mc.hitBoxFront, this.boundingbox)) {
-            console.log("MC attacked Bat");
-            console.log("Bat Health: " + this.hp);
             this.hp -= mc.attackPower;
         }
     }
@@ -1254,8 +1248,6 @@ Skeleton.prototype.update = function() {
                     this.x += 30;
                 }
                 this.damagedTimer = mc.attackForwardAnim.totalTime;
-                console.log("Bone boi hit by MC");
-                console.log("Bone boi Health: " + this.hp);
             }
             else {
                 this.damagedTimer -= this.game.clockTick;
@@ -1666,16 +1658,11 @@ Nightmare.prototype = new Entity();
 Nightmare.prototype.constructor = Nightmare;
 
 Nightmare.prototype.update = function () {
-    // fall if not on a platform
-    // if (!onPlatformWH(this)) {
-    //     this.y += 1;
-    // }
 
     // check for collision with mc
     if (isCollidedWH(this.game, this)) {
         var mc = this.game.entities.Character;
         if (mc.attack) {
-            // console.log("nightmare is attacked");
             this.hp -= 5;
         } else {
             mc.hp -= 1;
@@ -1751,7 +1738,6 @@ Ghost.prototype.update = function() {
     if (isCollidedWH(this.game, this)) {
         var mc = this.game.entities.Character;
         if (mc.attack) {
-            // console.log("wolf is attacked");
             this.hp -= 5;
         } else {
             mc.hp -= 1;
@@ -2030,7 +2016,6 @@ ASSET_MANAGER.queueDownload("./img/sword40x39.png");
 
 // Download all assests before starting game
 ASSET_MANAGER.downloadAll(function () {
-    console.log("starting up da sheild");
     var canvas = document.getElementById('gameWorld');
     var ctx = canvas.getContext('2d');
     var gameEngine = new GameEngine();
