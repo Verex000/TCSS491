@@ -383,8 +383,8 @@ function MainCharacter(game) {
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 44, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
 
-    Entity.call(this, game, 50, 544);
-    // Entity.call(this, game, 2464, -416);
+    // Entity.call(this, game, 50, 544);
+    Entity.call(this, game, 6500, 200);
     // Entity.call(this, game, 7100, 400);
 }
 
@@ -396,7 +396,6 @@ MainCharacter.prototype.checkPointUpdate = function() {
         this.game.addEntity(new BossWolf(this.game, 7815, 277));
         this.bossFight = true;
     }
-    
 
     if (this.y > 90 && this.x > 2000) {
         this.checkPoint = {x: 2410, y: 90};
@@ -442,7 +441,22 @@ MainCharacter.prototype.update = function () {
     if (this.hp <= 0) {
         this.game.cosmeticEntities.push(new GameOverScreen(this.game));
     }
-
+    if(this.game.d) {
+        if(this.game.c) {
+            this.x = this.x + this.game.clockTick * 900;
+        }
+        else {
+            this.x = this.x + this.game.clockTick * 300;
+        }
+    }
+    if(this.game.a) {
+        if(this.game.c) {
+            this.x = this.x - this.game.clockTick * 900
+        }
+        else {
+            this.x = this.x - this.game.clockTick * 300
+        }
+    }
     if (this.game.space && !this.falling && !this.jumping) {
         this.jumping = true;
         this.base = this.y; 
@@ -470,6 +484,14 @@ MainCharacter.prototype.update = function () {
         this.game.addEntity(newBall);
         this.game.r = false;
     }
+    if(this.game.camera) {
+        this.game.camera.update(this.x, this.y);
+    }
+
+    if(this.x < 0) {
+        this.x = 0;
+    }
+    this.checkPointUpdate();
 
     if (this.jumping) {
         if(this.jumpForward.elapsedTime + this.game.clockTick > this.jumpForward.totalTime) {
@@ -560,29 +582,10 @@ MainCharacter.prototype.update = function () {
         if (this.damageAnimeForw.elapsedTime + this.game.clockTick > this.damageAnimeForw.totalTime) {
             this.damageAnimeForw.elapsedTime = 0;
             this.damaged = false;
-            // console.log("damaged");
         } else if (this.damageAnimeBack.elapsedTime + this.game.clockTick > this.damageAnimeBack.totalTime) {            
             this.damageAnimeBack.elapsedTime = 0;
             this.damaged = false;
         }
-    }
-
-    if(this.game.d) {
-        if(this.game.c) {
-            this.x = this.x + this.game.clockTick * 900;
-        }
-        else {
-            this.x = this.x + this.game.clockTick * 300;
-        }
-    }
-    if(this.game.a) {
-        if(this.game.c) {
-            this.x = this.x - this.game.clockTick * 900
-        }
-        else {
-            this.x = this.x - this.game.clockTick * 300
-        }
-        
     }
     for(var a = 0; a < this.game.platforms.length; a++) {
         var wall = this.game.platforms[a];
@@ -612,28 +615,10 @@ MainCharacter.prototype.update = function () {
             } 
         }
     }
-    if(this.game.camera) {
-        this.game.camera.update(this.x, this.y);
-    }
-
-    if(this.x < 0) {
-        this.x = 0;
-    }
-    this.checkPointUpdate();
     Entity.prototype.update.call(this);
 }
 
 MainCharacter.prototype.draw = function (ctx) {
-    // ctx.beginPath();
-    // ctx.lineWidth = "4";
-    // ctx.strokeStyle = "black";
-    // ctx.rect(this.platform.x - this.game.camera.x, this.platform.y - this.game.camera.y, 42, 32);
-    // ctx.stroke();
-
-    // this.game.ctx.strokeStyle = "white";
-    // this.game.ctx.beginPath();
-    // this.game.ctx.rect(this.boundingbox.x - this.game.camera.x, this.boundingbox.y - this.game.camera.y, this.boundingbox.width, this.boundingbox.height);
-    // this.game.ctx.stroke();
 
     if(this.attack && this.back) {
         this.attackBackAnim.drawFrame(this.game.clockTick, ctx, this.x - 24 - this.game.camera.x, this.y - 2 - this.game.camera.y);
@@ -748,13 +733,13 @@ FallingSpike.prototype.update = function() {
     else if (!this.collidePlat() && Math.abs(mc.x - this.x) <= 64 && Math.abs(mc.y - this.y) <= 224) {
         this.falling = true;
     }
-    if (this.collidePlat()) {
+    if (this.collidePlat() || this.y > 700) {
         this.removeFromWorld = true;
     }
     var mc = this.game.entities.Character;
     if (collided(mc.boundingbox, this.boundingbox)) {
         mc.damaged = true;
-        mc.hp -= 1;
+        mc.hp -= 2;
         if (mc.back) {
             mc.x += 15;
         } else {
@@ -798,7 +783,7 @@ Spike.prototype.update = function() {
     var mc = this.game.entities.Character;
     if (collided(mc.boundingbox, this.boundingbox)) {
         mc.damaged = true;
-        mc.hp -= 1;
+        mc.hp -= 2;
         if (mc.back) {
             mc.x += 15;
         } else {
@@ -1771,7 +1756,7 @@ function MapLevel(game) {
     [3,0,0,0,0,2,2,2,2,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,2,2,2,2,2,2,2,2,2,2,2,2,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,4,4,4,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,0,0,1,1,1,1,1,1,1,1,1,5,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,6,0,0,5,0,0,0,5,2,2,5,0,0,5,2,2,2,2,6,0,0,0,0,5,2,2,2,5,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,4,4,4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,6,2,2,3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,6,2,2,2,2,2,2,5,0,0,0,0,0,0,5,5,5,2,2,2,2,4,4,4,4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,6,2,3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-    [3,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,3,4,4,4,4,4,4,4,4,4,3,0,0,0,0,5,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,0,0,3,0,0,0,0,1,3,3,0,0,0,0,0,0,0,0,0,0,0,6,3,0,1,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+    [3,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,3,4,4,4,4,4,4,4,4,4,3,0,0,0,0,5,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,0,0,3,0,0,1,1,1,3,3,0,0,0,0,0,0,0,0,0,0,0,6,3,0,1,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,5,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,4,4,4,4,4,4,4,4,4,4,3,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,3,3,0,0,0,0,0,1,1,1,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [4,5,0,0,5,5,5,2,2,2,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,3,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [4,3,0,0,3,5,4,3,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,3,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,3,1,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],

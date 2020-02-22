@@ -106,6 +106,7 @@ GameEngine.prototype.startInput = function () {
             // items
             var turkey1 = new Turkey(that, 2540, 540);
             var turkey2 = new Turkey(that, 2670, 450);
+            var turkey3 = new Turkey(that, 6650, 200);
 
             // traps
             var fallingspike1 = new FallingSpike(that, 512, 480);
@@ -117,7 +118,7 @@ GameEngine.prototype.startInput = function () {
             var fallingspike7 = new FallingSpike(that, 704, 480);
             var fallingspike8 = new FallingSpike(that, 736, 480);
 
-            var fallingspike9 = new FallingSpike(that, 832, 320);
+            var fallingspike9 = new FallingSpike(that, 864, 320);
             var fallingspike10 = new FallingSpike(that, 928, 320);
             var fallingspike11 = new FallingSpike(that, 960, 320);
             var fallingspike12 = new FallingSpike(that, 1024, 320);
@@ -133,10 +134,10 @@ GameEngine.prototype.startInput = function () {
 
             var chest = new Chest(that, 1560, 590);
             var chest2 = new Chest(that, 2575, 510);
-            var chest3 = new Chest(that, 7910, 300);
-            var chest3 = new Chest(that, 1485, -224);
+            var chest3 = new Chest(that, 7910, 310);
+            var chest4 = new Chest(that, 1485, -224);
             
-            var lever = new Lever(that, 7910, 460);
+            var lever = new Lever(that, 7910, 450);
 
             // ADD ENTITIES
             that.addEntity(bg);
@@ -149,11 +150,13 @@ GameEngine.prototype.startInput = function () {
             // items
             that.addEntity(turkey1);
             that.addEntity(turkey2);
+            that.addEntity(turkey3);
 
             that.addEntity(chest);
             that.addEntity(chest2);
             that.addEntity(chest3);
-
+            that.addEntity(chest4);
+            
             that.addEntity(lever);
 
             // traps
@@ -179,10 +182,28 @@ GameEngine.prototype.startInput = function () {
 
             that.addEntity(spike);
 
+            // dart trap on level 1
             that.addEntity(new Dart(that, 3500, 490, 2784));
             that.addEntity(new Dart(that, 3500, 522, 2784));
             that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
             that.cosmeticEntities.push(new DartTrap(that, 3520, 512));
+
+            // dart trap on level 2
+            that.addEntity(new Dart(that, 396, -118, 32));
+            that.cosmeticEntities.push(new DartTrap(that, 416, -128));
+
+            that.addEntity(new Dart(that, 2188, -278, 1984));
+            that.cosmeticEntities.push(new DartTrap(that, 2208, -288));
+
+            that.addEntity(new Dart(that, 2380, -182, 2208));
+            that.cosmeticEntities.push(new DartTrap(that, 2400, -192));
+
+            that.addEntity(new Dart(that, 5356, 106, 5216));
+            that.cosmeticEntities.push(new DartTrap(that, 5376, 96));
+
+            that.addEntity(new Dart(that, 5814, 106, 5568));
+            that.cosmeticEntities.push(new DartTrap(that, 5824, 96));
+
 
             // enemies
             that.addEntity(slime);
