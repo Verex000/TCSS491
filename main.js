@@ -2217,8 +2217,8 @@ ASSET_MANAGER.queueDownload("./img/blackwolf.png");
 ASSET_MANAGER.queueDownload("./img/brickMed.png");
 
 ASSET_MANAGER.queueDownload("./img/emberBack.gif");
-ASSET_MANAGER.queueDownload("./img/startgame.png");
-ASSET_MANAGER.queueDownload("./img/startgameHigh.png");
+ASSET_MANAGER.queueDownload("./img/startGame.png");
+ASSET_MANAGER.queueDownload("./img/startGameHigh.png");
 ASSET_MANAGER.queueDownload("./img/controls.png");
 ASSET_MANAGER.queueDownload("./img/controlsHigh.png");
 ASSET_MANAGER.queueDownload("./img/title.png");
@@ -2267,7 +2267,7 @@ ASSET_MANAGER.downloadAll(function () {
     gameEngine.start();
     gameEngine.addEntity(new StartScreen(gameEngine, ASSET_MANAGER.getAsset("./img/emberBack.gif")));
     gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/title.png"), -20, 60));
-    gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/startgameHigh.png"), 90, 400));
+    gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400));
     gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500));
  
 });
