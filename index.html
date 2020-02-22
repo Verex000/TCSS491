@@ -2,13 +2,54 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+    <style>
+        body{ background:#666; }
+        button{ border:none; cursor:pointer; outline:none; }
+        button#mutebtn{
+            background:url(img/mute.png) no-repeat;
+            
+            width:128px;
+            height:128px;
+        }
+        </style>
+
     <meta charset="utf-8">
     <title>Game Project Shell</title>
     <script type="text/javascript" src="./gameengine.js"></script>
     <script type="text/javascript" src="./assetmanager.js"></script>
     <script type="text/javascript" src="./main.js"></script>
+
+
+    <script>
+        var audio, playbtn, mutebtn, seek_bar;
+        function initAudioPlayer(){
+            audio = new Audio();
+            audio.src = "SOTNDracula.mp3";
+            audio.loop = true;
+            audio.play();
+            mutebtn = document.getElementById("mutebtn");
+            mutebtn.addEventListener("click", mute);
+
+            function mute(){
+                if(audio.muted){
+                    audio.muted = false;
+                    mutebtn.style.background = "url(img/mute.png) no-repeat";
+                } else {
+                    audio.muted = true;
+                    mutebtn.style.background = "url(img/unmute.png) no-repeat";
+                }
+            }
+        }
+        window.addEventListener("load", initAudioPlayer);
+        </script>
+
 </head>
 <body>
     <canvas id="gameWorld" tabindex="1" width="1200" height="700" style="border: 1px solid brown; background: lightskyblue"></canvas>
+
+    <button id="playpausebtn"></button>
+    <button id="mutebtn"></button>
+
 </body>
 </html>
