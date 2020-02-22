@@ -229,6 +229,22 @@ StartScreen.prototype.draw = function () {
 
 StartScreen.prototype.update = function () {
 };
+
+function Menu(game, spritesheet, x , y) {
+    this.x = x;
+    this.y = y;
+    this.spritesheet = spritesheet;
+    this.game = game;
+    this.ctx = game.ctx;
+};
+
+Menu.prototype.draw = function () {
+    this.ctx.drawImage(this.spritesheet,
+                   this.x, this.y);
+};
+
+Menu.prototype.update = function () {
+};
 // End StartScreen
 
 // #region HealthBar
@@ -296,7 +312,7 @@ function MainCharacter(game) {
     // this.falling = false;
 
     this.maxHP = 100;
-    this.hp = 100;
+    this.hp = 10000;
     this.radius = 64;
     this.ground = 592;
     // this.x = 0;
@@ -1316,6 +1332,122 @@ Ghost.prototype.draw = function (ctx) {
 }
 // End Ghost enemy
 
+
+// Begin mini Boss
+function MiniBoss(game, theX) {
+    this.walkBack = new Animation(ASSET_MANAGER.getAsset("./img/miniBoss.png"), 0, 290, 235, 230, .1, 2, true, false);
+    this.walk = new Animation(ASSET_MANAGER.getAsset("./img/miniBoss.png"), 0, 290, 235, 230, .1, 2, true, false);
+    this.attackSlashRev = new Animation(ASSET_MANAGER.getAsset("./img/slashAttackRevv.png"), 0, 0, 10416 / 7, 350, .2, 7, false, false);
+    this.idle = new Animation(ASSET_MANAGER.getAsset("./img/miniBoss.png"), 0, 0, 249, 245, .1, 3, true, true);
+    this.idleRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossRev.png"), 0, 0, 253, 245, 1, 3, true, false);
+    this.hitRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossRev.png"), 760, 0, 253, 245, .5, 1, true, false);
+    this.fightingAni = new Animation(ASSET_MANAGER.getAsset("./img/miniBossRev2.png"), 0, 290, 235, 230, .5, 2, true, false);
+    this.still = true;
+    this.stillFighting = false;
+    this.attack = false;
+    this.gotHit = false;
+    this.back = false;
+    this.attackTime = 0;
+    this.preAttack = false;
+    this.width = 298;
+    this.height = 298;
+    this.hp = 10000;
+    Entity.call(this, game, 1700, 390);
+    //Entity.call(this, game, theX, 600);
+}
+
+MiniBoss.prototype = new Entity();
+MiniBoss.prototype.constructor = MiniBoss;
+
+MiniBoss.prototype.update = function () {
+    // fall if not on a platform
+    if (!onPlatformWH(this)) {
+        //this.y += 1;
+    }
+
+        // check for collision with mc
+    if (isCollidedWH(this.game, this)) {
+        var mc = this.game.entities.Character;
+        if (mc.attack) {
+            // console.log("wolf is attacked");
+            this.hp -= 20;
+            this.gotHit = true;
+        
+        } else if (this.attack === true) {
+            mc.hp -= 1;
+        
+        } else {
+          
+
+        }
+    }
+
+    if(this.attackSlashRev.isDone()) {
+        this.attack = false;
+        this.stillFighting = true;
+        this.attackSlashRev.elapsedTime = 0;
+    }
+
+
+    if (this.hp <= 0) {
+        this.removeFromWorld = true;
+    }
+    // if(this.x > 600) {
+    //     this.back = true;
+    //     this.attack = true;
+    // }
+    // else if(this.x < 50) {
+    //     this.back = false;
+    //     this.attack = true;
+    // }
+
+    // if(this.attackF.isDone()) {
+    //     this.back = false;
+    //     this.attackF.elapsedTime = 0;
+    //     this.attackBack.elapsedTime = 0;
+    //     this.attack = false;
+    // }
+    // else if(this.attackBack.isDone()) {
+    //     this.back = true;
+    //     this.attackF.elapsedTime = 0;
+    //     this.attackBack.elapsedTime = 0;
+    //     this.attack = false;
+    // }
+    
+
+    if(this.back) {
+            //this.x = this.x - this.game.clockTick * 75
+        }
+    else {
+            //this.x = this.x + this.game.clockTick * 75
+     }
+    this.attackTime++;
+    Entity.prototype.update.call(this);
+}
+
+MiniBoss.prototype.draw = function (ctx) {
+
+
+    if(this.gotHit ) {
+        this.hitRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        this.gotHit = false;
+        this.attack = true;
+    // } else if (this.attack) {
+    //     //this.attackSlash.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y); 
+    //     this.attack = false;
+    } else if (this.attack === true ) {
+        this.attackSlashRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y - 25);
+
+
+    } else if ( this.stillFighting) {
+        this.fightingAni.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y + 50);
+    } else {
+        this.idleRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+        this.attack = false;
+    }
+    Entity.prototype.draw.call(this);
+}
+
 // BEGIN PLATFORM
 
 // Key piece:
@@ -1467,6 +1599,20 @@ ASSET_MANAGER.queueDownload("./img/ghost.png");
 ASSET_MANAGER.queueDownload("./img/nightmare.png");
 ASSET_MANAGER.queueDownload("./img/wolfsheet.png");
 ASSET_MANAGER.queueDownload("./img/brickMed.png");
+
+ASSET_MANAGER.queueDownload("./img/emberBack.gif");
+ASSET_MANAGER.queueDownload("./img/startgame.png");
+ASSET_MANAGER.queueDownload("./img/startgameHigh.png");
+ASSET_MANAGER.queueDownload("./img/controls.png");
+ASSET_MANAGER.queueDownload("./img/controlsHigh.png");
+ASSET_MANAGER.queueDownload("./img/title.png");
+ASSET_MANAGER.queueDownload("./img/miniBoss.png");
+ASSET_MANAGER.queueDownload("./img/miniBossRev.png");
+ASSET_MANAGER.queueDownload("./img/slashAttackRev.png");
+ASSET_MANAGER.queueDownload("./img/slashAttackRevv.png");
+ASSET_MANAGER.queueDownload("./img/miniBossRev2.png");
+
+ASSET_MANAGER.queueDownload("./img/controlScreen.jpg");
 ASSET_MANAGER.queueDownload("./img/skeleton.png");
 ASSET_MANAGER.queueDownload("./img/brickBG_1200x700.png");
 ASSET_MANAGER.queueDownload("./img/tiles_32x32.png");
@@ -1486,23 +1632,10 @@ ASSET_MANAGER.downloadAll(function () {
 
     gameEngine.init(ctx);
     gameEngine.start();
-    gameEngine.addEntity(new StartScreen(gameEngine, ASSET_MANAGER.getAsset("./img/startScreen.png")));
-
-    // var gameEngine = new GameEngine();
-    // var bg = new Background(gameEngine);
-    // var maincharacter = new MainCharacter(gameEngine);
-    // var healthbar = new HealthBar(gameEngine);
-	// var slime = new Slime(gameEngine);
-	// var turkey = new Turkey(gameEngine);
-	// var spike = new Spike(gameEngine);
-
-
-    // gameEngine.addEntity(bg);
-    // gameEngine.addEntity(healthbar);
-    // gameEngine.entities.Character = maincharacter;
-	// gameEngine.addEntity(slime);
-	// gameEngine.addEntity(turkey);
-	// gameEngine.addEntity(spike);
+    gameEngine.addEntity(new StartScreen(gameEngine, ASSET_MANAGER.getAsset("./img/emberBack.gif")));
+    gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/title.png"), -20, 60));
+    gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/startgameHigh.png"), 90, 400));
+    gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500));
  
 });
 // #endregion

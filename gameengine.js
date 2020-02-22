@@ -1,7 +1,5 @@
 // This game shell was happily copied from Googler Seth Ladd's "Bad Aliens" game and his Google IO talk in 2011
 
-var bgMusic = new Audio("./MoonlightTemptation.mp3");
-
 // # All traps, items, enemies
 var traps = [];
 // var items = [];
@@ -27,7 +25,7 @@ function Timer() {
 }
 
 Timer.prototype.tick = function () {
-    var wallCurrent = Date.now();
+    var wallCurrent = Date.now(); 
     var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
     this.wallLastTimestamp = wallCurrent;
 
@@ -47,6 +45,8 @@ function GameEngine() {
     this.r = null;
     this.l = null;
     this.p = null;
+    this.controlScreen = false;
+    this.startGame = true;
     this.camera = null;
     this.space = null;
     this.surfaceWidth = null;
@@ -54,6 +54,10 @@ function GameEngine() {
     this.count = 0;
     this.music = false;
     this.pause =false;
+
+    this.temp = 1;
+    this.startGameCount = 0;
+    this.startScreenCount = 0;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -78,76 +82,6 @@ GameEngine.prototype.startInput = function () {
     var that = this;
 
     this.ctx.canvas.addEventListener("click", function (e) {
-        if (that.count === 0) {
-            that.count++;
-            that.music = true;
-            console.log('CLICKED');          
-            bgMusic.loop = true;
-            bgMusic.play();
-            that.camera = new Camera();
-
-            that.entities = [];
-            var bg = new Background(that);
-            var maincharacter = new MainCharacter(that);
-            var healthbar = new HealthBar(that);
-            var slime = new Slime(that);
-            var turkey = new Turkey(that, 200, 620);
-            var turkey2 = new Turkey(that, 800, 620);
-            var spike = new Spike(that);
-            var dino = new Dino(that);
-            var bat = new Bat(that);
-            var skeleton = new Skeleton(that);
-            var chest = new Chest(that);
-            var nightmare = new Nightmare(that, 200, true);
-            var ghost = new Ghost(that, 600, 600);
-            var attackWolf = new AttackWolf(that, 200);
-
-            var map = new MapLevel(that);
-            that.addEntity(bg);
-            that.addEntity(map);
-            that.addEntity(healthbar);
-
-            var plat = new Platform(that, 0, 668, 1);
-            that.addEntity(plat);
-            platforms.push(plat);
-
-            // Add floor level 0 platform
-            for (var i = 1; i * 32 <= 1216; i++) {
-                plat = new Platform(that, 32 * i, 668, 1);
-                that.addEntity(plat);
-                platforms.push(plat);
-            }
-
-            for (var i = 1; i * 32 <= 608; i++) {
-                plat = new Platform(that, (32 * i) + 1376, 668, 1);
-                that.addEntity(plat);
-                platforms.push(plat);
-            }
-
-            // // Add level 1 platform
-            // for (var i = 1; i < 5; i++) {
-            //     plat = new Platform(that, 32 * i, 636, 1);    // testing
-            //     that.addEntity(plat);
-            //     platforms.push(plat);
-            // }
-
-
-            that.entities.Character = maincharacter;
-            // that.addEntity(maincharacter);
-            that.addEntity(slime);
-            that.addEntity(turkey);
-            that.addEntity(turkey2);
-            that.addEntity(spike); 
-            that.addEntity(dino);
-            that.addEntity(bat);
-            that.addEntity(skeleton);
-            that.addEntity(chest);  
-            that.addEntity(nightmare);
-            that.addEntity(ghost);
-            that.addEntity(attackWolf);
-
-            traps.push(spike);
-        }
 
     }, false);
 
@@ -155,13 +89,8 @@ GameEngine.prototype.startInput = function () {
         if (String.fromCharCode(e.which) === 'P') {
             that.p = false;
             e.preventDefault();
-            if(that.music) {
-                that.music = false;
-                bgMusic.pause();
-            } else {
-                that.music = true;
-                bgMusic.play(); 
-            }
+
+
     }
     }, false);
 
@@ -194,7 +123,137 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
+        if (e.key === 'Enter') {
+            if((that.startGame === false || that.controlScreen === true || that.startScreenCount === 0) && that.startGameCount === 0)  {
+                that.startGameCount++;
+                that.startScreenCount++;
+                that.controlScreen = true;
+                that.startGame = false;
+                that.temp = 100;
+
+                that.count++;
+                that.camera = new Camera();
+    
+                that.entities = [];
+                var bg = new Background(that);
+                var maincharacter = new MainCharacter(that);
+                var healthbar = new HealthBar(that);
+                var slime = new Slime(that);
+                var turkey = new Turkey(that, 200, 620);
+                var turkey2 = new Turkey(that, 800, 620);
+                var spike = new Spike(that);
+                var dino = new Dino(that);
+                var bat = new Bat(that);
+                var skeleton = new Skeleton(that);
+                var chest = new Chest(that);
+                var nightmare = new Nightmare(that, 200, true);
+                var ghost = new Ghost(that, 600, 600);
+                var attackWolf = new AttackWolf(that, 200);
+
+                var miniBoss = new MiniBoss(that, 400);
+    
+                var map = new MapLevel(that);
+                that.addEntity(bg);
+                that.addEntity(map);
+                that.addEntity(healthbar);
+    
+                var plat = new Platform(that, 0, 668, 1);
+                that.addEntity(plat);
+                platforms.push(plat);
+    
+                // Add floor level 0 platform
+                for (var i = 1; i * 32 <= 1216; i++) {
+                    plat = new Platform(that, 32 * i, 668, 1);
+                    that.addEntity(plat);
+                    platforms.push(plat);
+                }
+    
+                for (var i = 1; i * 32 <= 608; i++) {
+                    plat = new Platform(that, (32 * i) + 1376, 668, 1);
+                    that.addEntity(plat);
+                    platforms.push(plat);
+                }
+    
+                // // Add level 1 platform
+                // for (var i = 1; i < 5; i++) {
+                //     plat = new Platform(that, 32 * i, 636, 1);    // testing
+                //     that.addEntity(plat);
+                //     platforms.push(plat);
+                // }
+    
+    
+                that.entities.Character = maincharacter;
+                // that.addEntity(maincharacter);
+
+                that.addEntity(slime);
+                that.addEntity(turkey);
+                that.addEntity(turkey2);
+                that.addEntity(spike); 
+                //that.addEntity(dino);
+                that.addEntity(bat);
+                that.addEntity(skeleton);
+                that.addEntity(chest);  
+                that.addEntity(nightmare);
+                that.addEntity(ghost);
+                that.addEntity(attackWolf);
+
+                that.addEntity(miniBoss);
+    
+                traps.push(spike);
+            } else if ( that.controlScreen === false){
+                that.startScreenCount++;
+                var controlScreen = new StartScreen(that, ASSET_MANAGER.getAsset("./img/controlScreen.jpg"));
+                that.entities = [];
+                that.addEntity(controlScreen);
+                that.controlScreen = true;
+            }
+        }
+        e.preventDefault();
+    }, false);
+
+
+    this.ctx.canvas.addEventListener("keydown", function (e) {
+        var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startgame.png"), 90, 400);
+        var control = new Menu(that, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
+        var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startgameHigh.png"), 90, 400);
+        var control2 = new Menu(that, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
+        if (String.fromCharCode(e.which) === 'W') {
+            that.startScreenCount++;
+            if(that.startGame === false && that.temp === 0) {
+                that.addEntity(start);
+                that.addEntity(control);
+                that.temp++;
+                that.startGame = true;
+            } else if (that.startGame === true && that.temp === 1) {
+                that.addEntity(start2);
+                that.addEntity(control2);
+                that.temp--;
+                that.startGame = false;
+                
+            }
+        } 
+        e.preventDefault();
+    }, false);
+
+    this.ctx.canvas.addEventListener("keydown", function (e) {
+        var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startgame.png"), 90, 400);
+        var control = new Menu(that, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
+        var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startgameHigh.png"), 90, 400);
+        var control2 = new Menu(that, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
         if (String.fromCharCode(e.which) === 'S') {
+            that.startScreenCount++;
+            if(that.startGame === false && that.temp === 0) {
+                that.addEntity(start);
+                that.addEntity(control);
+                that.temp++;
+                that.startGame = true;
+            } else if (that.startGame === true && that.temp === 1)  {
+                that.addEntity(start2);
+                that.addEntity(control2);
+                that.temp--;
+                that.startGame = false;
+                
+            }
         } 
         e.preventDefault();
     }, false);
@@ -252,7 +311,7 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") {
+        if (String.fromCharCode(e.which) === "P") {
             console.log("paused")
             that.togglePlay();
             e.preventDefault();
