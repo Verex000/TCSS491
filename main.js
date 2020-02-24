@@ -775,12 +775,6 @@ FallingSpike.prototype.update = function() {
     Entity.prototype.update.call(this);
 }
 FallingSpike.prototype.draw = function(ctx) {
-        ctx.beginPath();
-    ctx.lineWidth = "4";
-    ctx.strokeStyle = "black";
-    ctx.fillRect(this.boundingbox.x - this.game.camera.x, this.boundingbox.y - this.game.camera.y, this.boundingbox.width, this.boundingbox.height);
-    ctx.stroke();
-    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 }
 // #endregion
@@ -825,12 +819,6 @@ Spike.prototype.update = function() {
 }
 Spike.prototype.draw = function(ctx) {
 
-    ctx.beginPath();
-    ctx.lineWidth = "4";
-    ctx.strokeStyle = "black";
-    ctx.fillRect(this.boundingbox.x - this.game.camera.x, this.boundingbox.y - this.game.camera.y, this.boundingbox.width, this.boundingbox.height);
-    ctx.stroke();
-    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 }
 
