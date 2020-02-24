@@ -43,6 +43,8 @@ function GameEngine() {
     this.r = null;
     this.l = null;
     this.p = null;
+    this.enter = null;
+    this.w = null;
     this.controlScreen = false;
     this.startGame = true;
     this.enemies = [];
@@ -82,53 +84,6 @@ GameEngine.prototype.startInput = function () {
     var that = this;
 
     this.ctx.canvas.addEventListener("click", function (e) {
-        // if (that.count === 0) {
-        //     that.camera = new Camera();
-
-        //     that.entities = [];
-        //     var bg = new Background(that);
-        //     var map = new MapLevel(that);
-        //     var healthbar = new HealthBar(that);
-        //     var slime = new Slime(that);
-        //     var turkey = new Turkey(that, 200, 620);
-        //     var turkey2 = new Turkey(that, 800, 620);
-        //     var fallingspike = new FallingSpike(that, 200, 20);
-        //     var spike = new Spike(that, 100, 620);
-        //     var dino = new Dino(that);
-        //     var bat = new Bat(that);
-        //     var skeleton = new Skeleton(that);
-        //     var chest = new Chest(that);
-        //     var nightmare = new Nightmare(that, 200, true);
-        //     var ghost = new Ghost(that, 600, 600);
-        //     var attackWolf = new AttackWolf(that, 200);
-
-        //     that.addEntity(bg);
-        //     that.addEntity(map);
-        //     that.cosmeticEntities.push(healthbar);
-
-        //     var maincharacter = new MainCharacter(that);
-        //     that.entities.Character = maincharacter;
-        //     // that.addEntity(maincharacter);
-        //     that.addEntity(slime);
-        //     // that.addEntity(turkey);
-        //     // that.addEntity(turkey2);
-        //     that.addEntity(fallingspike);
-        //     that.addEntity(spike);
-        //     // that.addEntity(dino);
-        //     // that.addEntity(bat);
-        //     // that.addEntity(skeleton);
-        //     // that.addEntity(chest);  
-        //     // that.addEntity(nightmare);
-        //     // that.addEntity(ghost);
-        //     // that.addEntity(attackWolf);
-
-        //     traps.push(fallingspike);
-        //     traps.push(spike);
-        //     that.addEntity(new Dart(that, 3500, 490));
-        //     that.addEntity(new Dart(that, 3500, 522));
-        //     that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
-        //     that.cosmeticEntities.push(new DartTrap(that, 3520, 512));
-        // }
 
     }, false);
 
@@ -171,6 +126,7 @@ GameEngine.prototype.startInput = function () {
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         if (e.key === 'Enter') {
+            this.enter = true;
             if((that.startGame === false || that.controlScreen === true || that.startScreenCount === 0) && that.startGameCount === 0)  {
                 that.startGameCount++;
                 that.startScreenCount++;
@@ -216,7 +172,7 @@ GameEngine.prototype.startInput = function () {
             var skeleton6 = new Skeleton(that, 4320, -340, 4320, 4864);
 
 
-            var dino = new Dino(that);
+            //var dino = new Dino(that);
             var nightmare = new Nightmare(that, 200, true);
             var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
@@ -412,96 +368,6 @@ GameEngine.prototype.startInput = function () {
 
             that.enemies.push(miniBoss);
 
-            // that.addEntity(dino);
-            // that.addEntity(skeleton);
-
-            // that.addEntity(nightmare);
-            // that.addEntity(ghost);
-            // that.addEntity(attackWolf);
-
-            // that.addEntity(miniBoss);
-            // traps.push(fallingspike);
-            // traps.push(spike);
-            // that.addEntity(new Dart(that, 3500, 490));
-            // that.addEntity(new Dart(that, 3500, 522));
-            // that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
-            // that.cosmeticEntities.push(new DartTrap(that, 3520, 512));
-            // traps.push(fallingspike);
-            // traps.push(spike);
-
-            // 
-
-        
-
-
-                // that.camera = new Camera();
-    
-                // that.entities = [];
-                // var bg = new Background(that);
-                // var maincharacter = new MainCharacter(that);
-                // var healthbar = new HealthBar(that);
-                // var slime = new Slime(that);
-                // var turkey = new Turkey(that, 200, 620);
-                // var turkey2 = new Turkey(that, 800, 620);
-                // var spike = new Spike(that);
-                // var dino = new Dino(that);
-                // var bat = new Bat(that);
-                // var skeleton = new Skeleton(that);
-                // var chest = new Chest(that);
-                // var nightmare = new Nightmare(that, 200, true);
-                // var ghost = new Ghost(that, 600, 600);
-                // var attackWolf = new AttackWolf(that, 200);
-
-                // var miniBoss = new MiniBoss(that, 400);
-    
-                // var map = new MapLevel(that);
-                // that.addEntity(bg);
-                // that.addEntity(map);
-                // that.addEntity(healthbar);
-    
-                // var plat = new Platform(that, 0, 668, 1);
-                // that.addEntity(plat);
-                // platforms.push(plat);
-    
-                // // Add floor level 0 platform
-                // for (var i = 1; i * 32 <= 1216; i++) {
-                //     plat = new Platform(that, 32 * i, 668, 1);
-                //     that.addEntity(plat);
-                //     platforms.push(plat);
-                // }
-    
-                // for (var i = 1; i * 32 <= 608; i++) {
-                //     plat = new Platform(that, (32 * i) + 1376, 668, 1);
-                //     that.addEntity(plat);
-                //     platforms.push(plat);
-                // }
-    
-                // // // Add level 1 platform
-                // // for (var i = 1; i < 5; i++) {
-                // //     plat = new Platform(that, 32 * i, 636, 1);    // testing
-                // //     that.addEntity(plat);
-                // //     platforms.push(plat);
-                // // }
-    
-    
-                // that.entities.Character = maincharacter;
-                // // that.addEntity(maincharacter);
-
-                // that.addEntity(slime);
-                // that.addEntity(turkey);
-                // that.addEntity(turkey2);
-                // that.addEntity(spike); 
-                // //that.addEntity(dino);
-                // that.addEntity(bat);
-                // that.addEntity(skeleton);
-                // that.addEntity(chest);  
-                // that.addEntity(nightmare);
-                // that.addEntity(ghost);
-                // that.addEntity(attackWolf);
-
-                // that.addEntity(miniBoss);
-    
-                // traps.push(spike);
             } else if ( that.controlScreen === false){
                 that.startScreenCount++;
                 var controlScreen = new StartScreen(that, ASSET_MANAGER.getAsset("./img/controlScreen.jpg"));
@@ -513,6 +379,11 @@ GameEngine.prototype.startInput = function () {
         e.preventDefault();
     }, false);
 
+    this.ctx.canvas.addEventListener("keyup", function (e) {
+        if (e.key === 'Enter') that.enter = false;
+        e.preventDefault();
+    }, false);
+
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
@@ -520,6 +391,7 @@ GameEngine.prototype.startInput = function () {
         var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
         var control2 = new Menu(that, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
         if (String.fromCharCode(e.which) === 'W') {
+            this.w = true;
             that.startScreenCount++;
             if(that.startGame === false && that.temp === 0) {
                 that.addEntity(start);
@@ -537,12 +409,18 @@ GameEngine.prototype.startInput = function () {
         e.preventDefault();
     }, false);
 
+    this.ctx.canvas.addEventListener("keyup", function (e) {
+        if (String.fromCharCode(e.which) === 'W') that.w = false;
+        e.preventDefault();
+    }, false);
+
     this.ctx.canvas.addEventListener("keydown", function (e) {
         var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
         var control = new Menu(that, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
         var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
         var control2 = new Menu(that, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
         if (String.fromCharCode(e.which) === 'S') {
+            this.s = true;
             that.startScreenCount++;
             if(that.startGame === false && that.temp === 0) {
                 that.addEntity(start);
@@ -659,6 +537,50 @@ GameEngine.prototype.draw = function () {
 }
 
 GameEngine.prototype.update = function () {
+    // if(this.s) {
+        
+    //     var start = new Menu(this, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
+    //     var control = new Menu(this, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
+    //     var start2 = new Menu(this, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
+    //     var control2 = new Menu(this, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
+    //     this.startScreenCount++;
+    //         if(this.startGame === false && this.temp === 0) {
+    //             this.addEntity(start);
+    //             this.addEntity(control);
+    //             this.temp++;
+    //             this.startGame = true;
+    //         } else if (this.startGame === true && this.temp === 1)  {
+    //             this.addEntity(start2);
+    //             this.addEntity(control2);
+    //             this.temp--;
+    //             this.startGame = false;
+                
+    //         }
+    // }
+
+    // if(this.w) {
+    //     var start = new Menu(this, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
+    //     var control = new Menu(this, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
+    //     var start2 = new Menu(this, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
+    //     var control2 = new Menu(this, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
+
+    //         this.startScreenCount++;
+    //         if(this.startGame === false && this.temp === 0) {
+    //             this.addEntity(start);
+    //             this.addEntity(control);
+    //             this.temp++;
+    //             this.startGame = true;
+    //         } else if (this.startGame === true && this.temp === 1) {
+    //             this.addEntity(start2);
+    //             this.addEntity(control2);
+    //             this.temp--;
+    //             this.startGame = false;
+                
+    //         }
+        
+    // }
+
+    if(this)
     for(var x = 0; x < this.platforms.length; x++) {
         var plat = this.platforms[x];
         if(!plat.removeFromWorld) {
@@ -703,6 +625,8 @@ GameEngine.prototype.update = function () {
                 this.enemies.splice(i, 1);
             }
         }
+
+
 }
 
 GameEngine.prototype.loop = function () {

@@ -156,6 +156,8 @@ StartScreen.prototype.draw = function () {
 StartScreen.prototype.update = function () {
 };
 
+
+
 function Menu(game, spritesheet, x , y) {
     this.x = x;
     this.y = y;
@@ -1881,6 +1883,7 @@ Lever.prototype.draw = function(ctx) {
 
 // Begin mini Boss
 function MiniBoss(game, spawnX, spawnY) {
+    this.game = game;
     this.attackSlashRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlashRev.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
     this.attackSlash = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlash.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
     this.idle = new Animation(ASSET_MANAGER.getAsset("./img/miniBossIdle.png"), 0, 0, 729 / 3, 234, .1, 3, true, false);
@@ -1902,7 +1905,7 @@ function MiniBoss(game, spawnX, spawnY) {
     this.height = 298;
     this.hp = 15000;
 
-    Entity.call(this, game, spawnX, spawnY);
+    Entity.call(this, this.game, spawnX, spawnY);
     //Entity.call(this, game, theX, 600);
 }
 
@@ -2001,7 +2004,9 @@ MiniBoss.prototype.update = function () {
 
     if (this.hp <= 0) {
         this.removeFromWorld = true;
-        this.game.cosmeticEntities.push(new GameWonScreen(this.game));
+        var crown = new FallingCrown(this.game, mc.x, mc.y);
+        console.log(mc.y);
+        this.game.addEntity(crown);
     }
 //     if(this.found) {
 //     if(this.back) {
@@ -2237,6 +2242,8 @@ ASSET_MANAGER.queueDownload("./img/miniBossIdle.png");
 ASSET_MANAGER.queueDownload("./img/miniBossFighting.png");
 ASSET_MANAGER.queueDownload("./img/miniBossHit.png");
 ASSET_MANAGER.queueDownload("./img/miniBossAttackSlash.png");
+ASSET_MANAGER.queueDownload("./img/crown.png");
+
 
 ASSET_MANAGER.queueDownload("./img/controlScreen.jpg");
 ASSET_MANAGER.queueDownload("./img/skeleton.png");
@@ -2260,6 +2267,8 @@ ASSET_MANAGER.downloadAll(function () {
     var canvas = document.getElementById('gameWorld');
     var ctx = canvas.getContext('2d');
     var gameEngine = new GameEngine();
+    var controller = new Controller(gameEngine);
+    controller.init();
 
     gameEngine.init(ctx);
     gameEngine.start();
@@ -2267,6 +2276,7 @@ ASSET_MANAGER.downloadAll(function () {
     gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/title.png"), -20, 60));
     gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400));
     gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500));
+    
  
 });
 // #endregion

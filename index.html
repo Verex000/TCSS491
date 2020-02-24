@@ -3,6 +3,7 @@
 <html>
 <head>
 
+
     <style>
         body{ background:#666; }
         button{ border:none; cursor:pointer; outline:none; }
@@ -14,13 +15,24 @@
         }
         </style>
 
+     
+
     <meta charset="utf-8">
     <title>Game Project Shell</title>
     <script type="text/javascript" src="./gameengine.js"></script>
     <script type="text/javascript" src="./assetmanager.js"></script>
     <script type="text/javascript" src="./main.js"></script>
 
+    <!-- hgamepad stuuf-->
+    <script type="text/javascript" src="./gamepad.js"></script>
+    <script type="text/javascript" src="./controller.js"></script>
+    <script type="text/javascript" src="./fallingCrown.js"></script>
+    <script>
+    
 
+
+
+    </script>
     <script>
         var audio, playbtn, mutebtn, seek_bar;
         function initAudioPlayer(){
@@ -50,6 +62,32 @@
 
     <button id="playpausebtn"></button>
     <button id="mutebtn"></button>
+    <br />
+    Start Screen Controls : <br />
+    W - Up<br />
+    S - DOWN<br />
+    Enter - SELECT<br /><br />
+
+    KeyBoard Controls :<br />
+    A - LEFT<br />
+    D - RIGHT<br />
+    L - SWORD ATTACK<br />
+    SPACE - JUMP
+    E - INTERACT / PICK UP OBJECTS
+    <br />
+    <br />
+
+    Xbox Controls :<br />
+    A - JUMP<br />
+    D-Pad - RIGHT / LEFT<br />
+    RT - SWORD ATTACK<br />
+    B - INTERACT / PICK UP OBJECTS
+    <br />
+    <br />
+    Music:
+    CLICK SPEAKER TO UNMTE AND MUTE THE MUSIC
+
+
 
 </body>
 </html>
