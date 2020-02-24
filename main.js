@@ -775,6 +775,7 @@ FallingSpike.prototype.update = function() {
     Entity.prototype.update.call(this);
 }
 FallingSpike.prototype.draw = function(ctx) {
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 }
 // #endregion
@@ -818,7 +819,7 @@ Spike.prototype.update = function() {
     Entity.prototype.update.call(this);
 }
 Spike.prototype.draw = function(ctx) {
-
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 }
 
