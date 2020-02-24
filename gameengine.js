@@ -576,10 +576,10 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
 
-    // this.ctx.canvas.addEventListener("keyup", function (e) {
-    //     if (String.fromCharCode(e.which) === 'R') that.r = true;
-    //     e.preventDefault();
-    // }, false);
+    this.ctx.canvas.addEventListener("keyup", function (e) {
+        if (String.fromCharCode(e.which) === 'R') that.r = true;
+        e.preventDefault();
+    }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         if (String.fromCharCode(e.which) === 'E') that.e = true;

@@ -404,6 +404,7 @@ function MainCharacter(game) {
     this.platform = this.game.platforms[0];
     this.checkPoint = {x: 50, y: 544};
     this.bossFight = false;
+    this.prevX = 50;
     
     this.boundingbox = new BoundingBox(this.x + 10, this.y, 22, 64);
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 44, 64);
@@ -637,6 +638,7 @@ MainCharacter.prototype.update = function () {
             } 
         }
     }
+    this.prevX = this.x;
     Entity.prototype.update.call(this);
 }
 
@@ -678,6 +680,7 @@ MainCharacter.prototype.draw = function (ctx) {
     else {
         this.idleBackAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     } 
+
     Entity.prototype.draw.call(this);
 }
 // #endregion
@@ -728,7 +731,7 @@ Ball.prototype.draw = function (ctx) {
 //#region Falling Spike Trap
 function FallingSpike(game, theX, theY) {
     this.game = game;
-    this.animation = new Animation(ASSET_MANAGER.getAsset("./img/traps.png"), 12, 62, 32, 32, 0.3, 1, true, true);
+    this.animation = new Animation(ASSET_MANAGER.getAsset("./img/traps.png"), 13, 62, 30, 25, 0.3, 1, true, true);
     this.radius = 28;
     this.boundingbox = new BoundingBox(theX, theY, 30, 20);
     this.falling = false;
@@ -772,6 +775,11 @@ FallingSpike.prototype.update = function() {
     Entity.prototype.update.call(this);
 }
 FallingSpike.prototype.draw = function(ctx) {
+        ctx.beginPath();
+    ctx.lineWidth = "4";
+    ctx.strokeStyle = "black";
+    ctx.fillRect(this.boundingbox.x - this.game.camera.x, this.boundingbox.y - this.game.camera.y, this.boundingbox.width, this.boundingbox.height);
+    ctx.stroke();
     this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 }
@@ -816,6 +824,12 @@ Spike.prototype.update = function() {
     Entity.prototype.update.call(this);
 }
 Spike.prototype.draw = function(ctx) {
+
+    ctx.beginPath();
+    ctx.lineWidth = "4";
+    ctx.strokeStyle = "black";
+    ctx.fillRect(this.boundingbox.x - this.game.camera.x, this.boundingbox.y - this.game.camera.y, this.boundingbox.width, this.boundingbox.height);
+    ctx.stroke();
     this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     Entity.prototype.draw.call(this);
 }
@@ -1015,17 +1029,17 @@ Slime.prototype.update = function() {
     if (collided(mc.boundingbox, this.boundingbox) && this.hp > 0) {
         mc.hp -= 2;
         mc.damaged = true;
-        if (mc.back) {
+        if (mc.x > this.x) {
             mc.x += 15;
         } else {
             mc.x -= 15;
         }
     }
     if (mc.attack) {
-        if (collided(mc.hitBoxBack, this.boundingbox) || collided(mc.hitBoxFront, this.boundingbox)) {
+        if ((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
             if(this.damagedTimer <= 0) {
                 this.hp -= mc.attackPower;
-                if(mc.back) {
+                if(mc.x > this.x) {
                     this.x -= 30;
                 }
                 else {
@@ -1129,8 +1143,8 @@ Slime.prototype.draw = function (ctx) {
 
 //#region Bat
 function Bat(game, spawnX, spawnY, leftBound, rightBound, amplitude) {
-    this.flyRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/bat.png"), 0, 32, 32, 32, 0.05, 4, true, true);
-    this.flyLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/bat.png"), 0, 96, 32, 32, 0.05, 4, true, true);
+    this.flyRightAnimation = new Animation(ASSET_MANAGER.getAsset("./img/bat.png"), 32, 32, 32, 32, 0.05, 3, true, true);
+    this.flyLeftAnimation = new Animation(ASSET_MANAGER.getAsset("./img/bat.png"), 32, 96, 32, 32, 0.05, 3, true, true);
     this.amplitude = amplitude;
     this.speed = 225;
     this.flyRight = true;
@@ -1141,7 +1155,7 @@ function Bat(game, spawnX, spawnY, leftBound, rightBound, amplitude) {
     this.leftBound = leftBound;
     this.rightBound = rightBound;
     this.spawnY = spawnY;
-    this.boundingbox = new BoundingBox(spawnX, spawnY, this.width, this.height);
+    this.boundingbox = new BoundingBox(spawnX + 8, spawnY, this.width - 4, this.height);
     Entity.call(this, game, spawnX, spawnY);
 }
 
@@ -1149,7 +1163,7 @@ Bat.prototype = new Entity();
 Bat.prototype.constructor = Bat;
 
 Bat.prototype.update = function () {
-    this.boundingbox = new BoundingBox(this.x, this.y, this.width, this.height);
+    this.boundingbox = new BoundingBox(this.x + 8, this.y, this.width - 4, this.height);
     var mc = this.game.entities.Character;
     if (this.hp <= 0) {
         this.removeFromWorld = true;
@@ -1159,14 +1173,14 @@ Bat.prototype.update = function () {
     if (collided(mc.boundingbox, this.boundingbox) && this.hp > 0) {
         mc.hp -= 1;
         mc.damaged = true;
-        if (mc.back) {
+        if (mc.x > this.x) {
             mc.x += 15;
         } else {
             mc.x -= 15;
         }
     }
     if (mc.attack) {
-        if (collided(mc.hitBoxBack, this.boundingbox) || collided(mc.hitBoxFront, this.boundingbox)) {
+        if ((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
             this.hp -= mc.attackPower;
         }
     }
@@ -1188,6 +1202,7 @@ Bat.prototype.update = function () {
         }
     }
     this.y = this.spawnY - Math.sin(this.x / 25) * this.amplitude;
+    this.boundingbox = new BoundingBox(this.x + 8, this.y, this.width - 4, this.height);
     Entity.prototype.update.call(this);
 }
 
@@ -1229,14 +1244,14 @@ function Skeleton(game, spawnX, spawnY, minX, maxX) {
     this.damagedTimer = 0;
     this.minX = minX;
     this.maxX = maxX;
-    this.boundingbox = new BoundingBox(spawnX + 16, spawnY + 7, 30, 45);
+    this.boundingbox = new BoundingBox(spawnX + 25, spawnY + 24, 26, 56);
     Entity.call(this, game, spawnX, spawnY);
 }
 Skeleton.prototype = new Entity();
 Skeleton.prototype.constructor = Skeleton;
 
 Skeleton.prototype.update = function() {
-    this.boundingbox = new BoundingBox(this.x + 16, this.y + 7, 30, 45);
+    this.boundingbox = new BoundingBox(this.x + 25, this.y + 24, 26, 56);
 
     var mc = this.game.entities.Character;
     if (this.hp <= 0 && this.deathAnimation.isDone()) {
@@ -1245,7 +1260,7 @@ Skeleton.prototype.update = function() {
     if (collided(mc.boundingbox, this.boundingbox) && this.hp > 0) {
         mc.hp -= 1;
         mc.damaged = true;
-        if (mc.back) {
+        if (mc.x > this.x) {
             mc.x += 15;
         } else {
             mc.x -= 15;
@@ -1259,10 +1274,10 @@ Skeleton.prototype.update = function() {
         this.inRange = false;
     }
     if (mc.attack) {
-        if (collided(mc.hitBoxBack, this.boundingbox) || collided(mc.hitBoxFront, this.boundingbox)) {
+        if ((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
             if(this.damagedTimer <= 0) {
                 this.hp -= mc.attackPower;
-                if(mc.back) {
+                if(mc.x > this.x) {
                     this.x -= 30;
                 }
                 else {
@@ -1319,12 +1334,13 @@ Skeleton.prototype.update = function() {
         }
     }
     this.attackTime++;
-
+    this.boundingbox = new BoundingBox(this.x + 25, this.y + 24, 26, 56);
     Entity.prototype.update.call(this);
 
 }
 
 Skeleton.prototype.draw = function(ctx) {
+
     if(this.hp <= 0) {
         this.deathAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.3);
     }
@@ -1362,7 +1378,7 @@ function SkeletonBone(game, skeletonX, skeletonY, direction, range) {
     this.range = range;
     this.x0 = skeletonX;
     this.y0 = skeletonY;
-    this.boundingbox = new BoundingBox(skeletonX + 23, skeletonY + 21, 20, 20);
+    this.boundingbox = new BoundingBox(skeletonX + 33, skeletonY + 30, 16, 16);
     Entity.call(this, game, skeletonX, skeletonY);
 }
 
@@ -1370,13 +1386,14 @@ SkeletonBone.prototype = new Entity();
 SkeletonBone.prototype.constructor = SkeletonBone;
 
 SkeletonBone.prototype.update = function() {
-    this.boundingbox = new BoundingBox(this.x + 23, this.y + 21, 20, 20);
+
+    this.boundingbox = new BoundingBox(this.x + 33, this.y + 30, 16, 16);
     var mc = this.game.entities.Character;
 
     if (collided(mc.boundingbox, this.boundingbox)) {
         mc.hp -= 15;
         mc.damaged = true;
-        if (mc.back) {
+        if (mc.x > this.x) {
             mc.x += 15;
         } else {
             mc.x -= 15;
@@ -1404,11 +1421,13 @@ SkeletonBone.prototype.update = function() {
     }
     // this.x = 10 * Math.cos(Math.PI / 2) * this.game.clockTick;
     // this.y = 10 * Math.sin(Math.PI / 2) * this.game.clockTick - 0.5 * 4 * Math.exp(this.game.clockTick, 2);
+    this.boundingbox = new BoundingBox(this.x + 33, this.y + 30, 16, 16);
     Entity.prototype.update.call(this);
 }
 
 SkeletonBone.prototype.draw = function(ctx) {
     this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.3);
+
 }
 //#endregion
 
@@ -1513,7 +1532,7 @@ BossWolf.prototype.update = function () {
     if (collided(mc.boundingbox, this.boundingbox)) {
         mc.hp -= 2;
         mc.damaged = true;
-        if (mc.back) {
+        if (mc.x > this.x) {
             mc.x += 15;
         } else {
             mc.x -= 15;
@@ -1580,7 +1599,7 @@ AttackWolf.prototype.update = function () {
     if (collided(mc.boundingbox, this.boundingbox)) {
         mc.hp -= 2;
         mc.damaged = true;
-        if (mc.back) {
+        if (mc.x > this.x) {
             mc.x += 15;
         } else {
             mc.x -= 15;
@@ -1900,8 +1919,8 @@ function MiniBoss(game, spawnX, spawnY) {
     this.attackTime = 0;
     this.width = 298;
     this.height = 298;
-    this.hp = 15000;
-
+    this.hp = 8000;
+    this.boundingbox = new BoundingBox(spawnX + 40, spawnY + 30, this.width - 80, this.height - 110);
     Entity.call(this, game, spawnX, spawnY);
     //Entity.call(this, game, theX, 600);
 }
@@ -1915,9 +1934,18 @@ MiniBoss.prototype.update = function () {
 
     var mc = this.game.entities.Character;
 
-    if (collided(mc.boundingbox, this)) {
+
+    if (collided(mc.boundingbox, this.boundingbox)) {
+        if (this.attack && this.attackTime === 0) {
+            mc.hp -= 1;
+            if(mc.x > this.x) {
+                mc.x += 3;
+            }
+            else {
+                mc.x -= 3;
+            }
+        }
         if (mc.attack) {
-            this.hp -= mc.attackPower;
             if(this.attackTime < 0) {
                 this.attackTime = 10;
                 this.attack = true;
@@ -1925,9 +1953,23 @@ MiniBoss.prototype.update = function () {
                 this.attackTime -= 1;
             }
         } 
-        if (this.attack && this.attackTime === 0) {
-            mc.hp -= 3;
-        }
+    }
+    if((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
+        if (mc.attack) {
+            this.hp -= mc.attackPower;
+            if(mc.x < this.x) {
+                this.x += 3;
+            }
+            else {
+                this.x -= 3;
+            }
+            if(this.attackTime < 0) {
+                this.attackTime = 10;
+                this.attack = true;
+            } else {
+                this.attackTime -= 1;
+            }
+        } 
     }
 
     if (mc && mc.x > 7400 && mc.y < 64) {
@@ -1945,7 +1987,7 @@ MiniBoss.prototype.update = function () {
             this.x = this.x + this.game.clockTick * 100;
         }
     }
-    
+    this.boundingbox = new BoundingBox(this.x + 40, this.y + 30, this.width - 80, this.height - 110);
     // if(this.game.entities.Character) {
     //     if(this.game.entities.Character.x - this.x > -32 && this.game.entities.Character.x - this.x < 0) {
     //         this.found = true;
