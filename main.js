@@ -386,7 +386,7 @@ function MainCharacter(game) {
 
     //Entity.call(this, game, 50, 544);
     Entity.call(this, game, 2464, -416);
-    // Entity.call(this, game, 7100, 400);
+    //Entity.call(this, game, 7100, 400);
 }
 
 MainCharacter.prototype = new Entity();
@@ -1129,7 +1129,7 @@ function Bat(game, spawnX, spawnY, leftBound, rightBound, amplitude) {
     this.speed = 225;
     this.flyRight = true;
     this.radius = 32;
-    this.hp = 5;
+    this.hp = 50;
     this.width = 32;
     this.height = 32;
     this.leftBound = leftBound;
@@ -1188,7 +1188,7 @@ Bat.prototype.update = function () {
 }
 
 Bat.prototype.draw = function(ctx) {
-    if(this.flyLeft) {
+    if(!this.flyRight) {
         this.flyLeftAnimation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y, 1.5);
     }
     else {
