@@ -59,6 +59,23 @@ function collided(object1, object2) {
         object1.y + object1.height > object2.y);
 }
 
+function knockedBack(entity) {
+    for(var a = 0; a < entity.game.platforms.length; a++) {
+        var wall = entity.game.platforms[a];
+        if(wall.wall && entity.boundingbox.collide(wall.boundingbox) && entity.y > wall.boundingbox.y - 30) {
+            
+            if(entity.boundingbox.right > wall.boundingbox.left && entity.boundingbox.right < wall.boundingbox.right 
+                && entity.boundingbox.top + 19 < wall.boundingbox.bottom) {
+                    entity.x = entity.prevX
+            } 
+            else if(entity.boundingbox.left < wall.boundingbox.right && entity.boundingbox.left > wall.boundingbox.left 
+                && entity.boundingbox.top + 19 < wall.boundingbox.bottom) {
+                    entity.x = entity.prevX;
+            }
+        }
+    }
+}
+
 // Begin distance formula
 function distance(a, b) {
     var difX = a.x - b.x;
@@ -410,8 +427,8 @@ function MainCharacter(game) {
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 44, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
 
-    Entity.call(this, game, 50, 544);
-    // Entity.call(this, game, 2464, -416);
+   // Entity.call(this, game, 50, 544);
+    Entity.call(this, game, 2464, -416);
     // Entity.call(this, game, 4608, 640);
     // Entity.call(this, game, 6500, 200);
     // Entity.call(this, game, 7100, 400);
@@ -997,6 +1014,8 @@ function Slime(game, theX, theY, minX, maxX) {
     this.minX = minX;
     this.damagedTimer = 0;
     this.boundingbox = new BoundingBox(theX + 16, theY + 16, 32, 32);
+    this.knockedBackTicks = 0;
+    this.knockback = 0;
     Entity.call(this, game, theX, theY);
     // Entity.call(this, game, 2800, 700);
 }
@@ -1029,10 +1048,12 @@ Slime.prototype.update = function() {
             if(this.damagedTimer <= 0) {
                 this.hp -= mc.attackPower;
                 if(mc.x > this.x) {
-                    this.x -= 30;
+                    this.knockedBackTicks = .1
+                    this.knockback = -10;
                 }
                 else {
-                    this.x += 30;
+                    this.knockedBackTicks = .1
+                    this.knockback = 10;
                 }
                 this.damagedTimer = mc.attackForwardAnim.totalTime;
             }
@@ -1042,69 +1063,77 @@ Slime.prototype.update = function() {
         }
     }
 
-    
-    if(this.jumpTime >= 100) {
-        this.jumping = true;
-    }
-    if(mc.x < this.x && this.x > this.minX && Math.abs(this.x - mc.x) <= 100) {
-        this.walkLeft = true;
-        this.walkRight = false;
-    }
-    if(mc.x > this.x && this.x < this.maxX && Math.abs(this.x - mc.x) <= 100) {
-        this.walkRight = true;
-        this.walkLeft = false;
-    }
-    if(mc.x < this.x && this.x > this.leftBoundX) {
-        this.walkLeft = true;
-        this.walkRight = false;
-    }
-    else if(mc.x > this.x && this.x < this.rightBoundX ) {
-        this.walkLeft = false;
-        this.walkRight = true;
-    }
-    if(this.jumping && this.hp > 0) {
-        if(this.jumpAnimation.isDone()) {
-            this.jumpAnimation.elapsedTime = 0;
-            this.jumping = false;
+    if(this.knockedBackTicks <= 0) {
+        if(this.jumpTime >= 100) {
+            this.jumping = true;
         }
-        var jumpDistance = this.jumpAnimation.elapsedTime / this.jumpAnimation.totalTime;
-        var totalHeight = 50;
-        if (jumpDistance > 0.5) {
-            jumpDistance = 1 - jumpDistance;
+        if(mc.x < this.x && this.x > this.minX && Math.abs(this.x - mc.x) <= 100) {
+            this.walkLeft = true;
+            this.walkRight = false;
         }
-        var height = totalHeight*(-4 * (jumpDistance * jumpDistance - jumpDistance));
-        this.y = this.ground - height;
-        this.jumpTime = 0;
-        if(this.walkLeft) {
-            this.x -= this.game.clockTick * this.speed;
-            if(this.x <= this.minX) {
-                this.walkLeft = false;
-                this.walkRight = true;
+        if(mc.x > this.x && this.x < this.maxX && Math.abs(this.x - mc.x) <= 100) {
+            this.walkRight = true;
+            this.walkLeft = false;
+        }
+        if(mc.x < this.x && this.x > this.leftBoundX) {
+            this.walkLeft = true;
+            this.walkRight = false;
+        }
+        else if(mc.x > this.x && this.x < this.rightBoundX ) {
+            this.walkLeft = false;
+            this.walkRight = true;
+        }
+        if(this.jumping && this.hp > 0) {
+            if(this.jumpAnimation.isDone()) {
+                this.jumpAnimation.elapsedTime = 0;
+                this.jumping = false;
+            }
+            var jumpDistance = this.jumpAnimation.elapsedTime / this.jumpAnimation.totalTime;
+            var totalHeight = 50;
+            if (jumpDistance > 0.5) {
+                jumpDistance = 1 - jumpDistance;
+            }
+            var height = totalHeight*(-4 * (jumpDistance * jumpDistance - jumpDistance));
+            this.y = this.ground - height;
+            this.jumpTime = 0;
+            if(this.walkLeft) {
+                this.x -= this.game.clockTick * this.speed;
+                if(this.x <= this.minX) {
+                    this.walkLeft = false;
+                    this.walkRight = true;
+                }
+            }
+            else {
+                this.x += this.game.clockTick * this.speed;
+                if(this.x >= this.maxX) {
+                }
+             }
+        }
+        else if(this.hp > 0) {
+            if(this.walkLeft) {
+                this.x -= this.game.clockTick * this.speed;
+                if(this.x <= this.minX) {
+                    this.walkLeft = false;
+                    this.walkRight = true;
+                }
+            }
+            else if(this.walkRight && this.hp > 0) {
+                this.x += this.game.clockTick * this.speed;
+                if(this.x >= this.maxX) {
+                    this.walkRight = false;
+                    this.walkLeft = true;
+                }
             }
         }
-        else {
-            this.x += this.game.clockTick * this.speed;
-            if(this.x >= this.maxX) {
-            }
-         }
+        this.jumpTime++;
     }
-    else if(this.hp > 0) {
-        if(this.walkLeft) {
-            this.x -= this.game.clockTick * this.speed;
-            if(this.x <= this.minX) {
-                this.walkLeft = false;
-                this.walkRight = true;
-            }
-        }
-        else if(this.walkRight && this.hp > 0) {
-            this.x += this.game.clockTick * this.speed;
-            if(this.x >= this.maxX) {
-                this.walkRight = false;
-                this.walkLeft = true;
-            }
-        }
+    else {
+        this.x = this.x + this.knockback;
+        knockedBack(this);
+        this.knockedBackTicks = this.knockedBackTicks - this.game.clockTick;
+
     }
-    this.jumpTime++;
+
     Entity.prototype.update.call(this);
 
 }
@@ -1233,6 +1262,8 @@ function Skeleton(game, spawnX, spawnY, minX, maxX) {
     this.damagedTimer = 0;
     this.minX = minX;
     this.maxX = maxX;
+    this.knockback = 0;
+    this.knockedBackTicks = 0;
     this.boundingbox = new BoundingBox(spawnX + 25, spawnY + 24, 26, 56);
     Entity.call(this, game, spawnX, spawnY);
 }
@@ -1251,8 +1282,10 @@ Skeleton.prototype.update = function() {
         mc.damaged = true;
         if (mc.x > this.x) {
             mc.x += 15;
+            knockedBack(mc);
         } else {
             mc.x -= 15;
+            knockedBack(mc);
         }
     }
     //MC is in range
@@ -1267,10 +1300,12 @@ Skeleton.prototype.update = function() {
             if(this.damagedTimer <= 0) {
                 this.hp -= mc.attackPower;
                 if(mc.x > this.x) {
-                    this.x -= 30;
+                    this.knockedBackTicks = .15;
+                    this.knockback = -10;
                 }
                 else {
-                    this.x += 30;
+                    this.knockedBackTicks = .15
+                    this.knockback = 10;
                 }
                 this.damagedTimer = mc.attackForwardAnim.totalTime;
             }
@@ -1279,50 +1314,57 @@ Skeleton.prototype.update = function() {
             }
         }
     }
-
-    if (this.attackTime >= 100  && this.inRange) {
-        this.attacking = true;
-    }
-    if(this.attacking) {
-        var direction = true;
-        if(mc.x <= this.x) {
-            direction = false;
-            this.attackLeft = true;
-            this.attackRight = false;
+    if(this.knockedBackTicks <= 0) {
+        if (this.attackTime >= 100  && this.inRange) {
+            this.attacking = true;
         }
-        else {
-            direction = true;
-            this.attackRight = true;
-            this.attackLeft = false;
-        }
-        if(this.attackLeftAnimation.isDone() || this.attackRightAnimation.isDone()) {
-           // range = Math.sqrt(Math.abs(this.x - mc.x)) / 100;
-           range = 0;
-            let bone = new SkeletonBone(this.game, this.x, this.y, direction, 1 + range);
-            this.game.addEntity(bone);
-            this.attackLeftAnimation.elapsedTime = 0;
-            this.attackRightAnimation.elapsedTime = 0;
-            this.attacking = false;
-            this.attackTime = 0;
-        }
-    }
-    else if(this.hp > 0) {
-        if(this.walkLeft) {
-            this.x -= this.game.clockTick * this.speed;
-            if(this.x <= this.minX) {
-                this.walkLeft = false;
-                this.walkRight = true;
+        if(this.attacking) {
+            var direction = true;
+            if(mc.x <= this.x) {
+                direction = false;
+                this.attackLeft = true;
+                this.attackRight = false;
+            }
+            else {
+                direction = true;
+                this.attackRight = true;
+                this.attackLeft = false;
+            }
+            if(this.attackLeftAnimation.isDone() || this.attackRightAnimation.isDone()) {
+               // range = Math.sqrt(Math.abs(this.x - mc.x)) / 100;
+               range = 0;
+                let bone = new SkeletonBone(this.game, this.x, this.y, direction, 1 + range);
+                this.game.addEntity(bone);
+                this.attackLeftAnimation.elapsedTime = 0;
+                this.attackRightAnimation.elapsedTime = 0;
+                this.attacking = false;
+                this.attackTime = 0;
             }
         }
-        else {
-            this.x += this.game.clockTick * this.speed;
-            if(this.x >= this.maxX) {
-                this.walkRight = false;
-                this.walkLeft = true;
+        else if(this.hp > 0) {
+            if(this.walkLeft) {
+                this.x -= this.game.clockTick * this.speed;
+                if(this.x <= this.minX) {
+                    this.walkLeft = false;
+                    this.walkRight = true;
+                }
+            }
+            else {
+                this.x += this.game.clockTick * this.speed;
+                if(this.x >= this.maxX) {
+                    this.walkRight = false;
+                    this.walkLeft = true;
+                }
             }
         }
+        this.attackTime++;
     }
-    this.attackTime++;
+    else {
+        this.x = this.x + this.knockback
+        this.knockedBackTicks = this.knockedBackTicks - this.game.clockTick;
+        knockedBack(this);
+    }
+    
     this.boundingbox = new BoundingBox(this.x + 25, this.y + 24, 26, 56);
     Entity.prototype.update.call(this);
 
@@ -1523,12 +1565,14 @@ BossWolf.prototype.update = function () {
         mc.damaged = true;
         if (mc.x > this.x) {
             mc.x += 15;
+            knockedBack(mc);
         } else {
             mc.x -= 15;
+            knockedBack(mc);
         }
     }
     if (mc.attack) {
-        if (collided(mc.hitBoxBack, this.boundingbox) || collided(mc.hitBoxFront, this.boundingbox)) {
+        if ((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
         this.hp -= mc.attackPower;
         }
     }
@@ -1586,16 +1630,18 @@ AttackWolf.prototype.update = function () {
     }
     var mc = this.game.entities.Character;
     if (collided(mc.boundingbox, this.boundingbox)) {
-        mc.hp -= 2;
+        mc.hp -= 1;
         mc.damaged = true;
         if (mc.x > this.x) {
             mc.x += 15;
+            knockedBack(mc);
         } else {
             mc.x -= 15;
+            knockedBack(mc);
         }
     }
     if (mc.attack) {
-        if (collided(mc.hitBoxBack, this) || collided(mc.hitBoxFront, this)) {
+        if ((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
         this.hp -= mc.attackPower;
         }
     
@@ -1929,9 +1975,11 @@ MiniBoss.prototype.update = function () {
             mc.hp -= 1;
             if(mc.x > this.x) {
                 mc.x += 3;
+                knockedBack(mc);
             }
             else {
                 mc.x -= 3;
+                knockedBack(mc);
             }
         }
         if (mc.attack) {
@@ -1947,10 +1995,12 @@ MiniBoss.prototype.update = function () {
         if (mc.attack) {
             this.hp -= mc.attackPower;
             if(mc.x < this.x) {
-                this.x += 3;
+                this.x += 5;
+                knockedBack(this);
             }
             else {
-                this.x -= 3;
+                this.x -= 5;
+                knockedBack(this);
             }
             if(this.attackTime < 0) {
                 this.attackTime = 10;
