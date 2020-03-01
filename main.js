@@ -332,8 +332,7 @@ Dart.prototype.update = function () {
     var mc = this.game.entities.Character;
     this.boundingbox = new BoundingBox(this.x, this.y, 27, 8);
     if (collided(this.boundingbox, mc.boundingbox)) {
-        mc.hp -= 1;
-        mc.damaged = true;
+        mc.damage(5, 0, 0);
     }
     Entity.prototype.update.call(this);
 }
@@ -422,13 +421,16 @@ function MainCharacter(game) {
     this.checkPoint = {x: 50, y: 544};
     this.bossFight = false;
     this.prevX = 50;
+    this.knockedBackDuration = 0;
+
+    this.knockBackAmount = 0;
     
-    this.boundingbox = new BoundingBox(this.x + 10, this.y, 22, 64);
+    this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 44, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
 
-   // Entity.call(this, game, 50, 544);
-    Entity.call(this, game, 2464, -416);
+   Entity.call(this, game, 50, 544);
+    // Entity.call(this, game, 2464, -416);
     // Entity.call(this, game, 4608, 640);
     // Entity.call(this, game, 6500, 200);
     // Entity.call(this, game, 7100, 400);
@@ -458,8 +460,24 @@ MainCharacter.prototype.checkPointUpdate = function() {
     else if(this.x > 1700) {
         this.checkPoint = {x: 1700, y: 400};
     }
-    
+
 }
+
+MainCharacter.prototype.damage = function (damage, knockback) {
+    if(this.ticksSinceDamage > .75 && knockback == 0) {
+        this.hp -= damage;
+        this.ticksSinceDamage = 0;
+        this.damaged = true;
+    }
+    else if(this.ticksSinceDamage > .75 && knockback != 0) {
+        this.hp -= damage;
+        this.ticksSinceDamage = 0;
+        this.knockedBackDuration = .3;
+        this.knockBackAmount = knockback;
+        this.damaged = true;
+    }
+}
+
 
 // Character will get damaged if he collide with a trap (except when has fallen to the ground.)
 // MainCharacter.prototype.collideTrap = function() {
@@ -474,7 +492,7 @@ MainCharacter.prototype.checkPointUpdate = function() {
 
 MainCharacter.prototype.update = function () {
     this.ticksSinceDamage += this.game.clockTick;
-    this.boundingbox = new BoundingBox(this.x + 24, this.y, 22, 64);
+    this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
 
@@ -491,48 +509,58 @@ MainCharacter.prototype.update = function () {
     if (this.hp > this.maxHP) {
         this.hp = this.maxHP;
     }
-    if(this.game.d) {
-        this.x = this.x + this.game.clockTick * 300;
-    }
-    if(this.game.a) {
-        this.x = this.x - this.game.clockTick * 300
-    }
-    if (this.game.space && !this.falling && !this.jumping) {
-        this.jumping = true;
-        this.base = this.y; 
-    }
-    if(this.game.l) {
-        this.attack = true;
-    }
-    if(this.game.d || this.game.a) {
-        this.stand = false;
-        if(this.game.d == false) {
-            this.back = true;
+    if(this.knockedBackDuration <= 0) {
+        if(this.game.d) {
+            this.x = this.x + this.game.clockTick * 300;
+        }
+        if(this.game.a) {
+            this.x = this.x - this.game.clockTick * 300
+        }
+        if (this.game.space && !this.falling && !this.jumping) {
+            this.jumping = true;
+            this.base = this.y; 
+        }
+        if(this.game.l) {
+            this.attack = true;
+        }
+        if(this.game.d || this.game.a) {
+            this.stand = false;
+            if(this.game.d == false) {
+                this.back = true;
+            }
+            else {
+                this.back = false;
+            }
         }
         else {
-            this.back = false;
+            this.stand = true;
+        }
+        if(this.game.r) {
+            newBall = new Shuriken(this.game);
+            if(this.back) {
+                newBall.left = false;
+            }
+            this.game.addEntity(newBall);
+            this.game.r = false;
         }
     }
     else {
-        this.stand = true;
+        this.knockedBackDuration -= this.game.clockTick;
+        this.x += this.knockBackAmount;
+        knockedBack(this);
     }
-    if(this.game.r) {
-        newBall = new Shuriken(this.game);
-        if(this.back) {
-            newBall.left = false;
-        }
-        this.game.addEntity(newBall);
-        this.game.r = false;
-    }
-    if(this.game.camera) {
-        this.game.camera.update(this.x, this.y);
-    }
+
+
 
     if(this.x < 0) {
         this.x = 0;
     }
     this.checkPointUpdate();
-
+    if(!this.falling && !this.jumping) {
+        if(!this.boundingbox.collide(this.platform.boundingbox))  {
+            this.falling = true
+        }
+    }
     if (this.jumping) {
         if(this.jumpForward.elapsedTime + this.game.clockTick > this.jumpForward.totalTime) {
             this.jumping = false;
@@ -556,7 +584,7 @@ MainCharacter.prototype.update = function () {
         var height = (4 * duration - 4 * duration * duration) * this.jumpHeight;
         this.y = this.base - height;
         this.lastbottom = this.boundingbox.bottom;
-        this.boundingbox = new BoundingBox(this.x + 24, this.y, 22, 64);
+        this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
         this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
         this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
         for(var z = 0; z < this.game.platforms.length; z++) {
@@ -567,7 +595,7 @@ MainCharacter.prototype.update = function () {
                 this.platform = pf;
                 this.jumpForward.elapsedTime = 0;
                 this.jumpBackward.elapsedTime = 0;
-                this.boundingbox = new BoundingBox(this.x + 24, this.y, 22, 64);
+                this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
                 this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
                 this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
             }
@@ -577,7 +605,7 @@ MainCharacter.prototype.update = function () {
     if(this.falling) {
         this.y += (this.game.clockTick / this.fallForward.totalTime * 4 * this.jumpHeight);
         this.lastbottom = this.boundingbox.bottom;
-        this.boundingbox = new BoundingBox(this.x + 24, this.y, 22, 64);
+        this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
         this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
         this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
 
@@ -590,15 +618,10 @@ MainCharacter.prototype.update = function () {
                 this.fallForward.elapsedTime = 0;
                 this.fallBackward.elapsedTime = 0;
                 //console.log(this.platform.x + "    " + this.platform.y);
-                this.boundingbox = new BoundingBox(this.x + 24, this.y, 22, 64);
+                this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
                 this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
                 this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
             }
-        }
-    }
-    if(!this.falling && !this.jumping) {
-        if(!this.boundingbox.collide(this.platform.boundingbox))  {
-            this.falling = true
         }
     }
     if(this.attack) {
@@ -634,14 +657,14 @@ MainCharacter.prototype.update = function () {
             if(this.boundingbox.right > wall.boundingbox.left && this.boundingbox.right < wall.boundingbox.right 
                 && this.boundingbox.top + 19 < wall.boundingbox.bottom) {
                     this.x = this.x - this.game.clockTick * 300;
-                    this.boundingbox = new BoundingBox(this.x + 24, this.y, 22, 64);
+                    this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
                     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
                     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
             } 
             else if(this.boundingbox.left < wall.boundingbox.right && this.boundingbox.left > wall.boundingbox.left 
                 && this.boundingbox.top + 19 < wall.boundingbox.bottom) {
                     this.x = this.x + this.game.clockTick * 300;
-                    this.boundingbox = new BoundingBox(this.x + 24, this.y, 22, 64);
+                    this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
                     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
                     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
             }
@@ -656,6 +679,9 @@ MainCharacter.prototype.update = function () {
         }
     }
     this.prevX = this.x;
+    if(this.game.camera) {
+        this.game.camera.update(this.x, this.y);
+    }
     Entity.prototype.update.call(this);
 }
 
@@ -673,10 +699,10 @@ MainCharacter.prototype.draw = function (ctx) {
     else if(this.jumping && this.back) {
         this.jumpBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
-    else if (this.falling && !this.back && this.y > this.platform.top) {
+    else if (this.falling && !this.back) {
         this.fallForward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
-    else if(this.falling && this.back && this.y > this.platform.top) {
+    else if(this.falling && this.back) {
         this.fallBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
     }
     else if (this.damaged && !this.back) {
@@ -780,13 +806,12 @@ FallingSpike.prototype.update = function() {
     }
     var mc = this.game.entities.Character;
     if (collided(mc.boundingbox, this.boundingbox)) {
-        mc.damaged = true;
-        mc.hp -= 2;
-        if (mc.back) {
-            mc.x += 15;
-        } else {
-            mc.x -= 15;
-        }
+        mc.damage(10, 0);
+        // if (mc.back) {
+        //     mc.x += 15;
+        // } else {
+        //     mc.x -= 15;
+        // }
     }
 
     Entity.prototype.update.call(this);
@@ -824,13 +849,12 @@ Spike.prototype.update = function() {
     }
     var mc = this.game.entities.Character;
     if (collided(mc.boundingbox, this.boundingbox)) {
-        mc.damaged = true;
-        mc.hp -= 2;
-        if (mc.back) {
-            mc.x += 15;
-        } else {
-            mc.x -= 15;
-        }
+        mc.damage(5, 0);
+        // if (mc.back) {
+        //     mc.x += 15;
+        // } else {
+        //     mc.x -= 15;
+        // }
     }
 
     Entity.prototype.update.call(this);
@@ -1035,12 +1059,10 @@ Slime.prototype.update = function() {
     }
 
     if (collided(mc.boundingbox, this.boundingbox) && this.hp > 0) {
-        mc.hp -= 2;
-        mc.damaged = true;
         if (mc.x > this.x) {
-            mc.x += 15;
+            mc.damage(10, 1);
         } else {
-            mc.x -= 15;
+            mc.damage(10, -1);
         }
     }
     if (mc.attack) {
@@ -1048,12 +1070,12 @@ Slime.prototype.update = function() {
             if(this.damagedTimer <= 0) {
                 this.hp -= mc.attackPower;
                 if(mc.x > this.x) {
-                    this.knockedBackTicks = .1
-                    this.knockback = -10;
+                    this.knockedBackTicks = .3
+                    this.knockback = -3;
                 }
                 else {
-                    this.knockedBackTicks = .1
-                    this.knockback = 10;
+                    this.knockedBackTicks = .3
+                    this.knockback = 3;
                 }
                 this.damagedTimer = mc.attackForwardAnim.totalTime;
             }
@@ -1189,12 +1211,11 @@ Bat.prototype.update = function () {
 
     var mc = this.game.entities.Character;
     if (collided(mc.boundingbox, this.boundingbox) && this.hp > 0) {
-        mc.hp -= 1;
-        mc.damaged = true;
+
         if (mc.x > this.x) {
-            mc.x += 15;
+            mc.damage(10, 2);
         } else {
-            mc.x -= 15;
+            mc.damage(10, -2);
         }
     }
     if (mc.attack) {
@@ -1278,14 +1299,10 @@ Skeleton.prototype.update = function() {
         this.removeFromWorld = true;
     }
     if (collided(mc.boundingbox, this.boundingbox) && this.hp > 0) {
-        mc.hp -= 1;
-        mc.damaged = true;
         if (mc.x > this.x) {
-            mc.x += 15;
-            knockedBack(mc);
+            mc.damage(5, 1);
         } else {
-            mc.x -= 15;
-            knockedBack(mc);
+            mc.damage(5,-1);
         }
     }
     //MC is in range
@@ -1301,11 +1318,11 @@ Skeleton.prototype.update = function() {
                 this.hp -= mc.attackPower;
                 if(mc.x > this.x) {
                     this.knockedBackTicks = .15;
-                    this.knockback = -10;
+                    this.knockback = -5;
                 }
                 else {
                     this.knockedBackTicks = .15
-                    this.knockback = 10;
+                    this.knockback = 5;
                 }
                 this.damagedTimer = mc.attackForwardAnim.totalTime;
             }
@@ -1422,12 +1439,10 @@ SkeletonBone.prototype.update = function() {
     var mc = this.game.entities.Character;
 
     if (collided(mc.boundingbox, this.boundingbox)) {
-        mc.hp -= 15;
-        mc.damaged = true;
         if (mc.x > this.x) {
-            mc.x += 15;
+            mc.damage(12, 2);
         } else {
-            mc.x -= 15;
+            mc.damage(12, -2);
         }
         this.removeFromWorld = true;
     }
@@ -1538,8 +1553,9 @@ function BossWolf(game, theX, theY) {
     this.attackBack = new Animation(ASSET_MANAGER.getAsset("./img/blackwolf.png"), 0, 450, 110, 75, .1, 9, true, false);
     this.howl = new Animation(ASSET_MANAGER.getAsset("./img/blackwolf.png"), 0, 600, 110, 75, .4, 6, false, false);
     this.idle = new Animation(ASSET_MANAGER.getAsset("./img/blackwolf.png"), 0, 600, 110, 75, .1, 6, true, false);
-    this.hp = 500;
+    this.hp = 75;
     this.howling = true;
+    this.timeSinceDamage = 0;
     this.boundingbox = new BoundingBox(theX + 15, theY + 33, 81, 42);
     Entity.call(this, game, theX, theY);
 }
@@ -1548,6 +1564,7 @@ BossWolf.prototype = new Entity();
 BossWolf.prototype.constructor = BossWolf;
 
 BossWolf.prototype.update = function () {
+    this.timeSinceDamage += this.game.clockTick;
     this.boundingbox = new BoundingBox(this.x + 15, this.y + 33, 81, 42);
     if(this.howling) {
         if(this.howl.elapsedTime + this.game.clockTick > this.howl.totalTime) {
@@ -1561,19 +1578,18 @@ BossWolf.prototype.update = function () {
         this.attack = true;
     }
     if (collided(mc.boundingbox, this.boundingbox)) {
-        mc.hp -= 2;
-        mc.damaged = true;
         if (mc.x > this.x) {
-            mc.x += 15;
-            knockedBack(mc);
+            mc.damage(20, 2);
         } else {
-            mc.x -= 15;
-            knockedBack(mc);
+            mc.damage(20, -2);
         }
     }
     if (mc.attack) {
         if ((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
-        this.hp -= mc.attackPower;
+            if(this.timeSinceDamage > 1) {
+                this.hp -= mc.attackPower;
+                this.timeSinceDamage = 0;
+            }
         }
     }
     if (this.hp <= 0) {
@@ -1597,6 +1613,7 @@ BossWolf.prototype.draw = function (ctx) {
 
 
 function AttackWolf(game, theX, theY) {
+    this.timeSinceDamage = 0;
     this.walkBack = new Animation(ASSET_MANAGER.getAsset("./img/redwolf.png"), 0, 420, 88, 60, .1, 9, true, false);
     this.walk = new Animation(ASSET_MANAGER.getAsset("./img/redwolf.png"), 0, 960, 88, 60, .1, 9, true, false);
     this.attackF = new Animation(ASSET_MANAGER.getAsset("./img/redwolf.png"), 0, 780, 88, 60, .1, 9, false, false);
@@ -1605,7 +1622,7 @@ function AttackWolf(game, theX, theY) {
     this.back = false;
     this.width = 88;
     this.height = 60;
-    this.hp = 300;
+    this.hp = 30;
     this.boundingbox = new BoundingBox(theX + 15, theY + 29, 75, 31);
     Entity.call(this, game, theX, theY);
 }
@@ -1624,25 +1641,33 @@ AttackWolf.prototype.collidePlat = function() {
 }
 
 AttackWolf.prototype.update = function () {
+    this.timeSinceDamage += this.game.clockTick;
     this.boundingbox = new BoundingBox(this.x + 15, this.y + 29, 75, 31);
     if (!this.collidePlat()) {
         this.y += 5;
     }
     var mc = this.game.entities.Character;
     if (collided(mc.boundingbox, this.boundingbox)) {
-        mc.hp -= 1;
-        mc.damaged = true;
         if (mc.x > this.x) {
-            mc.x += 15;
-            knockedBack(mc);
+            mc.damage(8, 1);
         } else {
-            mc.x -= 15;
-            knockedBack(mc);
+            mc.damage(8, -1);
         }
     }
     if (mc.attack) {
         if ((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
-        this.hp -= mc.attackPower;
+            if(this.timeSinceDamage > 1) {
+                this.hp -= mc.attackPower;
+                this.timeSinceDamage = 0;
+                if(mc.x > this.x) {
+                    this.x = this.x - 20;
+                    knockedBack(this);
+                }
+                else {
+                    this.x = this.x + 20;
+                    knockedBack(this);
+                }
+            }
         }
     
     }
@@ -1954,7 +1979,8 @@ function MiniBoss(game, spawnX, spawnY) {
     this.attackTime = 0;
     this.width = 298;
     this.height = 298;
-    this.hp = 8000;
+    this.hp = 250;
+    this.timeSinceDamage = 0;
     this.boundingbox = new BoundingBox(spawnX + 40, spawnY + 30, this.width - 80, this.height - 110);
     Entity.call(this, game, spawnX, spawnY);
     //Entity.call(this, game, theX, 600);
@@ -1964,7 +1990,7 @@ MiniBoss.prototype = new Entity();
 MiniBoss.prototype.constructor = MiniBoss;
 
 MiniBoss.prototype.update = function () {
-
+    this.timeSinceDamage += this.game.clockTick;
    
 
     var mc = this.game.entities.Character;
@@ -1972,14 +1998,11 @@ MiniBoss.prototype.update = function () {
 
     if (collided(mc.boundingbox, this.boundingbox)) {
         if (this.attack && this.attackTime === 0) {
-            mc.hp -= 1;
             if(mc.x > this.x) {
-                mc.x += 3;
-                knockedBack(mc);
+                mc.damage(14, 2);
             }
             else {
-                mc.x -= 3;
-                knockedBack(mc);
+                mc.damage(14, -2);
             }
         }
         if (mc.attack) {
@@ -1992,8 +2015,9 @@ MiniBoss.prototype.update = function () {
         } 
     }
     if((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
-        if (mc.attack) {
+        if (mc.attack && this.timeSinceDamage > 1) {
             this.hp -= mc.attackPower;
+            this.timeSinceDamage = 0;
             if(mc.x < this.x) {
                 this.x += 5;
                 knockedBack(this);
@@ -2157,7 +2181,7 @@ function MapLevel(game) {
     [4,3,0,0,3,5,4,3,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,3,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,3,1,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,1,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [4,3,0,0,3,5,4,3,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,4,4,4,3,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,1,3,0,0,0,0,0,3,3,0,0,0,5,0,0,0,0,0,0,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
     [4,3,1,1,3,2,2,2,2,2,2,2,2,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,4,4,4,3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,3,3,0,0,0,3,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
-    [4,3,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,1,1,1,0,0,0,3,4,4,4,4,3,1,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,3,0,0,0,0,1,3,3,0,0,0,3,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,5,2,2,2,2,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3],
+    [4,3,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,1,1,1,0,0,0,3,4,4,4,4,3,1,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,3,0,0,0,0,1,3,3,0,0,0,3,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,5,2,2,2,5,1,1,1,1,5,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3],
     [4,3,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,3,4,4,4,4,4,4,4,4,4,4,4,4,4,3,0,0,0,0,0,0,3,4,4,4,4,3,0,0,0,6,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,0,0,0,0,0,3,0,1,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,3,3,0,0,0,3,1,1,0,0,0,0,0,0,3,0,0,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
     [2,2,1,1,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,3,4,4,4,4,4,4,4,4,4,4,4,4,4,3,0,0,0,0,0,0,3,4,4,4,4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,3,1,0,0,3,1,0,0,0,0,6,2,2,2,2,6,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,4,4,4,4,4,4,4,4,4,4,4,4,3,0,0,0,0,1,1,3,4,4,4,4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
