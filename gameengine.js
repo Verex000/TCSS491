@@ -216,9 +216,9 @@ GameEngine.prototype.startInput = function () {
             var skeleton6 = new Skeleton(that, 4320, -340, 4320, 4864);
 
 
-            var dino = new Dino(that);
-            var nightmare = new Nightmare(that, 200, true);
-            var ghost = new Ghost(that, 600, 600);
+            // var dino = new Dino(that);
+            // var nightmare = new Nightmare(that, 200, true);
+            // var ghost = new Ghost(that, 600, 600);
             var attackWolf = new AttackWolf(that, 200);
 
             var miniBoss = new MiniBoss(that, 7725, -200);
