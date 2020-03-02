@@ -186,7 +186,7 @@ GameEngine.prototype.startInput = function () {
 
             that.entities = [];
             var bg = new Background(that);
-            var map = new MapLevel(that);
+            var map = new MapLevel1(that);
             var healthbar = new HealthBar(that);
 
             // enemies
@@ -289,7 +289,6 @@ GameEngine.prototype.startInput = function () {
 
             var maincharacter = new MainCharacter(that);
             that.entities.Character = maincharacter;
-
             // items
             that.addEntity(turkey1);
             that.addEntity(turkey2);
@@ -502,6 +501,9 @@ GameEngine.prototype.startInput = function () {
                 // that.addEntity(miniBoss);
     
                 // traps.push(spike);
+                that.addEntity(new Strawberry(that, 50, 400));
+                that.addEntity(new Strawberry(that, 60, 400));
+                that.addEntity(new Strawberry(that, 80, 400));
             } else if ( that.controlScreen === false){
                 that.startScreenCount++;
                 var controlScreen = new StartScreen(that, ASSET_MANAGER.getAsset("./img/controlScreen.jpg"));

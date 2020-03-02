@@ -331,6 +331,10 @@ ASSET_MANAGER.queueDownload("./img/yellowplat28x16.png");
 ASSET_MANAGER.queueDownload("./img/shuriken.png");
 ASSET_MANAGER.queueDownload("./img/lever38x32.png");
 ASSET_MANAGER.queueDownload("./img/sword40x39.png");
+ASSET_MANAGER.queueDownload("./img/level1brick.png");
+
+ASSET_MANAGER.queueDownload("./img/forest.jpg");
+ASSET_MANAGER.queueDownload("./img/fruit.png");
 
 // Download all assests before starting game
 ASSET_MANAGER.downloadAll(function () {
