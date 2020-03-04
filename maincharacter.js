@@ -52,26 +52,26 @@ MainCharacter.prototype = new Entity();
 MainCharacter.prototype.constructor = MainCharacter;
 
 MainCharacter.prototype.checkPointUpdate = function() {
-    if(this.x > 7300 && this.bossFight === false) {
-        this.game.enemies.push(new BossWolf(this.game, 7815, 277));
-        this.bossFight = true;
-    }
+    // if(this.x > 7300 && this.bossFight === false) {
+    //     this.game.enemies.push(new BossWolf(this.game, 7815, 277));
+    //     this.bossFight = true;
+    // }
 
-    if (this.y > 90 && this.x > 2000) {
-        this.checkPoint = {x: 2410, y: 90};
-    }
-    if (this.y < -288 && this.x > 1800) {
-        this.checkPoint = {x: 1800, y: -352};
-    }
-    else if(this.x > 7100) {
-        this.checkPoint = {x: 7100, y: 400};
-    }
-    else if(this.x > 4500) {
-        this.checkPoint = {x: 4500, y: 450};
-    }
-    else if(this.x > 1700) {
-        this.checkPoint = {x: 1700, y: 400};
-    }
+    // if (this.y > 90 && this.x > 2000) {
+    //     this.checkPoint = {x: 2410, y: 90};
+    // }
+    // if (this.y < -288 && this.x > 1800) {
+    //     this.checkPoint = {x: 1800, y: -352};
+    // }
+    // else if(this.x > 7100) {
+    //     this.checkPoint = {x: 7100, y: 400};
+    // }
+    // else if(this.x > 4500) {
+    //     this.checkPoint = {x: 4500, y: 450};
+    // }
+    // else if(this.x > 1700) {
+    //     this.checkPoint = {x: 1700, y: 400};
+    // }
 
 }
 
@@ -107,7 +107,9 @@ MainCharacter.prototype.update = function () {
     this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
-
+    if(this.platform) {
+        console.log(this.platform.x + " " + this.platform.y);
+    }
     // if fall off map, die
     if (this.y > 700) {
         this.hp = this.hp - 20;

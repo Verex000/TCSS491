@@ -501,8 +501,18 @@ GameEngine.prototype.startInput = function () {
                 // that.addEntity(miniBoss);
     
                 // traps.push(spike);
+                that.enemies = [];
+                that.traps = [];
                 that.addEntity(new Strawberry(that, 50, 400));
                 that.addEntity(new Strawberry(that, 60, 400));
+                that.enemies.push(new SkeleBoss(that, 7360, 400));
+                that.enemies.push(new Nightmare(that, 1500, 128, 2300, 1500, false));
+                that.enemies.push(new Nightmare(that, 2600, 480, 3200, 2600, false));
+                that.enemies.push(new Nightmare(that, 4850, 192, 5600, 4850, false));
+                that.enemies.push(new Ghost(that, 1408, 710));
+                that.enemies.push(new Ghost(that, 4300, 250));
+                that.enemies.push(new Ghost(that, 5568, -32));
+                that.enemies.push(new GhostWolf(that, 1400, -90, 1952, 1408));
                 that.addEntity(new Strawberry(that, 80, 400));
             } else if ( that.controlScreen === false){
                 that.startScreenCount++;

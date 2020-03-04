@@ -335,6 +335,10 @@ ASSET_MANAGER.queueDownload("./img/level1brick.png");
 
 ASSET_MANAGER.queueDownload("./img/forest.jpg");
 ASSET_MANAGER.queueDownload("./img/fruit.png");
+ASSET_MANAGER.queueDownload("./img/fallingbrick.png");
+ASSET_MANAGER.queueDownload("./img/level1boss.png");
+ASSET_MANAGER.queueDownload("./img/wolfsheet.png");
+
 
 // Download all assests before starting game
 ASSET_MANAGER.downloadAll(function () {
