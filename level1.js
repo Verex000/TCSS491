@@ -37,7 +37,7 @@ GhostWolf.prototype.update = function () {
         }
     }
     if(this.game.entities.Character) {
-        if(Math.abs(this.x - mc.x) < 40 && Math.abs(this.y - mc.y) < 50) {
+        if(Math.abs(this.x - mc.x + 32) < 50 && Math.abs(this.y - mc.y) < 50) {
             this.attack = true;
         }
     
