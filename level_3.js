@@ -35,9 +35,22 @@ var level_3_map =
     [3,0,0,0,0,0,0,0,0,0,0,5,3,4,4,3,0,0,0,0,0,0,0,0,4,4,3,0,0,0,3,4,3,0,0,0,0,3,4,4,3,0,0,0,0,5,2,2,2,2,2,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,4,4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,4,4,4,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
     [3,2,2,2,2,2,2,2,2,2,2,3,4,4,4,3,0,0,0,0,0,0,0,0,4,4,3,0,0,0,3,4,3,0,0,0,0,3,4,4,3,0,0,0,0,3,4,4,4,4,4,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,2,2,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]];
 
-function createLevel_3(game) {
-    var bg = new Background(game);
+function createLevel_3(game, map) {
+    var bg = new Background(game, ASSET_MANAGER.getAsset("./img/brickBG_1200x700.png"));
     game.addEntity(bg);
+
+    // set mc starting location
+    game.entities.Character.x = 50;
+    game.entities.Character.y = 544;
+
+    // restore HP
+    game.entities.Character.hp = game.entities.Character.maxHP;
+
+    // set checkpoints
+    game.entities.Character.checkpoint1 = {x: 50, y: 544};
+    game.entities.Character.checkpoint2 = {x: 1700, y: 400};
+    game.entities.Character.checkpoint3 = {x: 4500, y: 450};
+    game.entities.Character.checkpoint4 = {x: 7100, y: 400};
 
     // enemies
     var slime = new Slime(game, 1700, 632, 1700, 2400);
@@ -78,14 +91,14 @@ function createLevel_3(game) {
     var turkey9 = new Turkey(game, 5472, 60);
 
     // traps
-    var fallingspike1 = new FallingSpike(game, 512, 480);
-    var fallingspike2 = new FallingSpike(game, 544, 480);
-    var fallingspike3 = new FallingSpike(game, 576, 480);
-    var fallingspike4 = new FallingSpike(game, 608, 480);
-    var fallingspike5 = new FallingSpike(game, 640, 480);
-    var fallingspike6 = new FallingSpike(game, 672, 480);
-    var fallingspike7 = new FallingSpike(game, 704, 480);
-    var fallingspike8 = new FallingSpike(game, 736, 480);
+    // var fallingspike1 = new FallingSpike(game, 512, 480);
+    // var fallingspike2 = new FallingSpike(game, 544, 480);
+    // var fallingspike3 = new FallingSpike(game, 576, 480);
+    // var fallingspike4 = new FallingSpike(game, 608, 480);
+    // var fallingspike5 = new FallingSpike(game, 640, 480);
+    // var fallingspike6 = new FallingSpike(game, 672, 480);
+    // var fallingspike7 = new FallingSpike(game, 704, 480);
+    // var fallingspike8 = new FallingSpike(game, 736, 480);
 
     var fallingspike9 = new FallingSpike(game, 864, 320);
     var fallingspike10 = new FallingSpike(game, 928, 320);
@@ -136,14 +149,14 @@ function createLevel_3(game) {
     game.addEntity(lever);
 
     // traps
-    game.addEntity(fallingspike1);
-    game.addEntity(fallingspike2);
-    game.addEntity(fallingspike3);
-    game.addEntity(fallingspike4);
-    game.addEntity(fallingspike5);
-    game.addEntity(fallingspike6);
-    game.addEntity(fallingspike7);
-    game.addEntity(fallingspike8);
+    // game.addEntity(fallingspike1);
+    // game.addEntity(fallingspike2);
+    // game.addEntity(fallingspike3);
+    // game.addEntity(fallingspike4);
+    // game.addEntity(fallingspike5);
+    // game.addEntity(fallingspike6);
+    // game.addEntity(fallingspike7);
+    // game.addEntity(fallingspike8);
 
     game.addEntity(fallingspike9);
     game.addEntity(fallingspike10);
@@ -223,4 +236,6 @@ function createLevel_3(game) {
     game.enemies.push(skeleton6);
 
     game.enemies.push(miniBoss);
+
+    map.currentBoss = miniBoss;
 }

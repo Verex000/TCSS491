@@ -140,10 +140,11 @@ Animation.prototype.isDone = function () {
 // #endregion
 
 // Begin background
-function Background(game) {
+function Background(game, spritesheet) {
     this.x = 0;
     this.y = 0;
-    this.spritesheet = ASSET_MANAGER.getAsset("./img/brickBG_1200x700.png");
+    this.spritesheet = spritesheet;
+    // this.spritesheet = ASSET_MANAGER.getAsset("./img/brickBG_1200x700.png");
     this.game = game;
     this.ctx = game.ctx;
 }
@@ -233,7 +234,7 @@ function Platform(game, theX, theY) {
     this.idle = new Animation(ASSET_MANAGER.getAsset("./img/yellowplat28x16.png"), 0, 0, 28, 16, 1, 1, true, false);
     Entity.call(this, game, theX, theY);
     this.platform = true;
-    this.boundingbox = new BoundingBox(theX,theY,32,32);
+    this.boundingbox = new BoundingBox(theX,theY,28,16);
 }
 Platform.prototype = new Entity();
 Platform.prototype.constructor = Platform;
@@ -246,8 +247,8 @@ Platform.prototype.draw = function(ctx) {
     Entity.prototype.draw.call(this);
 }
 
-function Wall(game, theX, theY) {
-    this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 32, 1, 1, true, false);
+function Wall(game, theX, theY, brick) {
+    this.idle = new Animation(brick, 0, 0, 32, 32, 1, 1, true, false);
     Entity.call(this, game, theX, theY);
     this.platform = false;
     this.wall = true;
@@ -268,9 +269,9 @@ Wall.prototype.draw = function(ctx) {
     Entity.prototype.draw.call(this);
 }
 
-function WallPlatform(game, theX, theY, collideBot, isPlatform, isGate) {
+function WallPlatform(game, theX, theY, brick, collideBot, isPlatform, isGate) {
     this.game = game;
-    this.idle = new Animation(ASSET_MANAGER.getAsset("./img/brickMed.png"), 16, 32, 32, 32, 1, 1, true, false);
+    this.idle = new Animation(brick, 0, 0, 32, 32, 1, 1, true, false);
     Entity.call(this, game, theX, theY);
     this.platform = isPlatform;
     this.wall = true;
@@ -291,6 +292,157 @@ WallPlatform.prototype.update = function () {
 
 WallPlatform.prototype.draw = function(ctx) {
     this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    Entity.prototype.draw.call(this);
+}
+
+function MovingPlatform(game, theX, theY, xRange, xRangeMin, brick, speed, start) {
+    this.game = game;
+    // this.idle = new Animation(ASSET_MANAGER.getAsset("./img/level1brick.png"), 0, 0, 32, 32, 1, 1, true, false);
+    this.idle = new Animation(brick, 0, 0, 32, 32, 1, 1, true, false);
+    this.platform = true;
+    this.wall = true;
+    this.forwardw = true;
+    this.maxX = xRange;
+    this.minX = xRangeMin;
+    this.speed = speed;
+    this.collideBottom = true;
+    this.boundingbox = new BoundingBox(theX,theY,32,32);
+    if(start) {
+        Entity.call(this, game, theX + 128, theY);
+    }
+    else {
+        Entity.call(this, game, theX, theY);
+    }
+
+}
+
+MovingPlatform.prototype = new Entity();
+MovingPlatform.prototype.constructor = MovingPlatform;
+
+MovingPlatform.prototype.update = function () {
+    if(this.maxX < this.x) {
+        this.forward = false;
+        this.x = this.maxX;
+    }
+    if(this.minX > this.x) {
+        this.forward = true;
+        this.x = this.minX;
+    }
+    if(this.forward) {
+        this.x = this.x + this.speed * this.game.clockTick;
+        if(this.game.entities.Character.platform == this && this.game.entities.Character.boundingbox.collide(this.boundingbox)) {
+            this.game.entities.Character.x += this.speed * this.game.clockTick;
+        }
+    }
+    else {
+        this.x = this.x - this.speed * this.game.clockTick;
+        if(this.game.entities.Character.platform == this && this.game.entities.Character.boundingbox.collide(this.boundingbox)) {
+            this.game.entities.Character.x -= this.speed * this.game.clockTick;
+        }
+    }
+    Entity.prototype.update.call(this);
+    this.boundingbox = new BoundingBox(this.x, this.y, 28, 32);
+}
+
+MovingPlatform.prototype.draw = function(ctx) {
+    this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    Entity.prototype.draw.call(this);
+}
+
+function VerticalPlatform(game, theX, theY, yRange, yRangeMin, brick, speed, start) {
+    this.game = game;
+    // this.idle = new Animation(ASSET_MANAGER.getAsset("./img/level1brick.png"), 0, 0, 32, 32, 1, 1, true, false);
+    this.idle = new Animation(brick, 0, 0, 32, 32, 1, 1, true, false);
+    this.platform = true;
+    this.wall = true;
+    this.forwardw = true;
+    this.maxY = yRange;
+    this.minY = yRangeMin;
+    this.speed = speed;
+    this.collideBottom = true;
+    this.boundingbox = new BoundingBox(theX,theY,32,32);
+    if(start) {
+        Entity.call(this, game, theX, theY);
+    }
+    else {
+        Entity.call(this, game, theX, theY);
+    }
+
+}
+
+VerticalPlatform.prototype = new Entity();
+VerticalPlatform.prototype.constructor = VerticalPlatform;
+
+VerticalPlatform.prototype.update = function () {
+    if(this.maxY < this.y) {
+        this.forward = false;
+        this.y = this.maxY;
+    }
+    if(this.minY > this.y) {
+        this.forward = true;
+        this.y = this.minY;
+    }
+    if(this.forward) {
+        this.y = this.y + this.speed * this.game.clockTick;
+        if(this.game.entities.Character.platform == this && this.game.entities.Character.boundingbox.collide(this.boundingbox)) {
+            this.game.entities.Character.y += this.speed * this.game.clockTick;
+        }
+    }
+    else {
+        this.y = this.y - this.speed * this.game.clockTick;
+        if(this.game.entities.Character.platform == this && this.game.entities.Character.boundingbox.collide(this.boundingbox)) {
+            this.game.entities.Character.y -= this.speed * this.game.clockTick;
+        }
+    }
+    Entity.prototype.update.call(this);
+    this.boundingbox = new BoundingBox(this.x, this.y, 24, 16);
+}
+
+VerticalPlatform.prototype.draw = function(ctx) {
+    this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    Entity.prototype.draw.call(this);
+}
+
+function BreakingPlatform(game, theX, theY, brick, collideBot) {
+    this.game = game;
+    // this.idle = new Animation(ASSET_MANAGER.getAsset("./img/fallingbrick.png"), 0, 0, 32, 32, 1, 1, true, false);
+    // this.fall = new Animation(ASSET_MANAGER.getAsset("./img/fallingbrick.png"), 0, 0, 32, 32, .15, 4, false, false);
+    this.idle = new Animation(brick, 0, 0, 32, 32, 1, 1, true, false);
+    this.fall = new Animation(brick, 0, 0, 32, 32, .15, 4, false, false);
+    Entity.call(this, game, theX, theY);
+    this.platform = true;
+    this.wall = true;
+    this.break = false;
+    this.collideBottom = collideBot;
+    this.boundingbox = new BoundingBox(theX,theY,24,16);
+}
+
+BreakingPlatform.prototype = new Entity();
+BreakingPlatform.prototype.constructor = BreakingPlatform;
+
+BreakingPlatform.prototype.update = function () {
+    if(this.game.entities.Character && this.game.entities.Character.platform == this) {
+        this.break = true;
+    }
+    if(this.fall.elapsedTime + this.game.clockTick > this.fall.totalTime) {
+        this.removeFromWorld = true;
+        if(this.game.entities.Character && this.game.entities.Character.platform == this) { 
+            this.boundingbox = new BoundingBox(0,0,0,0);
+            this.game.entities.Character.platform = this.game.platforms[0];
+            this.game.entities.Character.falling = true;
+        }
+    }
+    Entity.prototype.update.call(this);
+}
+
+BreakingPlatform.prototype.draw = function(ctx) {
+    if(!this.break) {
+        this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else {
+       this.fall.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+
     Entity.prototype.draw.call(this);
 }
 
@@ -382,348 +534,6 @@ Shuriken.prototype.update = function () {
 
 Shuriken.prototype.draw = function (ctx) {
     this.thrown.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-}
-// #endregion
-
-// #region Main Character
-function MainCharacter(game) {
-    this.game = game;
-
-    this.walkAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 64, 64, 64, .1, 4, true, false);
-    this.backWalkAnim= new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 0, 64, 64, .1, 4, true, false);
-    this.attackBackAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc_attack88x68.png"), 0, 68, 88, 68, .07, 4, false, false);
-    this.attackForwardAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc_attack88x68.png"), 0, 0, 88, 68, .07, 4, false, false);
-    this.idleBackAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 0, 64, 64, .1, 1, true, false);
-    this.idleAnim = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 64, 64, 64, .1, 1, true, false);
-    this.jumpForward = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 320, 64, 64, .17, 4, false, false);
-    this.jumpBackward = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 256, 64, 64, .17, 4, false, false);
-    this.fallForward = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 320, 64, 64, .2, 4, true, false);
-    this.fallBackward = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 256, 64, 64, .2, 4, true, false);
-    this.damageAnimeForw = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 576, 64, 64, .1, 4, false, false);
-    this.damageAnimeBack = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 512, 64, 64, .1, 4, false, false);
-    
-    this.damaged = false;
-    this.jumping = false;
-    this.stand = true;
-    this.back = false;
-    this.attack = false;
-    this.falling = false;
-    this.base = null;
-    this.jumpHeight = 175;
-    this.maxHP = 500;
-    this.attackPower = 5;
-    this.ticksSinceDamage = 200;
-    this.hp = 500;
-    this.radius = 64;
-    this.ground = 592;
-    this.platform = this.game.platforms[0];
-    this.checkPoint = {x: 50, y: 544};
-    this.bossFight = false;
-    this.prevX = 50;
-    this.knockedBackDuration = 0;
-
-    this.knockBackAmount = 0;
-    
-    this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
-    this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 44, 64);
-    this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
-
-   Entity.call(this, game, 50, 544);
-    // Entity.call(this, game, 2464, -416);
-    // Entity.call(this, game, 4608, 640);
-    // Entity.call(this, game, 6500, 200);
-    // Entity.call(this, game, 7100, 400);
-}
-
-MainCharacter.prototype = new Entity();
-MainCharacter.prototype.constructor = MainCharacter;
-
-MainCharacter.prototype.checkPointUpdate = function() {
-    if(this.x > 7300 && this.bossFight === false) {
-        this.game.enemies.push(new BossWolf(this.game, 7815, 277));
-        this.bossFight = true;
-    }
-
-    if (this.y > 90 && this.x > 2000) {
-        this.checkPoint = {x: 2410, y: 90};
-    }
-    if (this.y < -288 && this.x > 1800) {
-        this.checkPoint = {x: 1800, y: -352};
-    }
-    else if(this.x > 7100) {
-        this.checkPoint = {x: 7100, y: 400};
-    }
-    else if(this.x > 4500) {
-        this.checkPoint = {x: 4500, y: 450};
-    }
-    else if(this.x > 1700) {
-        this.checkPoint = {x: 1700, y: 400};
-    }
-
-}
-
-MainCharacter.prototype.damage = function (damage, knockback) {
-    if(this.ticksSinceDamage > .75 && knockback == 0) {
-        this.hp -= damage;
-        this.ticksSinceDamage = 0;
-        this.damaged = true;
-    }
-    else if(this.ticksSinceDamage > .75 && knockback != 0) {
-        this.hp -= damage;
-        this.ticksSinceDamage = 0;
-        this.knockedBackDuration = .3;
-        this.knockBackAmount = knockback;
-        this.damaged = true;
-    }
-}
-
-
-// Character will get damaged if he collide with a trap (except when has fallen to the ground.)
-// MainCharacter.prototype.collideTrap = function() {
-//     var trapRadius = traps[0].radius;
-//             // top collision
-//     return (traps[0].y + trapRadius >= this.y && traps[0].y + trapRadius <= this.y + this.radius)
-//             // left & right collision
-//             && ((traps[0].x + trapRadius <= this.x + this.radius
-//                 && traps[0].x + trapRadius >= this.x) || (traps[0].x >= this.x
-//                 && traps[0].x <= this.x + this.radius));
-// }
-
-MainCharacter.prototype.update = function () {
-    this.ticksSinceDamage += this.game.clockTick;
-    this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
-    this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
-    this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
-
-    // if fall off map, die
-    if (this.y > 700) {
-        this.hp = this.hp - 20;
-        this.x = this.checkPoint.x;
-        this.y = this.checkPoint.y;
-    }
-    if (this.hp <= 0) {
-        this.hp = 0;
-        this.game.cosmeticEntities.push(new GameOverScreen(this.game));
-    }
-    if (this.hp > this.maxHP) {
-        this.hp = this.maxHP;
-    }
-    if(this.knockedBackDuration <= 0) {
-        if(this.game.d) {
-            this.x = this.x + this.game.clockTick * 300;
-        }
-        if(this.game.a) {
-            this.x = this.x - this.game.clockTick * 300
-        }
-        if (this.game.space && !this.falling && !this.jumping) {
-            this.jumping = true;
-            this.base = this.y; 
-        }
-        if(this.game.l) {
-            this.attack = true;
-        }
-        if(this.game.d || this.game.a) {
-            this.stand = false;
-            if(this.game.d == false) {
-                this.back = true;
-            }
-            else {
-                this.back = false;
-            }
-        }
-        else {
-            this.stand = true;
-        }
-        if(this.game.r) {
-            newBall = new Shuriken(this.game);
-            if(this.back) {
-                newBall.left = false;
-            }
-            this.game.addEntity(newBall);
-            this.game.r = false;
-        }
-    }
-    else {
-        this.knockedBackDuration -= this.game.clockTick;
-        this.x += this.knockBackAmount;
-        knockedBack(this);
-    }
-
-
-
-    if(this.x < 0) {
-        this.x = 0;
-    }
-    this.checkPointUpdate();
-    if(!this.falling && !this.jumping) {
-        if(!this.boundingbox.collide(this.platform.boundingbox))  {
-            this.falling = true
-        }
-    }
-    if (this.jumping) {
-        if(this.jumpForward.elapsedTime + this.game.clockTick > this.jumpForward.totalTime) {
-            this.jumping = false;
-            this.jumpForward.elapsedTime = 0;
-            this.jumpBackward.elapsedTime = 0;
-            this.fallForward.elapsedTime = 0;
-            this.fallBackward.elapsedTime = 0;
-        }
-        if(this.jumpBackward.elapsedTime > this.jumpForward.elapsedTime) {
-            this.jumpForward.elapsedTime = this.jumpBackward.elapsedTime;
-        }
-        else if(this.jumpForward.elapsedTime > this.jumpBackward.elapsedTime) {
-            this.jumpBackward.elapsedTime = this.jumpForward.elapsedTime;
-        }
-        var duration = this.jumpForward.elapsedTime + this.game.clockTick;
-        if(duration > this.jumpForward.totalTime / 2) duration = this.jumpForward.totalTime - duration;
-        duration = duration / this.jumpForward.totalTime;
-
-        var totalHeight = this.jumpHeight;
-
-        var height = (4 * duration - 4 * duration * duration) * this.jumpHeight;
-        this.y = this.base - height;
-        this.lastbottom = this.boundingbox.bottom;
-        this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
-        this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
-        this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
-        for(var z = 0; z < this.game.platforms.length; z++) {
-            var pf = this.game.platforms[z];
-            if(pf.platform && this.boundingbox.collide(pf.boundingbox) && this.lastbottom < pf.boundingbox.top)  {
-                this.jumping = false;
-                this.y = pf.boundingbox.top - 64;
-                this.platform = pf;
-                this.jumpForward.elapsedTime = 0;
-                this.jumpBackward.elapsedTime = 0;
-                this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
-                this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
-                this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
-            }
-        }
-        
-    }
-    if(this.falling) {
-        this.y += (this.game.clockTick / this.fallForward.totalTime * 4 * this.jumpHeight);
-        this.lastbottom = this.boundingbox.bottom;
-        this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
-        this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
-        this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
-
-        for (var i = 0; i < this.game.platforms.length; i++) {
-            var pf = this.game.platforms[i];
-            if (pf.platform && this.boundingbox.collide(pf.boundingbox) && this.lastbottom - 60 < pf.boundingbox.top) {
-                this.falling = false;
-                this.y = pf.boundingbox.top - 62;
-                this.platform = pf;
-                this.fallForward.elapsedTime = 0;
-                this.fallBackward.elapsedTime = 0;
-                console.log(this.platform.x + "    " + this.platform.y);
-                this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
-                this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
-                this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
-            }
-        }
-    }
-    if(this.attack) {
-        if(this.attackForwardAnim.elapsedTime > this.attackBackAnim.elapsedTime) {
-            this.attackBackAnim.elapsedTime = this.attackForwardAnim.elapsedTime;
-        }
-        else {
-            this.attackForwardAnim.elapsedTime = this.attackBackAnim.elapsedTime;
-        }
-        if (this.attackForwardAnim.elapsedTime + this.game.clockTick > this.attackForwardAnim.totalTime) {
-            this.attackForwardAnim.elapsedTime = 0;
-            this.attackBackAnim.elapsedTime = 0;
-            this.attack = false;
-        }
-        if(this.jumping) {
-            this.jumpForward.elapsedTime = this.jumpForward.elapsedTime + this.game.clockTick;
-        }
-    }
-
-    if(this.damaged) {
-        if (this.damageAnimeForw.elapsedTime + this.game.clockTick > this.damageAnimeForw.totalTime) {
-            this.damageAnimeForw.elapsedTime = 0;
-            this.damaged = false;
-        } else if (this.damageAnimeBack.elapsedTime + this.game.clockTick > this.damageAnimeBack.totalTime) {            
-            this.damageAnimeBack.elapsedTime = 0;
-            this.damaged = false;
-        }
-    }
-    for(var a = 0; a < this.game.platforms.length; a++) {
-        var wall = this.game.platforms[a];
-        if(wall.wall && this.boundingbox.collide(wall.boundingbox) && this.y > wall.boundingbox.y - 30) {
-            
-            if(this.boundingbox.right > wall.boundingbox.left && this.boundingbox.right < wall.boundingbox.right 
-                && this.boundingbox.top + 19 < wall.boundingbox.bottom) {
-                    this.x = this.x - this.game.clockTick * 300;
-                    this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
-                    this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
-                    this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
-            } 
-            else if(this.boundingbox.left < wall.boundingbox.right && this.boundingbox.left > wall.boundingbox.left 
-                && this.boundingbox.top + 19 < wall.boundingbox.bottom) {
-                    this.x = this.x + this.game.clockTick * 300;
-                    this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
-                    this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
-                    this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
-            }
-            else if(wall.collideBottom && this.boundingbox.top < wall.boundingbox.bottom && wall.boundingbox.top < this.boundingbox.bottom 
-                ) {
-                this.y = wall.boundingbox.bottom + 10;
-                this.falling = true;
-                this.jumping = false   
-                this.jumpForward.elapsedTime = 0;
-                this.jumpBackward.elapsedTime = 0;
-            } 
-        }
-    }
-    this.prevX = this.x;
-    if(this.game.camera) {
-        this.game.camera.update(this.x, this.y);
-    }
-    Entity.prototype.update.call(this);
-}
-
-MainCharacter.prototype.draw = function (ctx) {
-
-    if(this.attack && this.back) {
-        this.attackBackAnim.drawFrame(this.game.clockTick, ctx, this.x - 24 - this.game.camera.x, this.y - 2 - this.game.camera.y);
-    }
-    else if(this.attack && !this.back) {
-        this.attackForwardAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - 2 - this.game.camera.y);
-    }
-    else if (this.jumping && !this.back) {
-        this.jumpForward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    }
-    else if(this.jumping && this.back) {
-        this.jumpBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    }
-    else if (this.falling && !this.back) {
-        this.fallForward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    }
-    else if(this.falling && this.back) {
-        this.fallBackward.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    }
-    else if (this.damaged && !this.back) {
-        this.damageAnimeForw.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    }
-    else if (this.damaged && this.back) {
-        this.damageAnimeBack.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    }
-    else if(this.stand == false && this.back == false) {
-        this.walkAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    }
-    else if(this.stand == false && this.back == true) {
-        this.backWalkAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    }
-    else if(this.stand == true && this.back == false){
-        this.idleAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    }
-    else {
-        this.idleBackAnim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    } 
-
-    Entity.prototype.draw.call(this);
 }
 // #endregion
 
@@ -1543,6 +1353,113 @@ Chest.prototype.draw = function(ctx) {
 }
 //#endregion
 
+function GhostWolf(game, theX, theY, maxX, minX) {
+    this.walkBack = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 420, 88, 60, .1, 9, true, false);
+    this.walk = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 960, 88, 60, .1, 9, true, false);
+    this.idle = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 240, 88, 60, .1, 1, true, false);
+    this.attackF = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 780, 88, 60, .1, 10, false, false);
+    this.attackBack = new Animation(ASSET_MANAGER.getAsset("./img/wolfsheet.png"), 0, 240, 88, 60, .1, 10, false, false);
+    this.attack = false;
+    this.maxX = maxX;
+    this.minX = minX;
+    this.idl = true;
+    this.back = false;
+    this.hp = 20;
+    this.timeSinceDamage = 10;
+    this.boundingbox = new BoundingBox(theX + 15, theY + 29, 75, 31);
+    Entity.call(this, game, theX, theY);
+}
+
+GhostWolf.prototype = new Entity();
+GhostWolf.prototype.constructor = GhostWolf;
+
+GhostWolf.prototype.update = function () {
+    this.timeSinceDamage += this.game.clockTick;
+    var mc = this.game.entities.Character;
+    if (collided(mc.boundingbox, this.boundingbox) && (this.attackF.elapsedTime > .5 || this.attackBack.elapsedTime > .5)) {
+        if (mc.x > this.x) {
+             mc.damage(5, 2);
+        } else {
+            mc.damage(5, -2);
+        }
+     }
+    if (mc.attack) {
+        if ((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
+             if(this.timeSinceDamage > 1) {
+                this.hp -= mc.attackPower;
+                this.timeSinceDamage = 0;
+             }
+        }
+    }
+    if(this.game.entities.Character) {
+        if(Math.abs(this.x - mc.x + 32) < 50 && Math.abs(this.y - mc.y) < 50) {
+            this.attack = true;
+        }
+    
+        if(this.game.entities.Character.x - this.x > 40) {
+            this.back = false;
+        }
+        else {
+            this.back = true;
+        }
+
+    }
+    if(this.attackF.elapsedTime + this.game.clockTick > this.attackF.totalTime) {
+        this.attackF.elapsedTime = 0;
+        this.attackBack.elapsedTime = 0;
+        this.attack = false
+    }
+    if(this.attackBack.elapsedTime + this.game.clockTick > this.attackBack.totalTime) {
+        this.attackBack.elapsedTime = 0;
+        this.attackF.elapsedTime = 0;
+    }
+
+    if(!this.attack && Math.abs(mc.x - this.x) < 300 && Math.abs(mc.y - this.y) < 70) {
+        this.idl = false;
+        if(this.back) {
+            this.x = this.x - this.game.clockTick * 75
+        }
+        else {
+            this.x = this.x + this.game.clockTick * 75
+        }
+    }
+    else {
+        this.idl = true;
+    }
+    if(this.x > this.maxX) {
+        this.x = this.maxX;
+        this.idl = true;
+    }
+    else if(this.x < this.minX) {
+        this.x = this.minX
+        this.idl = true;
+    }
+    if (this.hp <= 0) {
+        this.removeFromWorld = true;
+    }
+    this.boundingbox = new BoundingBox(this.x + 15, this.y + 29, 73, 31);
+    Entity.prototype.update.call(this);
+}
+
+GhostWolf.prototype.draw = function (ctx) {
+    if(this.attack && !this.back) {
+        this.attackF.drawFrame(this.game.clockTick, ctx, this.x-this.game.camera.x, this.y-this.game.camera.y);
+    }
+    else if(this.attack && this.back) {
+        this.attackBack.drawFrame(this.game.clockTick, ctx, this.x-this.game.camera.x, this.y-this.game.camera.y);
+    }
+    else if(this.idl) {
+        this.idle.drawFrame(this.game.clockTick, ctx, this.x-this.game.camera.x, this.y-this.game.camera.y);
+    }
+    else if(this.back) {
+        this.walkBack.drawFrame(this.game.clockTick, ctx, this.x-this.game.camera.x, this.y-this.game.camera.y);
+    }
+    else {
+        this.walk.drawFrame(this.game.clockTick, ctx, this.x-this.game.camera.x, this.y-this.game.camera.y);
+    }
+    Entity.prototype.draw.call(this);
+}
+
 function BossWolf(game, theX, theY) {
     this.game = game;
     this.attack = false;
@@ -1739,7 +1656,7 @@ AttackWolf.prototype.draw = function (ctx) {
     Entity.prototype.draw.call(this);
 }
 
-function Nightmare(game, theX, backbool) {
+function Nightmare(game, theX, theY, maxX, minX, backbool) {
     this.runBackward = new Animation(ASSET_MANAGER.getAsset("./img/nightmare.png"), 0, 0, 144, 96, .20, 4, true, false);
     this.runForward = new Animation(ASSET_MANAGER.getAsset("./img/nightmare.png"), 0, 96, 144, 96, .20, 4, true, false);
     this.idleForward = new Animation(ASSET_MANAGER.getAsset("./img/nightmare.png"), 0, 192, 128, 96, .3, 4, false, false);
@@ -1749,27 +1666,33 @@ function Nightmare(game, theX, backbool) {
     this.radius = 96;
     this.width = 144;
     this.height = 96;
-    this.hp = 100;
-    Entity.call(this, game, theX, 560);
+    this.maxX = maxX;
+    this.minX = minX;
+    this.hp = 20;
+    this.timeSinceDamage = 100;
+    this.boundingbox = new BoundingBox(theX, theY, 96, 80);
+    Entity.call(this, game, theX, theY);
 }
 
 Nightmare.prototype = new Entity();
 Nightmare.prototype.constructor = Nightmare;
 
 Nightmare.prototype.update = function () {
-    // fall if not on a platform
-    // if (!onPlatformWH(this)) {
-    //     this.y += 1;
-    // }
-
-    // check for collision with mc
-    if (isCollidedWH(this.game, this)) {
-        var mc = this.game.entities.Character;
-        if (mc.attack) {
-            this.hp -= 5;
+    this.timeSinceDamage += this.game.clockTick;
+    var mc = this.game.entities.Character;
+    if (collided(mc.boundingbox, this.boundingbox)) {
+        if (mc.x > this.x) {
+            mc.damage(5, 2);
         } else {
-            mc.hp -= 1;
-
+            mc.damage(5, -2);
+        }
+    }
+    if (mc.attack) {
+        if ((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
+            if(this.timeSinceDamage > 1) {
+                this.hp -= mc.attackPower;
+                this.timeSinceDamage = 0;
+            }
         }
     }
 
@@ -1777,11 +1700,11 @@ Nightmare.prototype.update = function () {
         this.removeFromWorld = true;
     }
 
-    if(this.x < 50) {
+    if(this.x < this.minX) {
         this.back = false;
         this.idle = true;
     }
-    if(this.x > 1250) {
+    if(this.x > this.maxX) {
         this.back = true;
         this.idle = true;
     }
@@ -1801,6 +1724,13 @@ Nightmare.prototype.update = function () {
     else if(!this.idle && this.back) {
         this.x = this.x - this.game.clockTick * 500;
     }
+    if(this.idle) {
+        this.boundingbox = new BoundingBox(this.x + 15, this.y + 15, 97, 80);
+    }
+    else {
+        this.boundingbox = new BoundingBox(this.x + 15, this.y + 15, 112, 81);
+    }
+
     Entity.prototype.update.call(this);
 }
 
@@ -1821,65 +1751,91 @@ Nightmare.prototype.draw = function (ctx) {
 
 // Begin Ghost enemy
 function Ghost(game, theX, theY) {
-    this.appearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 0, 64, 48, .15, 6, false, false);
-    this.disappearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 48, 64, 48, .15, 6, false, false);
-    this.idleA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 96, 64, 48, .15, 6, false, false);
+    this.appearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 0, 64, 48, .5, 6, false, false);
+    this.disappearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 48, 64, 48, .5, 6, false, false);
+    this.idleA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 96, 64, 48, .15, 6, true, false);
     this.scareA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 144, 64, 48, .15, 4, false, false);
-    this.appear = true;
+    this.appear = false;
     this.disappear = false;
+    this.appeared = false;
     this.idle = false;
     this.scare = false;
-    this.hp = 10;
+    this.hp = 20;
+    this.timeSinceDamage = 100;
     this.width = 64;
     this.height = 48;
+    this.boundingbox = new BoundingBox(0,0,0,0);
     Entity.call(this, game, theX, theY);
 }
 
-Ghost.prototype.update = function() {
 
-    // check for collision with mc
-    if (isCollidedWH(this.game, this)) {
-        var mc = this.game.entities.Character;
+Ghost.prototype.update = function() {
+    this.timeSinceDamage += this.game.clockTick;
+    var mc = this.game.entities.Character;
+    if(Math.abs(this.x - mc.x) < 900 && !this.appeared) {
+        this.appear = true;
+        this.appeared = true;
+        this.boundingbox = new BoundingBox(this.x + 17, this.y + 2, 30, 46);
+    }
+    if(this.appeared) {
+        if (collided(mc.boundingbox, this.boundingbox) && this.scare) {
+            if (mc.x > this.x) {
+                mc.damage(5, 2);
+            } else {
+                mc.damage(5, -2);
+            }
+        }
         if (mc.attack) {
-            this.hp -= 5;
-        } else {
-            mc.hp -= 1;
-
+            if ((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
+                if(this.timeSinceDamage > 1) {
+                    this.hp -= mc.attackPower;
+                    this.timeSinceDamage = 0;
+                }
+            }
+        }
+        if(Math.abs(this.x - mc.x) < 40) {
+            this.scare = true;
+            this.idle = false;
+        }
+        if(mc.x > this.x && !this.disappear) {
+            this.x = this.x + 100 * this.game.clockTick
+        }
+        else if(mc.x < this.x && !this.disappear) {
+            this.x = this.x - 100 * this.game.clockTick;
+        }
+    
+        if(mc.y > this.y && !this.disappear) {
+            this.y = this.y + 50 * this.game.clockTick;
+        }
+        else if(this.y > mc.y && !this.disappear) {
+            this.y = this.y - 50 * this.game.clockTick;
+        }
+        this.boundingbox = new BoundingBox(this.x + 17, this.y + 2, 30, 46);
+        if (this.appearA.isDone()) {
+            this.appearA.elapsedTime = 0;
+            this.appear = false;
+            this.idle = true;
+        }
+        else if(this.scareA.isDone()) {
+            this.scare = false;
+            this.idle = true;
+            this.scareA.elapsedTime = 0;
+        }
+        else if(this.disappearA.isDone()){
+            this.disappearA.elapsedTime = 0;
+            if(this.game.entities.Character) {
+                this.removeFromWorld = true;
+                this.disappear = false;
+            }
+        }
+        if (this.hp <= 0) {
+            this.disappear = true;
+            this.idle = false;
+            this.scare = false;
+            this.boundingbox = new BoundingBox(0,0,0,0);
         }
     }
 
-    if (this.hp <= 0) {
-        this.removeFromWorld = true;
-    }
-
-    Entity.call(this, game, theX, theY);
-}
-
-Ghost.prototype.update = function() {
-    if (this.appearA.isDone()) {
-        this.appearA.elapsedTime = 0;
-        this.appear = false;
-        this.idle = true;
-    }
-    else if(this.idleA.isDone()) {
-        this.idle = false;
-        this.scare = true;
-        this.idleA.elapsedTime = 0;
-    }
-    else if(this.scareA.isDone()) {
-        this.scare = false;
-        this.disappear = true;
-        this.scareA.elapsedTime = 0;
-    }
-    else if(this.disappearA.isDone()){
-        this.disappearA.elapsedTime = 0;
-        if(this.game.entities.Character) {
-            var ghost = new Ghost(this.game, (Math.floor(Math.random() * 301)) - 50 + this.game.entities.Character.x, -(Math.floor(Math.random() * 301)) + 50 + this.game.entities.Character.y);
-            this.game.addEntity(ghost);
-            this.removeFromWorld = true;
-            this.disappear = false;
-        }
-    }
     Entity.prototype.update.call(this);
 }
 
@@ -1899,6 +1855,143 @@ Ghost.prototype.draw = function (ctx) {
     Entity.prototype.draw.call(this);
 }
 // End Ghost enemy
+
+function SkeleBoss(game, theX, theY) {
+    this.idle = new Animation(ASSET_MANAGER.getAsset("./img/level1boss.png"), 0, 0, 264, 204, 1, 1, true, false);
+    this.walke = new Animation(ASSET_MANAGER.getAsset("./img/level1boss.png"), 0, 0, 264, 204, .12, 4, true, false);
+    this.backOff = false;
+    this.walk = true;
+    this.hp = 110;
+    this.timeSinceDamage = 10;
+    this.knockBackTime = -1;
+    this.knockback = 0;
+    Entity.call(this, game, theX, theY);
+    this.boundingbox = new BoundingBox(theX, theY, 264, 204);
+}
+
+SkeleBoss.prototype = new Entity();
+SkeleBoss.prototype.constructor = SkeleBoss;
+
+SkeleBoss.prototype.update = function () {
+    this.timeSinceDamage += this.game.clockTick;
+    var mc = this.game.entities.Character;
+    if(Math.abs(this.x - mc.x) < 600) {
+        this.walk = true;
+    }
+    else {
+        this.walk = false;
+    }
+    if (collided(mc.boundingbox, this.boundingbox)) {
+        if (mc.x > this.x) {
+            mc.damage(10, 2);
+        } else {
+            mc.damage(10, -2);
+        }
+    }
+    if (mc.attack) {
+        if ((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
+            if(this.timeSinceDamage > .7) {
+                this.hp -= mc.attackPower;
+                this.timeSinceDamage = 0;
+                this.knockBackTime = .4;
+                if(mc.x > this.x + 100) {
+                    this.knockback = -3;
+                }
+                else if(mc.x < this.x) {
+                    this.knockback = 3;
+                }
+            }
+        }
+    }
+    if (this.hp <= 0) {
+        this.removeFromWorld = true;
+    }
+
+    if(this.walk && this.knockBackTime <= 0) {
+        if(this.x > mc.x) {
+            this.x = this.x - this.game.clockTick * 80
+        }
+        else {
+            this.x = this.x + this.game.clockTick * 80
+        }
+    }
+    else if(this.knockBackTime > 0) {
+        this.knockBackTime -= this.game.clockTick;
+        this.x += this.knockback;
+    }
+
+    if(this.x > 7700) {
+        this.x = 7700;
+    }
+    if(this.x < 6850) {
+        this.x = 6850;
+    }
+    this.boundingbox = new BoundingBox(this.x, this.y, 264, 204);
+    Entity.prototype.update.call(this);
+}
+
+SkeleBoss.prototype.draw = function(ctx) {
+    if(this.walk && this.knockBackTime < 0) {
+        this.walke.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+    else {
+        this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    }
+
+    Entity.prototype.draw.call(this);
+}
+
+//#region Strawberry
+function Strawberry(game, x, y) {
+    this.game = game;
+    this.animation = new Animation(ASSET_MANAGER.getAsset("./img/fruit.png"), 128, 64, 32, 32, 1, 1, true, true);
+    this.radius = 32;
+    this.ground = y;
+    this.boundingbox = new BoundingBox(this.x, this.y, 32, 32);
+    Entity.call(this, game, x, y);
+}
+
+Strawberry.prototype = new Entity();
+Strawberry.prototype.constructor = Strawberry;
+Strawberry.prototype.collidePlat = function() {
+    collide = false;
+    for (var i = 0; i < this.game.platforms.length; i++) {
+        collide = this.boundingbox.collide(this.game.platforms[i].boundingbox);
+        if (collide) {
+            return true;
+        }
+    }
+    return collide;
+}
+
+// Check if collided with MC; return true if collided, false, otherwise
+Strawberry.prototype.collided = function() {
+    var charact = this.game.entities.Character;
+    return distance(this, charact) <= this.radius / 1.9 + charact.radius / 1.9;
+}
+
+Strawberry.prototype.update = function() {
+    this.boundingbox = new BoundingBox(this.x, this.y, 32, 36);
+    if (!this.collidePlat()) {
+        this.y += 2;
+    }
+    if (this.collided()) {
+        this.removeFromWorld = true;
+        this.game.entities.Character.attackPower++;
+        if (this.game.entities.Character.hp + 20 >= this.game.entities.Character.maxHP) {
+            this.game.entities.Character.hp = this.game.entities.Character.maxHP;
+        } else {
+            this.game.entities.Character.hp += 20;
+        }
+    }
+    Entity.prototype.update.call(this);
+}
+
+Strawberry.prototype.draw = function(ctx) {
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+    Entity.prototype.draw.call(this);
+}
+//#endregion
 
 function Lever(game, theX, theY) {
     this.game = game;
@@ -2165,11 +2258,17 @@ function MapLevel(game) {
     for (var i = 0; i < 250; i++) {
         this.map[i] = new Array();
     }
-    this.sprites = new Array(7);
+    this.sprites = new Array(12);
+    var A = 10;
+    var B = 11;
     
-    // starting map
-    this.map = level_2_map;
-    createLevel_3(game);
+    // starting map 1 (DEFAULT)
+    this.currentLevel = 1;
+    this.map = level_1_map;
+    this.currentBoss = null;
+    this.defeatedBoss = false;
+
+    createLevel_1(game, this);
     
     this.sprites[0] = null;
     this.sprites[1] = 1;
@@ -2179,38 +2278,12 @@ function MapLevel(game) {
     this.sprites[5] = 5;
     this.sprites[6] = 6;
     this.sprites[7] = 7;
+    this.sprites[8] = 8;
+    this.sprites[9] = 9;
+    this.sprites[A] = 10;
+    this.sprites[B] = 11;
 
-    for (var i = 0; i < 250; i++) {
-        for (var j = 0; j < 35; j++) {
-            // check if sprite is null, if not, draw it
-            var sprite = this.sprites[this.map[j][i]];
-            if (sprite) {
-                if(sprite == 1) {
-                    // this.game.platforms.push(new Platform(this.game, i * 32, j * 32 - 640));
-                    this.game.platforms.push(new Platform(this.game, i * 32, j * 32 - 416));
-                }
-                else if(sprite == 2) {
-                    this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, true, true));
-               }
-                else if(sprite == 3) {
-                    this.game.platforms.push(new Wall(this.game, i * 32, j * 32 - 416));
-                }
-                else if(sprite == 4) {
-                    this.game.cosmeticEntities.push(new WallPlatform(this.game, i * 32, j * 32 - 416));
-               //     Makes it so the character doesnt have to check if they are colliding.
-                }
-                else if(sprite == 5) {
-                    this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, false, true));
-                }
-                else if(sprite == 6) {
-                    this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, true, false));
-                }
-                else if (sprite == 7) {
-                    this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, true, true, true));
-                }
-            }
-        }
-    }
+    this.createLevel();
 }
 
 MapLevel.prototype = new Entity();
@@ -2218,11 +2291,15 @@ MapLevel.prototype.constructor = MapLevel;
 
 MapLevel.prototype.update = function() {   
 
+    if (this.currentBoss.hp <= 0) {
+        this.defeatedBoss = true;
+    }
+
     // if defeated boss for the level, load new level
-    if (this.game.defeatedBoss && this.game.currentLevel < 3) {
+    if (this.defeatedBoss && this.currentLevel < 3) {
     // if (this.game.entities.Character.x > 100) {      // for testing
-        this.game.currentLevel++;
-        this.game.defeatedBoss = false;
+        this.currentLevel++;
+        this.defeatedBoss = false;
 
         // remove all previous level entities
         for (var i = 0; i < this.game.cosmeticEntities.length; i++) {
@@ -2240,57 +2317,29 @@ MapLevel.prototype.update = function() {
 
         // load new level
         var mc = this.game.entities.Character;
-        switch(this.game.currentLevel) {
+        switch(this.currentLevel) {
             case 1:
                 this.map = level_1_map;
+                createLevel_1(this.game, this);
+                mc.x = 64;
+                mc.y = 544;
                 break;
             case 2:
                 this.map = level_2_map;
-                createLevel_2(this.game);
+                createLevel_2(this.game, this);
                 mc.x = 64;
                 mc.y = 544;
                 break;
             case 3:
                 this.map = level_3_map;
-                createLevel_3(this.game);
+                createLevel_3(this.game, this);
                 mc.x = 64;
                 mc.y = 544;
-                
                 break;
             default:
                 console.log("Not a valid map."); 
         }
-        for (var i = 0; i < 250; i++) {
-            for (var j = 0; j < 35; j++) {
-                // check if sprite is null, if not, draw it
-                var sprite = this.sprites[this.map[j][i]];
-                if (sprite) {
-                    if(sprite == 1) {
-                        // this.game.platforms.push(new Platform(this.game, i * 32, j * 32 - 640));
-                        this.game.platforms.push(new Platform(this.game, i * 32, j * 32 - 416));
-                    }
-                    else if(sprite == 2) {
-                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, true, true));
-                }
-                    else if(sprite == 3) {
-                        this.game.platforms.push(new Wall(this.game, i * 32, j * 32 - 416));
-                    }
-                    else if(sprite == 4) {
-                        this.game.cosmeticEntities.push(new WallPlatform(this.game, i * 32, j * 32 - 416));
-                        //     Makes it so the character doesnt have to check if they are colliding.
-                    }
-                    else if(sprite == 5) {
-                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, false, true));
-                    }
-                    else if(sprite == 6) {
-                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, true, false));
-                    }
-                    else if (sprite == 7) {
-                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, true, true, true));
-                    }
-                }
-            }
-        }
+        this.createLevel();
         var healthbar = new HealthBar(this.game);
         this.game.cosmeticEntities.push(healthbar);
     }
@@ -2298,6 +2347,131 @@ MapLevel.prototype.update = function() {
 };
 
 MapLevel.prototype.draw = function (ctx) {
+}
+
+MapLevel.prototype.createLevel = function() {
+    for (var i = 0; i < 250; i++) {
+        for (var j = 0; j < 35; j++) {
+            // check if sprite is null, if not, draw it
+            var sprite = this.sprites[this.map[j][i]];
+            var currentLevel = this.currentLevel;
+            if (sprite) {
+                if(sprite == 1) {
+                    this.game.platforms.push(new Platform(this.game, i * 32, j * 32 - 416));
+                }
+                else if(sprite == 2) {
+                    if (currentLevel == 1) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/level1brick.png"), true, true));
+                    }
+                    else if (currentLevel == 2) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/purpleBrick.png"), true, true));
+                    }
+                    else if (currentLevel == 3) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/greenBrick.png"), true, true));
+                    }
+                }
+                else if(sprite == 3) {
+                    if (currentLevel == 1) {
+                        this.game.platforms.push(new Wall(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/level1brick.png")));
+                    }
+                    else if (currentLevel == 2) {
+                        this.game.platforms.push(new Wall(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/purpleBrick.png")));
+                    }
+                    else if (currentLevel == 3) {
+                        this.game.platforms.push(new Wall(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/greenBrick.png")));
+                    }
+                }
+                else if(sprite == 4) {
+                    if (currentLevel == 1) {
+                        this.game.cosmeticEntities.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/level1brick.png")));
+                    }
+                    else if (currentLevel == 2) {
+                        this.game.cosmeticEntities.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/purpleBrick.png")));
+                    }
+                    else if (currentLevel == 3) {
+                        this.game.cosmeticEntities.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/greenBrick.png")));
+                    }
+                }
+                else if(sprite == 5) {
+                    if (currentLevel == 1) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/level1brick.png"), false, true));
+                    }
+                    else if (currentLevel == 2) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/purpleBrick.png"), false, true));
+                    }
+                    else if (currentLevel == 3) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/greenBrick.png"), false, true));
+                    }
+                }
+                else if(sprite == 6) {
+                    if (currentLevel == 1) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/level1brick.png"), true, false));
+                    }
+                    else if (currentLevel == 2) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/purpleBrick.png"), true, false));
+                    }
+                    else if (currentLevel == 3) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/greenBrick.png"), true, false));
+                    }
+                }
+                else if (sprite == 7) {
+                    if (currentLevel == 1) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/level1brick.png"), true, true, true));
+                    }
+                    else if (currentLevel == 2) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/purpleBrick.png"), true, true, true));
+                    }
+                    else if (currentLevel == 3) {
+                        this.game.platforms.push(new WallPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/greenBrick.png"), true, true, true));
+                    }
+                }
+                else if (sprite == 8) {
+                    if (currentLevel == 1) {
+                        this.game.platforms.push(new BreakingPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/fallingbrick.png"), true));
+                    }
+                    else if (currentLevel == 2) {
+                        this.game.platforms.push(new BreakingPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/breakingFall2.png"), true));
+                    }
+                    else if (currentLevel == 3) {
+                        this.game.platforms.push(new BreakingPlatform(this.game, i * 32, j * 32 - 416, ASSET_MANAGER.getAsset("./img/breakingBrick3.png"), true));
+                    }
+                }
+                else if (sprite == 9) {
+                    if (currentLevel == 1) {
+                        this.game.platforms.push(new MovingPlatform(this.game, i*32, j*32 - 416, i*32 + 128, i*32, ASSET_MANAGER.getAsset("./img/level1brick.png"), 150, false));
+                    }
+                    else if (currentLevel == 2) {
+                        this.game.platforms.push(new MovingPlatform(this.game, i*32, j*32 - 416, i*32 + 128, i*32, ASSET_MANAGER.getAsset("./img/purpleBrick.png"), 150, false));
+                    }
+                    else if (currentLevel == 3) {
+                        this.game.platforms.push(new MovingPlatform(this.game, i*32, j*32 - 416, i*32 + 128, i*32, ASSET_MANAGER.getAsset("./img/greenBrick.png"), 150, false));
+                    }
+                }
+                else if (sprite == 10) {
+                    if (currentLevel == 1) {
+                        this.game.platforms.push(new MovingPlatform(this.game, i*32, j*32 - 416, i*32 + 128, i*32, ASSET_MANAGER.getAsset("./img/level1brick.png"), 150, true));
+                    }
+                    else if (currentLevel == 2) {
+                        this.game.platforms.push(new MovingPlatform(this.game, i*32, j*32 - 416, i*32 + 128, i*32, ASSET_MANAGER.getAsset("./img/purpleBrick.png"), 150, true));
+                    }
+                    else if (currentLevel == 3) {
+                        this.game.platforms.push(new MovingPlatform(this.game, i*32, j*32 - 416, i*32 + 128, i*32, ASSET_MANAGER.getAsset("./img/greenBrick.png"), 150, true));
+                    }
+                }
+                else if (sprite == 11) {
+                    if (currentLevel == 1) {
+                        this.game.platforms.push(new VerticalPlatform(this.game, i*32, j*32- 416, j * 32 - 220, j*32 - 416, ASSET_MANAGER.getAsset("./img/level1brick.png"), 150, false));
+                    }
+                    else if (currentLevel == 2) {
+                        this.game.platforms.push(new VerticalPlatform(this.game, i*32, j*32- 416, j * 32 - 220, j*32 - 416, ASSET_MANAGER.getAsset("./img/purpleBrick.png"), 150, false));
+                    }
+                    else if (currentLevel == 3) {
+                        this.game.platforms.push(new VerticalPlatform(this.game, i*32, j*32- 416, j * 32 - 220, j*32 - 416, ASSET_MANAGER.getAsset("./img/greenBrick.png"), 150, false));
+                    }
+                }
+            }
+        }
+    }
 }
 
 function GameWonScreen(game) {
@@ -2362,6 +2536,12 @@ ASSET_MANAGER.queueDownload("./img/nightmare.png");
 ASSET_MANAGER.queueDownload("./img/redwolf.png");
 ASSET_MANAGER.queueDownload("./img/blackwolf.png");
 ASSET_MANAGER.queueDownload("./img/brickMed.png");
+ASSET_MANAGER.queueDownload("./img/level1brick.png");
+ASSET_MANAGER.queueDownload("./img/level1fallbrick.png");
+ASSET_MANAGER.queueDownload("./img/breakBrick2.png");
+ASSET_MANAGER.queueDownload("./img/fallingbrick.png");
+ASSET_MANAGER.queueDownload("./img/breakingFall2.png");
+ASSET_MANAGER.queueDownload("./img/breakingBrick3.png");
 
 ASSET_MANAGER.queueDownload("./img/emberBack.gif");
 ASSET_MANAGER.queueDownload("./img/startGame.png");
@@ -2374,6 +2554,8 @@ ASSET_MANAGER.queueDownload("./img/miniBossRev.png");
 ASSET_MANAGER.queueDownload("./img/slashAttackRev.png");
 ASSET_MANAGER.queueDownload("./img/slashAttackRevv.png");
 ASSET_MANAGER.queueDownload("./img/miniBossRev2.png");
+ASSET_MANAGER.queueDownload("./img/level1boss.png");
+ASSET_MANAGER.queueDownload("./img/wolfsheet.png");
 
 ASSET_MANAGER.queueDownload("./img/miniBossIdleRev.png");
 ASSET_MANAGER.queueDownload("./img/miniBossFightingRev.png");
@@ -2389,11 +2571,13 @@ ASSET_MANAGER.queueDownload("./img/miniBossAttackSlash.png");
 ASSET_MANAGER.queueDownload("./img/controlScreen.jpg");
 ASSET_MANAGER.queueDownload("./img/skeleton.png");
 ASSET_MANAGER.queueDownload("./img/brickBG_1200x700.png");
+ASSET_MANAGER.queueDownload("./img/castleBgDark.png");
+ASSET_MANAGER.queueDownload("./img/greenBg2.png");
+
 ASSET_MANAGER.queueDownload("./img/tiles_32x32.png");
-ASSET_MANAGER.queueDownload("./img/brickSmall.png");
-ASSET_MANAGER.queueDownload("./img/brickMed.png");
 ASSET_MANAGER.queueDownload("./img/dirt_tiles.png");
-ASSET_MANAGER.queueDownload("./img/tileBrickGreen.png");
+ASSET_MANAGER.queueDownload("./img/greenBrick.png");
+ASSET_MANAGER.queueDownload("./img/purpleBrick.png");
 ASSET_MANAGER.queueDownload("./img/mc_attack88x68.png");
 ASSET_MANAGER.queueDownload("./img/spike30x24.png");
 ASSET_MANAGER.queueDownload("./img/dart.png");
@@ -2402,6 +2586,7 @@ ASSET_MANAGER.queueDownload("./img/yellowplat28x16.png");
 ASSET_MANAGER.queueDownload("./img/shuriken.png");
 ASSET_MANAGER.queueDownload("./img/lever38x32.png");
 ASSET_MANAGER.queueDownload("./img/sword40x39.png");
+ASSET_MANAGER.queueDownload("./img/fruit.png");
 
 // Download all assests before starting game
 ASSET_MANAGER.downloadAll(function () {

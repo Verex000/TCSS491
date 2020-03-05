@@ -56,9 +56,9 @@ function GameEngine() {
     this.count = 0;
     this.music = false;
     this.pause =false;
-    this.currentLevel = 2;
-    this.currentBoss = null;
-    this.defeatedBoss = true;
+    // this.currentLevel = 3;
+    // this.currentBoss = null;
+    // this.defeatedBoss = false;
 
     this.temp = 1;
     this.startGameCount = 0;
@@ -79,12 +79,6 @@ GameEngine.prototype.start = function () {
         that.loop();
         requestAnimFrame(gameLoop, that.ctx.canvas);
     })();
-}
-
-GameEngine.prototype.createLevel = function (level) {
-    if (level == 3) {
-        this.enemies = level_3_enemies;
-    }
 }
 
 GameEngine.prototype.startInput = function () {
@@ -147,6 +141,11 @@ GameEngine.prototype.startInput = function () {
             // var bg = new Background(that);
             var map = new MapLevel(that);
             var healthbar = new HealthBar(that);
+
+            that.addEntity(map);
+
+            var maincharacter = new MainCharacter(that);
+            that.entities.Character = maincharacter;
 
             // // enemies
             // var slime = new Slime(that, 1700, 632, 1700, 2400);
@@ -237,12 +236,7 @@ GameEngine.prototype.startInput = function () {
 
             // // ADD ENTITIES
             // that.addEntity(bg);
-            that.addEntity(map);
-
-            // that.createLevel(that.currentLevel);
-
-            var maincharacter = new MainCharacter(that);
-            that.entities.Character = maincharacter;
+            
 
             // // items
             // that.addEntity(turkey1);
