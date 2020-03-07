@@ -467,10 +467,10 @@ GameEngine.prototype.startInput = function () {
     // }, false);
 
 
-    // this.ctx.canvas.addEventListener("keyup", function (e) {
-    //     if (String.fromCharCode(e.which) === 'R') that.r = true;
-    //     e.preventDefault();
-    // }, false);
+    this.ctx.canvas.addEventListener("keyup", function (e) {
+        if (String.fromCharCode(e.which) === 'R') that.r = true;
+        e.preventDefault();
+    }, false);
 
     // this.ctx.canvas.addEventListener("keydown", function (e) {
     //     if (String.fromCharCode(e.which) === 'R') that.r = false;
@@ -661,10 +661,12 @@ function Entity(game, x, y) {
     this.game = game;
     this.x = x;
     this.y = y;
+    this.prevX = x;
     this.removeFromWorld = false;
 }
 
 Entity.prototype.update = function () {
+    this.prevX = this.x;
 }
 
 Entity.prototype.draw = function (ctx) {
