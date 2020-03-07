@@ -22,8 +22,9 @@ FallingCrown.prototype.update = function() {
     this.boundingbox = new BoundingBox(this.x, this.y, 30, 20);
 
     var mc = this.game.entities.Character;
+    console.log(mc.x);
     if (this.falling) {
-        this.y += 3;
+        this.y += 5;
     }
     else if (!this.collidePlat() && Math.abs(mc.x - this.x) <= 64 && Math.abs(mc.y - this.y) <= 224) {
         this.falling = true;

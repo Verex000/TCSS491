@@ -388,7 +388,7 @@ function MainCharacter(game) {
     this.fallBackward = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 256, 64, 64, .2, 4, true, false);
     this.damageAnimeForw = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 576, 64, 64, .1, 4, false, false);
     this.damageAnimeBack = new Animation(ASSET_MANAGER.getAsset("./img/mc64.png"), 0, 512, 64, 64, .1, 4, false, false);
-    
+  2  
     this.damaged = false;
     this.jumping = false;
     this.stand = true;
@@ -411,10 +411,10 @@ function MainCharacter(game) {
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 44, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
 
-    Entity.call(this, game, 50, 544);
+    //Entity.call(this, game, 50, 544);
     // Entity.call(this, game, 2464, -416);
     // Entity.call(this, game, 4608, 640);
-    // Entity.call(this, game, 6500, 200);
+    Entity.call(this, game, 6500, 0);
     // Entity.call(this, game, 7100, 400);
 }
 
@@ -445,16 +445,6 @@ MainCharacter.prototype.checkPointUpdate = function() {
     
 }
 
-// Character will get damaged if he collide with a trap (except when has fallen to the ground.)
-// MainCharacter.prototype.collideTrap = function() {
-//     var trapRadius = traps[0].radius;
-//             // top collision
-//     return (traps[0].y + trapRadius >= this.y && traps[0].y + trapRadius <= this.y + this.radius)
-//             // left & right collision
-//             && ((traps[0].x + trapRadius <= this.x + this.radius
-//                 && traps[0].x + trapRadius >= this.x) || (traps[0].x >= this.x
-//                 && traps[0].x <= this.x + this.radius));
-// }
 
 MainCharacter.prototype.update = function () {
     this.ticksSinceDamage += this.game.clockTick;
@@ -752,7 +742,7 @@ FallingSpike.prototype.update = function() {
     this.boundingbox = new BoundingBox(this.x, this.y, 30, 20);
     var mc = this.game.entities.Character;
     if (this.falling) {
-        this.y += 3;
+        this.y += 1;
     }
     else if (!this.collidePlat() && Math.abs(mc.x - this.x) <= 64 && Math.abs(mc.y - this.y) <= 224) {
         this.falling = true;
@@ -1882,177 +1872,185 @@ Lever.prototype.draw = function(ctx) {
 }
 
 // Begin mini Boss
-function MiniBoss(game, spawnX, spawnY) {
-    this.game = game;
-    this.attackSlashRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlashRev.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
-    this.attackSlash = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlash.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
-    this.idle = new Animation(ASSET_MANAGER.getAsset("./img/miniBossIdle.png"), 0, 0, 729 / 3, 234, .1, 3, true, false);
-    this.idleRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossIdleRev.png"), 0, 0, 729 / 3, 234, .5, 3, true, false);
-    this.hitRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossHitRev.png"), 0, 0, 222, 280, .5, 1, false, false);
-    this.hit = new Animation(ASSET_MANAGER.getAsset("./img/miniBossHit.png"), 0, 0, 222, 280, .5, 1, false, false);
-    this.fightingAniRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossFightingRev.png"), 0, 0, 220, 206, .5, 2, true, false);
-    this.fightingAni = new Animation(ASSET_MANAGER.getAsset("./img/miniBossFighting.png"), 0, 0, 220, 206, .5, 2, true, false);
-    this.still = true;
-    this.attackTimer = 0;
-    this.bossIdle = true;
-    this.found = false;
-    this.stillFighting = false;
-    this.attack = false;
-    this.gotHit = false;
-    this.back = false;
-    this.attackTime = 0;
-    this.width = 298;
-    this.height = 298;
-    this.hp = 15000;
+// function MiniBoss(game, spawnX, spawnY) {
+//     this.game = game;
+//     this.attackSlashRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlashRev.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
+//     this.attackSlash = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlash.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
+//     this.idle = new Animation(ASSET_MANAGER.getAsset("./img/miniBossIdle.png"), 0, 0, 729 / 3, 234, .1, 3, true, false);
+//     this.idleRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossIdleRev.png"), 0, 0, 729 / 3, 234, .5, 3, true, false);
+//     this.hitRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossHitRev.png"), 0, 0, 222, 280, .5, 1, false, false);
+//     this.hit = new Animation(ASSET_MANAGER.getAsset("./img/miniBossHit.png"), 0, 0, 222, 280, .5, 1, false, false);
+//     this.fightingAniRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossFightingRev.png"), 0, 0, 220, 206, .5, 2, true, false);
+//     this.fightingAni = new Animation(ASSET_MANAGER.getAsset("./img/miniBossFighting.png"), 0, 0, 220, 206, .5, 2, true, false);
+//     this.still = true;
+//     this.attackTimer = 0;
+//     this.bossIdle = true;
+//     this.found = false;
+//     this.stillFighting = false;
+//     this.attack = false;
+//     this.gotHit = false;
+//     this.back = false;
+//     this.attackTime = 0;
+//     this.width = 298;
+//     this.height = 298;
+//     this.hp = 150;
 
-    Entity.call(this, this.game, spawnX, spawnY);
-    //Entity.call(this, game, theX, 600);
-}
+//     Entity.call(this, this.game, spawnX, spawnY);
+//     //Entity.call(this, game, theX, 600);
+// }
 
-MiniBoss.prototype = new Entity();
-MiniBoss.prototype.constructor = MiniBoss;
+// MiniBoss.prototype = new Entity();
+// MiniBoss.prototype.constructor = MiniBoss;
 
-MiniBoss.prototype.update = function () {
+// MiniBoss.prototype.update = function () {
 
    
 
-    var mc = this.game.entities.Character;
+//     var mc = this.game.entities.Character;
 
-    if (collided(mc.boundingbox, this)) {
-        if (mc.attack) {
-            this.hp -= mc.attackPower;
-            if(this.attackTime < 0) {
-                this.attackTime = 10;
-                this.attack = true;
-            } else {
-                this.attackTime -= 1;
-            }
-        } 
-        if (this.attack && this.attackTime === 0) {
-            mc.hp -= 3;
-        }
-    }
-
-    if (mc && mc.x > 7400 && mc.y < 64) {
-        this.found = true;
-    }
-    if (this.found) {           // if found follow mc
-        if(mc.x - this.x > 40) {
-            this.back = false;
-        } else {
-            this.back = true;
-        }
-        if (this.back) {
-            this.x = this.x - this.game.clockTick * 100;
-        } else {
-            this.x = this.x + this.game.clockTick * 100;
-        }
-    }
-    
-    // if(this.game.entities.Character) {
-    //     if(this.game.entities.Character.x - this.x > -32 && this.game.entities.Character.x - this.x < 0) {
-    //         this.found = true;
-    //     }
-    //     else {
-    //         if(this.game.entities.Character.x - this.x > 38 && this.game.entities.Character.x - this.x < 70) {
-    //             this.found = true;
-    //         }
-    //         else {
-    //         }
-    //     }
-        
-    //     if(this.game.entities.Character.x - this.x > 40) {
-    //         this.back = false;
-    //     }
-    //     else {
-    //         this.back = true;
-    //     }
-    
-    // }
-
-
-    if(this.hitRev.isDone()) {
-        this.hitRev.elapsedTime = 0;
-        this.attack = true;
-    }
-
-    if(this.hit.isDone()) {
-        this.hitRev.elapsedTime = 0;
-        this.attack = true;
-    }
-
-    if(this.attackSlashRev.elapsedTime + this.game.clockTick > this.attackSlashRev.totalTime  ) {
-        
-        this.attackSlashRev.elapsedTime = 0;
-        this.attackTime = 0;
-        this.attack = false;
-        this.stillFighting = true;
-    }
-
-    if(this.attackSlash.elapsedTime + this.game.clockTick > this.attackSlash.totalTime ) {
-        this.attackSlash.elapsedTime = 0;
-        this.attackTime = 0;
-        this.attack = false;
-        this.stillFighting = true;
-    }
-    if(this.fightingAniRev.isDone()) {
-        
-        this.fightingAniRev.elapsedTime = 0;
-        this.attack = false;
-        this.stillFighting = true;
-    }
-
-    if (this.hp <= 0) {
-        this.removeFromWorld = true;
-        var crown = new FallingCrown(this.game, mc.x, mc.y);
-        console.log(mc.y);
-        this.game.addEntity(crown);
-    }
-//     if(this.found) {
-//     if(this.back) {
-//         this.x = this.x - this.game.clockTick * 100
+//     if (collided(mc.boundingbox, this)) {
+//         if (mc.attack) {
+//             this.hp -= mc.attackPower;
+//             if(this.attackTime < 0) {
+//                 this.attackTime = 10;
+//                 this.attack = true;
+//             } else {
+//                 this.attackTime -= 1;
+//             }
+//         } 
+//         if (this.attack && this.attackTime === 0) {
+//             mc.hp -= 3;
+//         }
 //     }
-// else {
-//         this.x = this.x + this.game.clockTick * 100
-//  }
-// }
-    Entity.prototype.update.call(this);
-}
 
-MiniBoss.prototype.draw = function (ctx) {
-
-    if(this.gotHit  && this.back) {
-        this.hitRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y - 50);
-        
-    } else if (this.attack === true  && this.back) {
-        this.attackSlashRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 100);
-
-        
-
-    } else if ( this.stillFighting && this.back ) {
-        this.fightingAniRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 30, this.y - this.game.camera.y + 25);
+//     if (mc && mc.x > 7400 && mc.y < 64) {
+//         this.found = true;
+//     }
+//     if (this.found) {           // if found follow mc
+//         if(mc.x - this.x > 40) {
+//             this.back = false;
+//         } else {
+//             this.back = true;
+//         }
+//         if (this.back) {
+//             this.x = this.x - this.game.clockTick * 100;
+//         } else {
+//             this.x = this.x + this.game.clockTick * 100;
+//         }
+//     }
     
-    }else if(this.gotHit  && this.back === false) {
-        this.hit.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y - 50);
-            //this.gotHit = false;
+//     // if(this.game.entities.Character) {
+//     //     if(this.game.entities.Character.x - this.x > -32 && this.game.entities.Character.x - this.x < 0) {
+//     //         this.found = true;
+//     //     }
+//     //     else {
+//     //         if(this.game.entities.Character.x - this.x > 38 && this.game.entities.Character.x - this.x < 70) {
+//     //             this.found = true;
+//     //         }
+//     //         else {
+//     //         }
+//     //     }
+        
+//     //     if(this.game.entities.Character.x - this.x > 40) {
+//     //         this.back = false;
+//     //     }
+//     //     else {
+//     //         this.back = true;
+//     //     }
+    
+//     // }
+
+
+//     if(this.hitRev.isDone()) {
+//         this.hitRev.elapsedTime = 0;
+//         this.attack = true;
+//     }
+
+//     if(this.hit.isDone()) {
+//         this.hitRev.elapsedTime = 0;
+//         this.attack = true;
+//     }
+
+//     if(this.attackSlashRev.elapsedTime + this.game.clockTick > this.attackSlashRev.totalTime  ) {
+        
+//         this.attackSlashRev.elapsedTime = 0;
+//         this.attackTime = 0;
+//         this.attack = false;
+//         this.stillFighting = true;
+//     }
+
+//     if(this.attackSlash.elapsedTime + this.game.clockTick > this.attackSlash.totalTime ) {
+//         this.attackSlash.elapsedTime = 0;
+//         this.attackTime = 0;
+//         this.attack = false;
+//         this.stillFighting = true;
+//     }
+//     if(this.fightingAniRev.isDone()) {
+        
+//         this.fightingAniRev.elapsedTime = 0;
+//         this.attack = false;
+//         this.stillFighting = true;
+//     }
+
+//     if (this.hp <= 0) {
+//         this.removeFromWorld = true;
+   
+//         if(mc.x <= 6248) {
+//             var crown = new FallingCrown(this.game, 6400, mc.y);
+//         } else if ( mc.x >= 7919) {
+//             console.log("hello");
+//             var crown = new FallingCrown(this.game, 7800, mc.y);
+//         } else {
+//             var crown = new FallingCrown(this.game, mc.x, mc.y);
+//         }
+//         console.log(mc.y);
+//         this.game.addEntity(crown);
+//     }
+// //     if(this.found) {
+// //     if(this.back) {
+// //         this.x = this.x - this.game.clockTick * 100
+// //     }
+// // else {
+// //         this.x = this.x + this.game.clockTick * 100
+// //  }
+// // }
+//     Entity.prototype.update.call(this);
+// }
+
+// MiniBoss.prototype.draw = function (ctx) {
+
+//     if(this.gotHit  && this.back) {
+//         this.hitRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y - 50);
+        
+//     } else if (this.attack === true  && this.back) {
+//         this.attackSlashRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 100);
+
+        
+
+//     } else if ( this.stillFighting && this.back ) {
+//         this.fightingAniRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 30, this.y - this.game.camera.y + 25);
+    
+//     }else if(this.gotHit  && this.back === false) {
+//         this.hit.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y - 50);
+//             //this.gotHit = false;
             
-    } else if (this.attack  && this.back === false) {
-        this.attackSlash.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 100);
+//     } else if (this.attack  && this.back === false) {
+//         this.attackSlash.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 100);
       
     
-    } else if ( this.stillFighting && this.back === false) {
-            this.fightingAni.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 30, this.y - this.game.camera.y + 25);
-    } else if (this.back) {
-        this.idleRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    } else if (this.bossIdle) {
-        this.idleRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-    } else  {
-        this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+//     } else if ( this.stillFighting && this.back === false) {
+//             this.fightingAni.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 30, this.y - this.game.camera.y + 25);
+//     } else if (this.back) {
+//         this.idleRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+//     } else if (this.bossIdle) {
+//         this.idleRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+//     } else  {
+//         this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
         
-    }
+//     }
 
-    Entity.prototype.draw.call(this);
-}
+//     Entity.prototype.draw.call(this);
+// }
 
 
 
@@ -2226,6 +2224,11 @@ ASSET_MANAGER.queueDownload("./img/startGameHigh.png");
 ASSET_MANAGER.queueDownload("./img/controls.png");
 ASSET_MANAGER.queueDownload("./img/controlsHigh.png");
 ASSET_MANAGER.queueDownload("./img/title.png");
+ASSET_MANAGER.queueDownload("./img/castleBackground.png");
+ASSET_MANAGER.queueDownload("./img/titleBack.jpg");
+ASSET_MANAGER.queueDownload("./img/controlScreen2.png");
+ASSET_MANAGER.queueDownload("./img/controlScreen3.png");
+
 ASSET_MANAGER.queueDownload("./img/miniBoss.png");
 ASSET_MANAGER.queueDownload("./img/miniBossRev.png");
 ASSET_MANAGER.queueDownload("./img/slashAttackRev.png");
@@ -2242,8 +2245,18 @@ ASSET_MANAGER.queueDownload("./img/miniBossIdle.png");
 ASSET_MANAGER.queueDownload("./img/miniBossFighting.png");
 ASSET_MANAGER.queueDownload("./img/miniBossHit.png");
 ASSET_MANAGER.queueDownload("./img/miniBossAttackSlash.png");
+ASSET_MANAGER.queueDownload("./img/miniBossShootRev.png");
+ASSET_MANAGER.queueDownload("./img/miniBossShoot.png");
+ASSET_MANAGER.queueDownload("./img/blueFlame.png");
 ASSET_MANAGER.queueDownload("./img/crown.png");
 
+
+ASSET_MANAGER.queueDownload("./img/easy.png");
+ASSET_MANAGER.queueDownload("./img/easyHigh.png");
+ASSET_MANAGER.queueDownload("./img/normal.png");
+ASSET_MANAGER.queueDownload("./img/normalHigh.png");
+ASSET_MANAGER.queueDownload("./img/godMode.png");
+ASSET_MANAGER.queueDownload("./img/godModeHigh.png");
 
 ASSET_MANAGER.queueDownload("./img/controlScreen.jpg");
 ASSET_MANAGER.queueDownload("./img/skeleton.png");
@@ -2272,8 +2285,8 @@ ASSET_MANAGER.downloadAll(function () {
 
     gameEngine.init(ctx);
     gameEngine.start();
-    gameEngine.addEntity(new StartScreen(gameEngine, ASSET_MANAGER.getAsset("./img/emberBack.gif")));
-    gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/title.png"), -20, 60));
+    gameEngine.addEntity(new StartScreen(gameEngine, ASSET_MANAGER.getAsset("./img/titleBack.jpg")));
+    gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/title.png"), -95, 60));
     gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400));
     gameEngine.addEntity(new Menu(gameEngine, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500));
     
