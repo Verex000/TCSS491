@@ -31,7 +31,7 @@ function MainCharacter(game) {
     this.ground = 592;
     this.platform = this.game.platforms[0];
     this.checkPoint = {x: 50, y: 544};
-    this.bossFight = false;
+    // this.bossFight = false;
     this.prevX = 50;
     this.knockedBackDuration = 0;
 
@@ -48,22 +48,23 @@ function MainCharacter(game) {
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
 
    Entity.call(this, game, 50, 544);
+    // Entity.call(this, game, 6944, 320);
 }
 
 MainCharacter.prototype = new Entity();
 MainCharacter.prototype.constructor = MainCharacter;
 
 MainCharacter.prototype.checkPointUpdate = function() {
-    if (this.x > this.checkpoint4.x) {
+    if (this.x >= this.checkpoint4.x) {
         this.checkPoint = {x: this.checkpoint4.x, y: this.checkpoint4.y};
     }
-    else if (this.x > this.checkpoint3.x) {
+    else if (this.x >= this.checkpoint3.x) {
         this.checkPoint = {x: this.checkpoint3.x, y: this.checkpoint3.y};
     }
-    else if (this.x > this.checkpoint2.x) {
+    else if (this.x >= this.checkpoint2.x) {
         this.checkPoint = {x: this.checkpoint2.x, y: this.checkpoint2.y};
     }
-    else if (this.x > this.checkpoint1.x) {
+    else if (this.x >= this.checkpoint1.x) {
         this.checkPoint = {x: this.checkpoint1.x, y: this.checkpoint1.y};
     }
 

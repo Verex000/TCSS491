@@ -44,11 +44,12 @@ function createLevel_1(game, map) {
 
     game.addEntity(new Strawberry(game, 50, 400));
     game.addEntity(new Strawberry(game, 60, 400));
-    game.addEntity(new Strawberry(game, 80, 400));
+    game.addEntity(new Strawberry(game, 70, 400));
 
     // enemies
     var boss = new SkeleBoss(game, 7360, 400);
     game.enemies.push(boss);
+
     game.enemies.push(new Nightmare(game, 1500, 128, 2300, 1500, false));
     game.enemies.push(new Nightmare(game, 2600, 480, 3200, 2600, false));
     game.enemies.push(new Nightmare(game, 4850, 192, 5600, 4850, false));
