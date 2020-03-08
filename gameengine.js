@@ -82,54 +82,6 @@ GameEngine.prototype.startInput = function () {
     var that = this;
 
     this.ctx.canvas.addEventListener("click", function (e) {
-        // if (that.count === 0) {
-        //     that.camera = new Camera();
-
-        //     that.entities = [];
-        //     var bg = new Background(that);
-        //     var map = new MapLevel(that);
-        //     var healthbar = new HealthBar(that);
-        //     var slime = new Slime(that);
-        //     var turkey = new Turkey(that, 200, 620);
-        //     var turkey2 = new Turkey(that, 800, 620);
-        //     var fallingspike = new FallingSpike(that, 200, 20);
-        //     var spike = new Spike(that, 100, 620);
-        //     var dino = new Dino(that);
-        //     var bat = new Bat(that);
-        //     var skeleton = new Skeleton(that);
-        //     var chest = new Chest(that);
-        //     var nightmare = new Nightmare(that, 200, true);
-        //     var ghost = new Ghost(that, 600, 600);
-        //     var attackWolf = new AttackWolf(that, 200);
-
-        //     that.addEntity(bg);
-        //     that.addEntity(map);
-        //     that.cosmeticEntities.push(healthbar);
-
-        //     var maincharacter = new MainCharacter(that);
-        //     that.entities.Character = maincharacter;
-        //     // that.addEntity(maincharacter);
-        //     that.addEntity(slime);
-        //     // that.addEntity(turkey);
-        //     // that.addEntity(turkey2);
-        //     that.addEntity(fallingspike);
-        //     that.addEntity(spike);
-        //     // that.addEntity(dino);
-        //     // that.addEntity(bat);
-        //     // that.addEntity(skeleton);
-        //     // that.addEntity(chest);  
-        //     // that.addEntity(nightmare);
-        //     // that.addEntity(ghost);
-        //     // that.addEntity(attackWolf);
-
-        //     traps.push(fallingspike);
-        //     traps.push(spike);
-        //     that.addEntity(new Dart(that, 3500, 490));
-        //     that.addEntity(new Dart(that, 3500, 522));
-        //     that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
-        //     that.cosmeticEntities.push(new DartTrap(that, 3520, 512));
-        // }
-
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
@@ -180,328 +132,22 @@ GameEngine.prototype.startInput = function () {
 
                 that.count++;
 
-
-
                 that.camera = new Camera();
 
             that.entities = [];
-            var bg = new Background(that);
+            // var bg = new Background(that);
             var map = new MapLevel(that);
             var healthbar = new HealthBar(that);
 
-            // enemies
-            var slime = new Slime(that, 1700, 632, 1700, 2400);
-            var slime2 = new Slime(that, 2000, 632, 1700, 2400);
-            var slime3 = new Slime(that, 2200, 632, 1700, 2400);
-            var slime4 = new Slime(that, 1450, 600, 1445, 1500);
-            var slime5 = new Slime(that, 3712, 600, 3712, 4288);
-            var slime6 = new Slime(that, 416, -170, 416, 1140);
-            var slime7 = new Slime(that, 700, -170, 416, 1140);
-            var slime8 = new Slime(that, 900, -170, 416, 1140);
-            var slime9 = new Slime(that, 4288, 600, 3712, 4288);
-
-
-            var bat = new Bat(that, 7232, 544, 5026, 7200, 64);
-            var bat2 = new Bat(that, 5026, 544, 5026, 7200, 64);
-            var bat3 = new Bat(that, 1932, 60, 1088, 1856, 64);
-            var bat4 = new Bat(that, 192, 192, 192, 768, 96);
-
-
-            // 64 - 84 = -20
-            var skeleton = new Skeleton(that, 3000, -20, 3000, 3300);
-            var skeleton2 = new Skeleton(that, 4200, 555, 3648, 4288);
-            var skeleton3 = new Skeleton(that, 750, 236, 192, 704);
-            var skeleton4 = new Skeleton(that, 4608, 555, 4608, 5000);
-            var skeleton5 = new Skeleton(that, 5000, 555, 4608, 5000);
-            var skeleton6 = new Skeleton(that, 4320, -340, 4320, 4864);
-
-
-            var dino = new Dino(that);
-            var nightmare = new Nightmare(that, 200, true);
-            var ghost = new Ghost(that, 600, 600);
-            var attackWolf = new AttackWolf(that, 200);
-
-            var miniBoss = new MiniBoss(that, 7725, -200);
-            
-            
-
-            //var lever = new Lever(that, )
-
-            // items
-            var turkey1 = new Turkey(that, 2540, 540);
-            var turkey2 = new Turkey(that, 2670, 450);
-            var turkey3 = new Turkey(that, 224, -288);
-            var turkey4 = new Turkey(that, 6650, 200);
-            var turkey5 = new Turkey(that, 7136, -224);
-            var turkey6 = new Turkey(that, 4870, -330);
-            var turkey7 = new Turkey(that, 2272, -332);
-            var turkey8 = new Turkey(that, 4512, 476);
-            var turkey9 = new Turkey(that, 5472, 60);
-
-            // traps
-            var fallingspike1 = new FallingSpike(that, 512, 480);
-            var fallingspike2 = new FallingSpike(that, 544, 480);
-            var fallingspike3 = new FallingSpike(that, 576, 480);
-            var fallingspike4 = new FallingSpike(that, 608, 480);
-            var fallingspike5 = new FallingSpike(that, 640, 480);
-            var fallingspike6 = new FallingSpike(that, 672, 480);
-            var fallingspike7 = new FallingSpike(that, 704, 480);
-            var fallingspike8 = new FallingSpike(that, 736, 480);
-
-            var fallingspike9 = new FallingSpike(that, 864, 320);
-            var fallingspike10 = new FallingSpike(that, 928, 320);
-            var fallingspike11 = new FallingSpike(that, 960, 320);
-            var fallingspike12 = new FallingSpike(that, 1024, 320);
-            var fallingspike13 = new FallingSpike(that, 1056, 320);
-            
-            // level 2
-            var fallingspike14 = new FallingSpike(that, 1728, -224);
-            var fallingspike15 = new FallingSpike(that, 1536, -96);
-            var fallingspike16 = new FallingSpike(that, 1376, -96);
-            var fallingspike17 = new FallingSpike(that, 1344, -96);
-
-            // var fallingspike18 = new FallingSpike(that, 2816, -384);
-            // var fallingspike19 = new FallingSpike(that, 2912, -384);
-            // var fallingspike20 = new FallingSpike(that, 3008, -384);
-            // var fallingspike21 = new FallingSpike(that, 3104, -384);
-            // var fallingspike22 = new FallingSpike(that, 3200, -384);
-            // var fallingspike23 = new FallingSpike(that, 3296, -384);
-
-            var spike = new Spike(that, 320, 620);
-
-            // level 2
-            var spike2 = new Spike(that, 3936, 288);
-            var spike3 = new Spike(that, 3968, 288);
-
-            // items
-            var chest = new Chest(that, 1560, 590);
-            var chest2 = new Chest(that, 2575, 510);
-            var chest3 = new Chest(that, 7910, 310);
-            var chest4 = new Chest(that, 1485, -224);
-            var chest5 = new Chest(that, 4896, -320);
-            var chest6 = new Chest(that, 4992, 132);
-            
-            var lever = new Lever(that, 7910, 450);
-
-            // ADD ENTITIES
-            that.addEntity(bg);
-            that.addEntity(map);
+            // that.entities.Map = new MapLevel();
+            console.log(that.entities.length);
+            that.entities.unshift(map);
 
             var maincharacter = new MainCharacter(that);
             that.entities.Character = maincharacter;
 
-            // items
-            that.addEntity(turkey1);
-            that.addEntity(turkey2);
-            that.addEntity(turkey3);
-            that.addEntity(turkey4);
-            that.addEntity(turkey5);
-            that.addEntity(turkey6);
-            that.addEntity(turkey7);
-            that.addEntity(turkey8);
-            that.addEntity(turkey9);
-
-            that.addEntity(chest);
-            that.addEntity(chest2);
-            that.addEntity(chest3);
-            that.addEntity(chest4);
-            that.addEntity(chest5);
-            that.addEntity(chest6);
-            
-            that.addEntity(lever);
-
-            // traps
-            that.addEntity(fallingspike1);
-            that.addEntity(fallingspike2);
-            that.addEntity(fallingspike3);
-            that.addEntity(fallingspike4);
-            that.addEntity(fallingspike5);
-            that.addEntity(fallingspike6);
-            that.addEntity(fallingspike7);
-            that.addEntity(fallingspike8);
-
-            that.addEntity(fallingspike9);
-            that.addEntity(fallingspike10);
-            that.addEntity(fallingspike11);
-            that.addEntity(fallingspike12);
-            that.addEntity(fallingspike13);
-
-            that.addEntity(fallingspike14);
-            that.addEntity(fallingspike15);
-            that.addEntity(fallingspike16);
-            that.addEntity(fallingspike17);
-
-            // that.addEntity(fallingspike18);
-            // that.addEntity(fallingspike19);
-            // that.addEntity(fallingspike20);
-            // that.addEntity(fallingspike21);
-            // that.addEntity(fallingspike22);
-            // that.addEntity(fallingspike23);
-
-            that.addEntity(spike);
-            that.addEntity(spike2);
-            that.addEntity(spike3);
-
-            // dart trap on level 1
-            that.addEntity(new Dart(that, 2614, 500, 1664));
-            that.cosmeticEntities.push(new DartTrap(that, 2624, 480));
-
-            that.addEntity(new Dart(that, 3500, 490, 2784));
-            that.addEntity(new Dart(that, 3500, 522, 2784));
-            that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
-            that.cosmeticEntities.push(new DartTrap(that, 3520, 512));
-
-            // dart trap on level 2
-            that.addEntity(new Dart(that, 396, -118, 32));
-            that.cosmeticEntities.push(new DartTrap(that, 416, -128));
-
-            that.addEntity(new Dart(that, 2188, -278, 1984));
-            that.cosmeticEntities.push(new DartTrap(that, 2208, -288));
-
-            that.addEntity(new Dart(that, 2380, -182, 2208));
-            that.cosmeticEntities.push(new DartTrap(that, 2400, -192));
-
-            that.addEntity(new Dart(that, 4854, 84, 3936));
-            that.cosmeticEntities.push(new DartTrap(that, 4864, 64));
-            that.addEntity(new Dart(that, 4854, 116, 3936));
-            that.cosmeticEntities.push(new DartTrap(that, 4864, 96));
-            that.addEntity(new Dart(that, 4854, 148, 3936));
-            that.cosmeticEntities.push(new DartTrap(that, 4864, 128));
-
-            that.addEntity(new Dart(that, 5056, -86, 3936));
-            that.cosmeticEntities.push(new DartTrap(that, 5056, -96));
-            that.addEntity(new Dart(that, 5056, -54, 3936));
-            that.cosmeticEntities.push(new DartTrap(that, 5056, -64));
-            that.addEntity(new Dart(that, 5056, -22, 3936));
-            that.cosmeticEntities.push(new DartTrap(that, 5056, -32));
-
-            that.addEntity(new Dart(that, 5356, 106, 5216));
-            that.cosmeticEntities.push(new DartTrap(that, 5376, 96));
-
-            that.addEntity(new Dart(that, 5814, 106, 5568));
-            that.cosmeticEntities.push(new DartTrap(that, 5824, 96));
-
             that.cosmeticEntities.push(healthbar);
 
-
-            // enemies
-            that.enemies.push(slime);
-            that.enemies.push(slime2);
-            that.enemies.push(slime3);
-            that.enemies.push(slime4);
-            that.enemies.push(slime5);
-            that.enemies.push(slime6);
-            that.enemies.push(slime7);
-            that.enemies.push(slime8);
-            that.enemies.push(slime9);
-            // that.enemies.push(slime10);
-
-            that.enemies.push(bat);
-            that.enemies.push(bat2);
-            that.enemies.push(bat3);
-            that.enemies.push(bat4);
-
-            that.enemies.push(skeleton);
-            that.enemies.push(skeleton2);
-            that.enemies.push(skeleton3);
-            that.enemies.push(skeleton4);
-            that.enemies.push(skeleton5);
-            that.enemies.push(skeleton6);
-
-            that.enemies.push(miniBoss);
-
-            that.enemies.push(miniBoss);
-
-            // that.addEntity(dino);
-            // that.addEntity(skeleton);
-
-            // that.addEntity(nightmare);
-            // that.addEntity(ghost);
-            // that.addEntity(attackWolf);
-
-            // that.addEntity(miniBoss);
-            // traps.push(fallingspike);
-            // traps.push(spike);
-            // that.addEntity(new Dart(that, 3500, 490));
-            // that.addEntity(new Dart(that, 3500, 522));
-            // that.cosmeticEntities.push(new DartTrap(that, 3520, 480));
-            // that.cosmeticEntities.push(new DartTrap(that, 3520, 512));
-            // traps.push(fallingspike);
-            // traps.push(spike);
-
-            // 
-
-        
-
-
-                // that.camera = new Camera();
-    
-                // that.entities = [];
-                // var bg = new Background(that);
-                // var maincharacter = new MainCharacter(that);
-                // var healthbar = new HealthBar(that);
-                // var slime = new Slime(that);
-                // var turkey = new Turkey(that, 200, 620);
-                // var turkey2 = new Turkey(that, 800, 620);
-                // var spike = new Spike(that);
-                // var dino = new Dino(that);
-                // var bat = new Bat(that);
-                // var skeleton = new Skeleton(that);
-                // var chest = new Chest(that);
-                // var nightmare = new Nightmare(that, 200, true);
-                // var ghost = new Ghost(that, 600, 600);
-                // var attackWolf = new AttackWolf(that, 200);
-
-                // var miniBoss = new MiniBoss(that, 400);
-    
-                // var map = new MapLevel(that);
-                // that.addEntity(bg);
-                // that.addEntity(map);
-                // that.addEntity(healthbar);
-    
-                // var plat = new Platform(that, 0, 668, 1);
-                // that.addEntity(plat);
-                // platforms.push(plat);
-    
-                // // Add floor level 0 platform
-                // for (var i = 1; i * 32 <= 1216; i++) {
-                //     plat = new Platform(that, 32 * i, 668, 1);
-                //     that.addEntity(plat);
-                //     platforms.push(plat);
-                // }
-    
-                // for (var i = 1; i * 32 <= 608; i++) {
-                //     plat = new Platform(that, (32 * i) + 1376, 668, 1);
-                //     that.addEntity(plat);
-                //     platforms.push(plat);
-                // }
-    
-                // // // Add level 1 platform
-                // // for (var i = 1; i < 5; i++) {
-                // //     plat = new Platform(that, 32 * i, 636, 1);    // testing
-                // //     that.addEntity(plat);
-                // //     platforms.push(plat);
-                // // }
-    
-    
-                // that.entities.Character = maincharacter;
-                // // that.addEntity(maincharacter);
-
-                // that.addEntity(slime);
-                // that.addEntity(turkey);
-                // that.addEntity(turkey2);
-                // that.addEntity(spike); 
-                // //that.addEntity(dino);
-                // that.addEntity(bat);
-                // that.addEntity(skeleton);
-                // that.addEntity(chest);  
-                // that.addEntity(nightmare);
-                // that.addEntity(ghost);
-                // that.addEntity(attackWolf);
-
-                // that.addEntity(miniBoss);
-    
-                // traps.push(spike);
             } else if ( that.controlScreen === false){
                 that.startScreenCount++;
                 var controlScreen = new StartScreen(that, ASSET_MANAGER.getAsset("./img/controlScreen.jpg"));
@@ -703,6 +349,11 @@ GameEngine.prototype.update = function () {
                 this.enemies.splice(i, 1);
             }
         }
+        for (var i = this.cosmeticEntities.length - 1; i >= 0; --i) {
+            if (this.cosmeticEntities[i].removeFromWorld) {
+                this.cosmeticEntities.splice(i, 1);
+            }
+        }
 }
 
 GameEngine.prototype.loop = function () {
@@ -713,7 +364,6 @@ GameEngine.prototype.loop = function () {
         this.space = null;
     }
 }
-
 
 function Entity(game, x, y) {
     this.game = game;
