@@ -18,7 +18,10 @@ function MapLevel(game) {
     this.map = level_1_map;
     this.currentBoss = null;
     this.defeatedBoss = false;
-    // this.currentLever = null;
+
+    // map 1 storyline
+    this.game.cosmeticEntities.push(new Story1_1(this.game));
+    this.game.cosmeticEntities.push(new Story1_2(this.game));
 
     createLevel_1(game, this);
     
@@ -52,13 +55,9 @@ MapLevel.prototype.update = function() {
             that.defeatedBoss = true;
         }
     }
-    
-    // console.log(that.currentLevel);
-    // console.log(that.game);
 
     // if defeated boss for the level, load new level
     if (that.defeatedBoss && that.currentLevel < 3) {
-    // if (this.game.entities.Character.x > 100) {      // for testing
         that.currentLevel++;
         that.defeatedBoss = false;
         that.currentBoss = null;
@@ -92,6 +91,8 @@ MapLevel.prototype.update = function() {
                 that.map = level_2_map;
                 that.createLevel();
                 createLevel_2(that.game, that);
+                this.game.cosmeticEntities.push(new Story2_1(this.game));
+                this.game.cosmeticEntities.push(new Story2_2(this.game));
                 mc.x = 64;
                 mc.y = 544;
                 break;
@@ -99,6 +100,7 @@ MapLevel.prototype.update = function() {
                 that.map = level_3_map;
                 that.createLevel();
                 createLevel_3(that.game, that);
+                this.game.cosmeticEntities.push(new Story3_1(this.game));
                 mc.x = 64;
                 mc.y = 544;
                 break;

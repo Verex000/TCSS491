@@ -31,7 +31,6 @@ function MainCharacter(game) {
     this.ground = 592;
     this.platform = this.game.platforms[0];
     this.checkPoint = {x: 50, y: 544};
-    // this.bossFight = false;
     this.prevX = 50;
     this.knockedBackDuration = 0;
 
@@ -48,7 +47,6 @@ function MainCharacter(game) {
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
 
    Entity.call(this, game, 50, 544);
-    // Entity.call(this, game, 6944, 320);
 }
 
 MainCharacter.prototype = new Entity();

@@ -140,7 +140,7 @@ GameEngine.prototype.startInput = function () {
             var healthbar = new HealthBar(that);
 
             // that.entities.Map = new MapLevel();
-            console.log(that.entities.length);
+            // console.log(that.entities.length);
             that.entities.unshift(map);
 
             var maincharacter = new MainCharacter(that);
