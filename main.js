@@ -2074,7 +2074,7 @@ function MiniBoss(game, spawnX, spawnY) {
     this.attackTime = 0;
     this.width = 298;
     this.height = 298;
-    this.hp = 250;
+    this.hp = 500;
     this.timeSinceDamage = 0;
     this.boundingbox = new BoundingBox(spawnX + 40, spawnY + 30, this.width - 80, this.height - 110);
     Entity.call(this, game, spawnX, spawnY);
@@ -2250,23 +2250,42 @@ MiniBoss.prototype.draw = function (ctx) {
 }
 
 function GameWonScreen(game) {
-    this.x = 0;
-    this.y = 0;
+    this.anim = new Animation(ASSET_MANAGER.getAsset("./img/story3_END.png"), 0, 0, 1000, 500, 1, 1, true, false);
+
+    this.x = game.entities.Character.x - 540;
+    this.y = -230;
     this.game = game;
-    this.ctx = game.ctx;
-};
 
-GameWonScreen.prototype.draw = function () {
-    this.ctx.fillStyle = "rgba(0, 0, 200, 0.7)";
-    this.ctx.fillRect(0, 0, 1200, 700);
-    this.ctx.fillStyle = "white";
-    this.ctx.font = "100px Impact";
-    this.ctx.fillText("You Won!", 330, 350);
-};
+    Entity.call(this, game, this.x, this.y);
+}
 
-GameWonScreen.prototype.update = function () {
+GameWonScreen.prototype = new Entity();
+GameWonScreen.prototype.constructor = GameWonScreen;
+
+GameWonScreen.prototype.update = function() {
     this.game.pause = true;
-};
+}
+GameWonScreen.prototype.draw = function(ctx) {
+    this.anim.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
+}
+
+// function GameWonScreen(game) {
+//     this.x = 0;
+//     this.y = 0;
+//     this.game = game;
+// };
+
+// GameWonScreen.prototype.draw = function (ctx) {
+//     ctx.fillStyle = "rgba(0, 0, 200, 0.7)";
+//     ctx.fillRect(0, 0, 1200, 700);
+//     ctx.fillStyle = "white";
+//     ctx.font = "100px Impact";
+//     ctx.fillText("You Won!", 330, 350);
+// };
+
+// GameWonScreen.prototype.update = function () {
+//     this.game.pause = true;
+// };
 
 function GameOverScreen(game) {
     this.x = 0;
@@ -2276,12 +2295,12 @@ function GameOverScreen(game) {
 };
 
 
-GameOverScreen.prototype.draw = function () {
-    this.ctx.fillStyle = "rgba(0, 0, 200, 0.7)";
-    this.ctx.fillRect(0, 0, 1200, 700);
-    this.ctx.fillStyle = "white";
-    this.ctx.font = "100px Impact";
-    this.ctx.fillText("Game Over", 330, 350);
+GameOverScreen.prototype.draw = function (ctx) {
+    ctx.fillStyle = "rgba(0, 0, 200, 0.7)";
+    ctx.fillRect(0, 0, 1200, 700);
+    ctx.fillStyle = "white";
+    ctx.font = "100px Impact";
+    ctx.fillText("Game Over", 330, 350);
 };
 
 GameOverScreen.prototype.update = function () {
@@ -2360,6 +2379,14 @@ ASSET_MANAGER.queueDownload("./img/shuriken.png");
 ASSET_MANAGER.queueDownload("./img/lever38x32.png");
 ASSET_MANAGER.queueDownload("./img/sword40x39.png");
 ASSET_MANAGER.queueDownload("./img/fruit.png");
+
+ASSET_MANAGER.queueDownload("./img/story1_1.png");
+ASSET_MANAGER.queueDownload("./img/story1_2.png");
+ASSET_MANAGER.queueDownload("./img/story2_1.png");
+ASSET_MANAGER.queueDownload("./img/story2_2.png");
+ASSET_MANAGER.queueDownload("./img/story3_1.png");
+ASSET_MANAGER.queueDownload("./img/story3_END.png");
+
 
 // Download all assests before starting game
 ASSET_MANAGER.downloadAll(function () {
