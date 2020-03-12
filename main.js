@@ -431,10 +431,10 @@ function MainCharacter(game) {
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 44, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
 
-   Entity.call(this, game, 50, 544);
+   //Entity.call(this, game, 50, 544);
     // Entity.call(this, game, 2464, -416);
     // Entity.call(this, game, 4608, 640);
-    //Entity.call(this, game, 6500, 0);
+    Entity.call(this, game, 6500, 0);
     // Entity.call(this, game, 7100, 400);
 }
 
@@ -1557,7 +1557,7 @@ function BossWolf(game, theX, theY) {
     this.idle = new Animation(ASSET_MANAGER.getAsset("./img/blackwolf.png"), 0, 600, 110, 75, .1, 6, true, false);
     this.hp = 75;
     this.howling = true;
-    this.timeSinceDamage = 0;
+
     this.boundingbox = new BoundingBox(theX + 15, theY + 33, 81, 42);
     Entity.call(this, game, theX, theY);
 }
@@ -2366,6 +2366,7 @@ ASSET_MANAGER.queueDownload("./img/miniBossShootRev.png");
 ASSET_MANAGER.queueDownload("./img/miniBossShoot.png");
 ASSET_MANAGER.queueDownload("./img/blueFlame.png");
 ASSET_MANAGER.queueDownload("./img/crown.png");
+ASSET_MANAGER.queueDownload("./img/miniBossDead.png");
 
 
 ASSET_MANAGER.queueDownload("./img/easy.png");

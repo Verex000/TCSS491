@@ -1,12 +1,12 @@
 function BossFallingFlame(game, theX, theY) {
     this.time = 0;
     this.game = game;
-    this.animation = new Animation(ASSET_MANAGER.getAsset("./img/blueFlame.png"), 0, 0, 640/10, 384/6, 0.1, 1, true, true);
+    this.animation = new Animation(ASSET_MANAGER.getAsset("./img/blueFlame.png"), 0, 0, 640/10, 384/6, 0.1, 60, true, true);
     this.radius = 28;
     this.boundingbox = new BoundingBox(theX, theY, 30, 20);
     this.falling = true;
-    this.FlameTime = 0;
-    Entity.call(this, game, theX, -200);
+    this.flameTime = 0;
+    Entity.call(this, game, theX, -400);
 }
 BossFallingFlame.prototype = new Entity();
 BossFallingFlame.prototype.constructor = BossFallingFlame;
@@ -21,22 +21,27 @@ BossFallingFlame.prototype.collidePlat = function() {
     return collide;
 }
 BossFallingFlame.prototype.update = function() {
-    this.time++;
+    this.flameTime++;
     this.boundingbox = new BoundingBox(this.x, this.y, 30, 20);
     
     var mc = this.game.entities.Character;
     console.log(mc.x);
     if (this.falling) {
-        this.y += 2;
+        this.y += 5;
     }
-    else if (!this.collidePlat() && Math.abs(mc.x - this.x) <= 64 && Math.abs(mc.y - this.y) <= 224) {
+    else if (!this.collidePlat() && Math.abs(mc.x - this.x) <= 64 && Math.abs(mc.y - this.y) <= 224 && this.y < -25) {
         this.falling = true;
     }
-    if( this.y > -100) {
+    if( this.y > -25 ) {
         this.falling = false;
     }
-    if ( this.y >  0) {
-        //this.removeFromWorld = true;
+    if ( this.flameTime > 500) {
+        this.removeFromWorld = true;
+    }
+
+    var mc = this.game.entities.Character;
+    if (collided(mc.boundingbox, this.boundingbox)) {
+        mc.damage(5, 0);
     }
 
     Entity.prototype.update.call(this);
