@@ -2392,6 +2392,8 @@ ASSET_MANAGER.queueDownload("./img/easy.png");
 ASSET_MANAGER.queueDownload("./img/easyHigh.png");
 ASSET_MANAGER.queueDownload("./img/normal.png");
 ASSET_MANAGER.queueDownload("./img/normalHigh.png");
+ASSET_MANAGER.queueDownload("./img/hard.png");
+ASSET_MANAGER.queueDownload("./img/hardHigh.png");
 ASSET_MANAGER.queueDownload("./img/godMode.png");
 ASSET_MANAGER.queueDownload("./img/godModeHigh.png");
 

@@ -85,37 +85,53 @@ this.gamepad.on('press', 'stick_axis_left', e => {
         //--------------------------IF ON LEVEL CHOOSER ------------------------
         if(this.gameEngine.onLevelChooser) {
             this.gameEngine.startToPickedLevel = true;
-            console.log("hello");
-            this.gameEngine.onWhichLevel--;
-            if(this.gameEngine.onWhichLevel === -1) {
-                this.gameEngine.onWhichLevel = 3;
-            }
+        console.log("hello");
+        this.gameEngine.onWhichDifficulty--;
+        if(this.gameEngine.onWhichDifficulty === 0) {
+            this.gameEngine.onWhichDifficulty = 4;
+        }
 
-            if(this.gameEngine.onWhichLevel === 1) {
-            var easyHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easyHigh.png"), 100, 300);
-            var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 85, 400);
-            var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 80, 500);
+        if(this.gameEngine.onWhichDifficulty === 1) {
+        var easyHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easyHigh.png"), 100, 200);
+        var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
 
-            this.gameEngine.addEntity(easyHigh);
-            this.gameEngine.addEntity(normal);
-            this.gameEngine.addEntity(godMode);
-            } else if(this.gameEngine.onWhichLevel === 2) {
-            var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 300);
-            var normalHigh= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normalHigh.png"), 85, 400);
-            var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 80, 500);
+        this.gameEngine.addEntity(easyHigh);
+        this.gameEngine.addEntity(normal);
+        this.gameEngine.addEntity(godMode);
+        this.gameEngine.addEntity(hard);
+        } else if(this.gameEngine.onWhichDifficulty === 2) {
+        var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+        var normalHigh= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normalHigh.png"), 80, 300);
+        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
+
+        this.gameEngine.addEntity(easy);
+        this.gameEngine.addEntity(normalHigh);
+        this.gameEngine.addEntity(godMode);
+        this.gameEngine.addEntity(hard);
+        } else if( this.gameEngine.onWhichDifficulty === 3) {
+            var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+            var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+            var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+            var hardHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hardHigh.png"), 95, 400);
 
             this.gameEngine.addEntity(easy);
-            this.gameEngine.addEntity(normalHigh);
+            this.gameEngine.addEntity(normal);
             this.gameEngine.addEntity(godMode);
-            } else if( this.gameEngine.onWhichLevel === 3) {
-                var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 300);
-                var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 85, 400);
-                var godModeHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godModeHigh.png"), 80, 500);
+            this.gameEngine.addEntity(hardHigh);
+        }else if( this.gameEngine.onWhichDifficulty === 4) {
+        var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+        var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+        var godModeHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godModeHigh.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
 
-                this.gameEngine.addEntity(easy);
-                this.gameEngine.addEntity(normal);
-                this.gameEngine.addEntity(godModeHigh);
-            }
+        this.gameEngine.addEntity(easy);
+        this.gameEngine.addEntity(normal);
+        this.gameEngine.addEntity(godModeHigh);
+        this.gameEngine.addEntity(hard);
+    }
         }
 
 
@@ -160,37 +176,53 @@ this.gamepad.on('press', 'stick_axis_left', e => {
         //--------------------------IF ON LEVEL CHOOSER ------------------------
         if(this.gameEngine.onLevelChooser) {
             this.gameEngine.startToPickedLevel = true;
-            console.log("hello");
-            this.gameEngine.onWhichLevel++;
-            if(this.gameEngine.onWhichLevel === 4) {
-                this.gameEngine.onWhichLevel = 1;
-            }
+        console.log("hello");
+        this.gameEngine.onWhichDifficulty++;
+        if(this.gameEngine.onWhichDifficulty === 5) {
+            this.gameEngine.onWhichDifficulty = 1;
+        }
 
-            if(this.gameEngine.onWhichLevel === 1) {
-            var easyHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easyHigh.png"), 100, 300);
-            var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 85, 400);
-            var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 80, 500);
+        if(this.gameEngine.onWhichDifficulty === 1) {
+        var easyHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easyHigh.png"), 100, 200);
+        var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
 
-            this.gameEngine.addEntity(easyHigh);
-            this.gameEngine.addEntity(normal);
-            this.gameEngine.addEntity(godMode);
-            } else if(this.gameEngine.onWhichLevel === 2) {
-            var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 300);
-            var normalHigh= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normalHigh.png"), 85, 400);
-            var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 80, 500);
+        this.gameEngine.addEntity(easyHigh);
+        this.gameEngine.addEntity(normal);
+        this.gameEngine.addEntity(godMode);
+        this.gameEngine.addEntity(hard);
+        } else if(this.gameEngine.onWhichDifficulty === 2) {
+        var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+        var normalHigh= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normalHigh.png"), 80, 300);
+        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
+
+        this.gameEngine.addEntity(easy);
+        this.gameEngine.addEntity(normalHigh);
+        this.gameEngine.addEntity(godMode);
+        this.gameEngine.addEntity(hard);
+        } else if( this.gameEngine.onWhichDifficulty === 3) {
+            var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+            var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+            var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+            var hardHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hardHigh.png"), 95, 400);
 
             this.gameEngine.addEntity(easy);
-            this.gameEngine.addEntity(normalHigh);
+            this.gameEngine.addEntity(normal);
             this.gameEngine.addEntity(godMode);
-            } else if( this.gameEngine.onWhichLevel === 3) {
-                var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 300);
-                var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 85, 400);
-                var godModeHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godModeHigh.png"), 80, 500);
+            this.gameEngine.addEntity(hardHigh);
+        }else if( this.gameEngine.onWhichDifficulty === 4) {
+        var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+        var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+        var godModeHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godModeHigh.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
 
-                this.gameEngine.addEntity(easy);
-                this.gameEngine.addEntity(normal);
-                this.gameEngine.addEntity(godModeHigh);
-            }
+        this.gameEngine.addEntity(easy);
+        this.gameEngine.addEntity(normal);
+        this.gameEngine.addEntity(godModeHigh);
+        this.gameEngine.addEntity(hard);
+    }
         }
         
 
@@ -236,13 +268,15 @@ this.gamepad.on('press', 'button_1', () => {
         var LevelScreen = new StartScreen(this.gameEngine, ASSET_MANAGER.getAsset("./img/controlScreen3.png"));
         this.gameEngine.addEntity(LevelScreen);
 
-        var easyHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easyHigh.png"), 100, 300);
-        var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 85, 400);
-        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 80, 500);
+        var easyHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easyHigh.png"), 100, 200);
+        var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+        var hard= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
+        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
 
         this.gameEngine.addEntity(easyHigh);
         this.gameEngine.addEntity(normal);
         this.gameEngine.addEntity(godMode);
+        this.gameEngine.addEntity(hard);
 
 
     }
@@ -256,7 +290,7 @@ this.gamepad.on('press', 'button_1', () => {
     }
 
 
-if(this.gameEngine.startTheGame)  {
+if(this.gameEngine.startTheGame)  { //-------------- START THE GAME < ADD ENTITIES
     //console.log('Hello');
     this.gameEngine.startTheGame = false;
     
@@ -320,37 +354,53 @@ if(this.gameEngine.startTheGame)  {
             //--------------------------IF ON LEVEL CHOOSER ------------------------
             if(this.gameEngine.onLevelChooser) {
                 this.gameEngine.startToPickedLevel = true;
-                console.log("hello");
-                this.gameEngine.onWhichLevel--;
-                if(this.gameEngine.onWhichLevel === 0) {
-                    this.gameEngine.onWhichLevel = 3;
-                }
-    
-                if(this.gameEngine.onWhichLevel === 1) {
-                var easyHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easyHigh.png"), 100, 300);
-                var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 85, 400);
-                var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 80, 500);
-    
-                this.gameEngine.addEntity(easyHigh);
-                this.gameEngine.addEntity(normal);
-                this.gameEngine.addEntity(godMode);
-                } else if(this.gameEngine.onWhichLevel === 2) {
-                var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 300);
-                var normalHigh= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normalHigh.png"), 85, 400);
-                var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 80, 500);
-    
-                this.gameEngine.addEntity(easy);
-                this.gameEngine.addEntity(normalHigh);
-                this.gameEngine.addEntity(godMode);
-                } else if( this.gameEngine.onWhichLevel === 3) {
-                    var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 300);
-                    var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 85, 400);
-                    var godModeHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godModeHigh.png"), 80, 500);
-    
-                    this.gameEngine.addEntity(easy);
-                    this.gameEngine.addEntity(normal);
-                    this.gameEngine.addEntity(godModeHigh);
-                }
+        console.log("hello");
+        this.gameEngine.onWhichDifficulty--;
+        if(this.gameEngine.onWhichDifficulty === 0) {
+            this.gameEngine.onWhichDifficulty = 4;
+        }
+
+        if(this.gameEngine.onWhichDifficulty === 1) {
+        var easyHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easyHigh.png"), 100, 200);
+        var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
+
+        this.gameEngine.addEntity(easyHigh);
+        this.gameEngine.addEntity(normal);
+        this.gameEngine.addEntity(godMode);
+        this.gameEngine.addEntity(hard);
+        } else if(this.gameEngine.onWhichDifficulty === 2) {
+        var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+        var normalHigh= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normalHigh.png"), 80, 300);
+        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
+
+        this.gameEngine.addEntity(easy);
+        this.gameEngine.addEntity(normalHigh);
+        this.gameEngine.addEntity(godMode);
+        this.gameEngine.addEntity(hard);
+        } else if( this.gameEngine.onWhichDifficulty === 3) {
+            var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+            var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+            var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+            var hardHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hardHigh.png"), 95, 400);
+
+            this.gameEngine.addEntity(easy);
+            this.gameEngine.addEntity(normal);
+            this.gameEngine.addEntity(godMode);
+            this.gameEngine.addEntity(hardHigh);
+        }else if( this.gameEngine.onWhichDifficulty === 4) {
+        var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+        var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+        var godModeHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godModeHigh.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
+
+        this.gameEngine.addEntity(easy);
+        this.gameEngine.addEntity(normal);
+        this.gameEngine.addEntity(godModeHigh);
+        this.gameEngine.addEntity(hard);
+    }
             }  
     });
     this.gamepad.on('release', 'button_1', () => {
@@ -389,36 +439,52 @@ this.gamepad.on('press', 'd_pad_down', () => {
     if(this.gameEngine.onLevelChooser) {
         this.gameEngine.startToPickedLevel = true;
         console.log("hello");
-        this.gameEngine.onWhichLevel++;
-        if(this.gameEngine.onWhichLevel === 4) {
-            this.gameEngine.onWhichLevel = 1;
+        this.gameEngine.onWhichDifficulty++;
+        if(this.gameEngine.onWhichDifficulty === 5) {
+            this.gameEngine.onWhichDifficulty = 1;
         }
 
-        if(this.gameEngine.onWhichLevel === 1) {
-        var easyHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easyHigh.png"), 100, 300);
-        var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 85, 400);
-        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 80, 500);
+        if(this.gameEngine.onWhichDifficulty === 1) {
+        var easyHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easyHigh.png"), 100, 200);
+        var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
 
         this.gameEngine.addEntity(easyHigh);
         this.gameEngine.addEntity(normal);
         this.gameEngine.addEntity(godMode);
-        } else if(this.gameEngine.onWhichLevel === 2) {
-        var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 300);
-        var normalHigh= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normalHigh.png"), 85, 400);
-        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 80, 500);
+        this.gameEngine.addEntity(hard);
+        } else if(this.gameEngine.onWhichDifficulty === 2) {
+        var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+        var normalHigh= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normalHigh.png"), 80, 300);
+        var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
 
         this.gameEngine.addEntity(easy);
         this.gameEngine.addEntity(normalHigh);
         this.gameEngine.addEntity(godMode);
-        } else if( this.gameEngine.onWhichLevel === 3) {
-            var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 300);
-            var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 85, 400);
-            var godModeHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godModeHigh.png"), 80, 500);
+        this.gameEngine.addEntity(hard);
+        } else if( this.gameEngine.onWhichDifficulty === 3) {
+            var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+            var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+            var godMode = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godMode.png"), 75, 500);
+            var hardHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hardHigh.png"), 95, 400);
 
             this.gameEngine.addEntity(easy);
             this.gameEngine.addEntity(normal);
-            this.gameEngine.addEntity(godModeHigh);
-        }
+            this.gameEngine.addEntity(godMode);
+            this.gameEngine.addEntity(hardHigh);
+        }else if( this.gameEngine.onWhichDifficulty === 4) {
+        var easy = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/easy.png"), 100, 200);
+        var normal= new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/normal.png"), 80, 300);
+        var godModeHigh = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/godModeHigh.png"), 75, 500);
+        var hard = new Menu(this.gameEngine, ASSET_MANAGER.getAsset("./img/hard.png"), 95, 400);
+
+        this.gameEngine.addEntity(easy);
+        this.gameEngine.addEntity(normal);
+        this.gameEngine.addEntity(godModeHigh);
+        this.gameEngine.addEntity(hard);
+    }
     }
 });
 this.gamepad.on('release', 'd_pad_down', () => {
@@ -438,13 +504,13 @@ this.gamepad.on('release', 'shoulder_bottom_right', () => {
 this.gameEngine.l = false;
 });
 
-// //SHOOT ATTACK
-// this.gamepad.on('press', 'shoulder_bottom_left', () => {
-//     this.gameEngine.r = true;
-//     });
-//     this.gamepad.on('release', 'shoulder_bottom_left', () => {
-//     this.gameEngine.r = false;
-//     });
+//SHOOT ATTACK
+this.gamepad.on('press', 'shoulder_bottom_left', () => {
+    this.gameEngine.r = true;
+    });
+    this.gamepad.on('release', 'shoulder_bottom_left', () => {
+    this.gameEngine.r = false;
+    });
 
 
 //INTERACT WITH OBJECTS

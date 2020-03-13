@@ -73,7 +73,12 @@ function GameEngine() {
 
     this.firstStartMove = 0;
 
-    this.onWhichLevel = 1; //INDICATES WHICH DIFFICULTY THE USER HAS CHOSEN
+    this.onWhichDifficulty = 1; //INDICATES WHICH DIFFICULTY THE USER HAS CHOSEN
+    // 1 = Easy
+    // 2 = Normal
+    // 3 = Hard
+    // 4 = GodMode
+    //DO NOT CHANGE THIS VALUE , need it to change the startscreens
 
 }
 
