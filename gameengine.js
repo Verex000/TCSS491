@@ -2,7 +2,8 @@
 
 // # All traps, items, enemies
 var traps = [];
-
+var hpMult = 1;
+var damageMult = 1;
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
@@ -32,7 +33,9 @@ Timer.prototype.tick = function () {
 }
 
 function GameEngine() {
+    this.hpMult = 1;
     this.entities = [];
+    this.stopMc = false;
     this.openNext = false;
     this.entities.Character = null;
     this.showOutlines = false;
@@ -58,6 +61,28 @@ function GameEngine() {
     this.count = 0;
     this.music = false;
     this.pause =false;
+    this.damageMult = 1;
+
+
+    this.onStartScreen = true;
+    this.onStartGameOption = true;
+    this.onControlScreen = false;
+    this.pressedTwiceforControl = 0;
+    this.onLevelChooser = false;
+    this.startTheGame = false;
+    this.startToLevelChooser = false;
+    this.startToPickedLevel = false;
+    
+
+
+    this.firstStartMove = 0;
+
+    this.onWhichDifficulty = 1; //INDICATES WHICH DIFFICULTY THE USER HAS CHOSEN
+    // 1 = Easy
+    // 2 = Normal
+    // 3 = Hard
+    // 4 = GodMode
+    //DO NOT CHANGE THIS VALUE , need it to change the startscreens
 
 
     this.onStartScreen = true;
@@ -249,6 +274,10 @@ GameEngine.prototype.startInput = function () {
     //     e.preventDefault();
     // }, false);
 
+    // this.ctx.canvas.addEventListener("keydown", function (e) {
+    //     if (String.fromCharCode(e.which) === 'C') that.c = true;
+    //     e.preventDefault();
+    // }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
         if (String.fromCharCode(e.which) === 'K') that.r = true;

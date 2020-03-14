@@ -1,4 +1,6 @@
 function MiniBoss(game, spawnX, spawnY) {
+    this.y = spawnY;
+    this.x = spawnX;
     this.game = game;
     this.attackSlashRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlashRev.png"), 0, 0, 4480 / 8, 408, .1, 7, false, false);
     this.attackSlash = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlash.png"), 0, 0, 4480 / 8, 408, .1, 7, false, false);
@@ -24,7 +26,7 @@ function MiniBoss(game, spawnX, spawnY) {
     this.attackTime = 0;
     this.width = 298;
     this.height = 298;
-    this.hp = 20000;
+    this.hp = 2000;
     this.timeSinceDamage = 0;
     this.boundingbox = new BoundingBox(spawnX + 40, spawnY + 30, this.width - 80, this.height - 110);
 
@@ -52,13 +54,20 @@ MiniBoss.prototype.update = function () {
 
     var mc = this.game.entities.Character;
 
+    if (collided(mc.boundingbox, this.boundingbox)) {
+        if (mc.x > this.x) {
+            mc.damage(5, 0);
+        } else {
+            mc.damage(5, 0);
+        }
+    }
+
 
     if (collided(mc.boundingbox, this)) {
-            if(mc.attack) {
-                this.hp -= mc.attackPower;
-            }
+
+            this.hp -= 1;
             if(this.attackTime < 0) {
-                this.attackTime = 70;
+                this.attackTime = 80;
                 this.attack = true;
 
             } else {              
@@ -66,31 +75,33 @@ MiniBoss.prototype.update = function () {
                 this.attackTime -= 1;
             }
         } 
-        if (this.attack && this.attackTime >= 70 && this.spellAttack === false) {
-            mc.hp -= 5;
+        if (this.attack && this.attackTime === 80) {
+            //mc.damage(3, 0);
+            
+            mc.hp -= 3 * damageMult;
         }
 
 
-    // if((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
-    //             if (mc.attack && this.timeSinceDamage > 1) {
-    //                 this.hp -= mc.attackPower;
-    //                 this.timeSinceDamage = 0;
-    //                 if(mc.x < this.x) {
-    //                     this.x += 5;
-    //                     knockedBack(this);
-    //                 }
-    //                 else {
-    //                     this.x -= 5;
-    //                     knockedBack(this);
-    //                 }
-    //                 if(this.attackTime < 0) {
-    //                     this.attackTime = 100;
-    //                     this.attack = true;
-    //                 } else {
-    //                     this.attackTime -= 1;
-    //                 }
-    //             } 
-    //     }
+    if((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
+                if (mc.attack && this.timeSinceDamage > .5) {
+                    this.hp -= mc.attackPower;
+                    this.timeSinceDamage = 0;
+                    if(mc.x < this.x) {
+                        this.x += 5;
+                        knockedBack(this);
+                    }
+                    else {
+                        this.x -= 5;
+                        knockedBack(this);
+                    }
+                    if(this.attackTime < 0) {
+                        this.attackTime = 80;
+                        this.attack = true;
+                    } else {
+                        this.attackTime -= 1;
+                    }
+                } 
+            }
 
     if (mc && mc.x > 7400 && mc.y < 64) {
         this.found = true;
@@ -102,9 +113,9 @@ MiniBoss.prototype.update = function () {
             this.back = true;
         }
         if (this.back && this.attack ===false && this.hp > 0 && this.spellAttack === false) {
-            this.x = this.x - this.game.clockTick * 150;
-        } else if (this.attack ===false && this.back === false && this.hp > 0 && this.spellAttack === false){
-            this.x = this.x + this.game.clockTick * 150;
+            this.x = this.x - this.game.clockTick * 170;
+        } else if (this.attack ===false && this.back === false && this.hp > 0 && this.spellAttack === false && this.x < 7650){
+            this.x = this.x + this.game.clockTick * 170;
         }
     }
 
@@ -180,25 +191,12 @@ MiniBoss.prototype.update = function () {
         this.game.addEntity(crown);
     }
 
-    // if (this.hp <= 0) {
-
-    //     this.removeFromWorld = true;
-   
-    //     if(mc.x <= 6248) {
-    //         var crown = new FallingCrown(this.game, 6400, mc.y);
-    //     } else if ( mc.x >= 7919) {
-    //         var crown = new FallingCrown(this.game, 7800, mc.y);
-    //     } else {
-    //         var crown = new FallingCrown(this.game, mc.x, mc.y);
-    //     }
-    //     this.game.addEntity(crown);
-    // }
     Entity.prototype.update.call(this);
 }
 
 MiniBoss.prototype.draw = function (ctx) {
 
-    if(this.amountHit > 160  && this.back) {
+    if(this.amountHit > 200  && this.back) {
         this.spikeShootRev.drawFrame(this.game.clockTick , ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y );
         this.spellAttack = true;
 
@@ -207,7 +205,7 @@ MiniBoss.prototype.draw = function (ctx) {
         this.deadAni.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y  - 60);
 
 
-    } else if (this.amountHit > 160  && this.back === false ) {
+    } else if (this.amountHit > 200  && this.back === false ) {
         this.spikeShoot.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y );
         this.spellAttack = true;
         

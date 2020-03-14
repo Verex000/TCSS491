@@ -33,8 +33,10 @@ function MainCharacter(game) {
     this.checkPoint = {x: 50, y: 544};
     this.prevX = 50;
     this.knockedBackDuration = 0;
-
+    this.timeSinceThrow = 0;
     this.knockBackAmount = 0;
+
+    
     
 
     // DEFAULT: LEVEL 1 CHECKPOINTS
@@ -92,12 +94,12 @@ MainCharacter.prototype.checkPointUpdate = function() {
 
 MainCharacter.prototype.damage = function (damage, knockback) {
     if(this.ticksSinceDamage > .75 && knockback == 0) {
-        this.hp -= damage;
+        this.hp -= damage * damageMult;
         this.ticksSinceDamage = 0;
         this.damaged = true;
     }
     else if(this.ticksSinceDamage > .75 && knockback != 0) {
-        this.hp -= damage;
+        this.hp -= damage * damageMult;
         this.ticksSinceDamage = 0;
         this.knockedBackDuration = .3;
         this.knockBackAmount = knockback;
@@ -107,6 +109,7 @@ MainCharacter.prototype.damage = function (damage, knockback) {
 
 MainCharacter.prototype.update = function () {
     this.ticksSinceDamage += this.game.clockTick;
+    this.timeSinceThrow += this.game.clockTick;
     this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
@@ -115,7 +118,7 @@ MainCharacter.prototype.update = function () {
     }
     // if fall off map, die
     if (this.y > 700) {
-        this.hp = this.hp - 20;
+        this.hp = this.hp - 20 * damageMult;
         this.x = this.checkPoint.x;
         this.y = this.checkPoint.y;
     }
@@ -126,7 +129,7 @@ MainCharacter.prototype.update = function () {
     if (this.hp > this.maxHP) {
         this.hp = this.maxHP;
     }
-    if(this.knockedBackDuration <= 0) {
+    if(this.knockedBackDuration <= 0 && !this.game.stopMc) {
         if(this.game.d) {
             this.x = this.x + this.game.clockTick * 300;
         }
@@ -152,7 +155,8 @@ MainCharacter.prototype.update = function () {
         else {
             this.stand = true;
         }
-        if(this.game.r) {
+        if(this.game.r && !this.attack && this.timeSinceThrow > .19) {
+            this.timeSinceThrow = 0;
             newBall = new Shuriken(this.game);
             if(this.back) {
                 newBall.left = false;
@@ -162,11 +166,14 @@ MainCharacter.prototype.update = function () {
         }
     }
     else {
+        this.stand = true;
+        if(this.knockedBackDuration <= 0) {
+            this.knockBackAmount = 0;
+        }
         this.knockedBackDuration -= this.game.clockTick;
         this.x += this.knockBackAmount;
         knockedBack(this);
-    }
-
+     }
 
 
     if(this.x < 0) {
@@ -370,7 +377,7 @@ Shuriken.prototype.update = function () {
     for(let b = 0; b < this.game.enemies.length; b++) {
         if(this.boundingbox.collide(this.game.enemies[b].boundingbox)) {
             this.removeFromWorld = true;
-            this.game.enemies[b].hp -= 5;
+            this.game.enemies[b].hp -= 6;
             if(this.game.enemies[b].hp < 1) {
                 this.game.enemies.removeFromWorld = true;
             }
@@ -387,4 +394,3 @@ Shuriken.prototype.update = function () {
 Shuriken.prototype.draw = function (ctx) {
     this.thrown.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
 }
-// #endregion

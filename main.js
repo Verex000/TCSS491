@@ -744,7 +744,7 @@ Sword.prototype.collided = function() {
 
 Sword.prototype.update = function() {
     if (this.collided()) {
-        this.game.entities.Character.attackPower += 5;
+        this.game.entities.Character.attackPower += 3;
         this.removeFromWorld = true;
     }
     Entity.prototype.update.call(this);
@@ -844,7 +844,7 @@ function Slime(game, theX, theY, minX, maxX) {
     this.walkRight = false;
     this.jumpTime = 0;
     this.game = game;
-    this.hp = 15;
+    this.hp = 15 * hpMult;
     this.maxX = maxX;
     this.minX = minX;
     this.damagedTimer = 0;
@@ -1000,7 +1000,7 @@ function Bat(game, spawnX, spawnY, leftBound, rightBound, amplitude) {
     this.speed = 225;
     this.flyRight = true;
     this.radius = 32;
-    this.hp = 5;
+    this.hp = 5 * hpMult;
     this.width = 32;
     this.height = 32;
     this.leftBound = leftBound;
@@ -1087,7 +1087,7 @@ function Skeleton(game, spawnX, spawnY, minX, maxX) {
     this.width = 64;
     this.height = 64;
     this.ground = spawnY;
-    this.hp = 25;
+    this.hp = 25 * hpMult;
     this.inRange = false;
     this.idle = true;
     this.startX = spawnX;
@@ -1366,7 +1366,7 @@ function GhostWolf(game, theX, theY, maxX, minX) {
     this.minX = minX;
     this.idl = true;
     this.back = false;
-    this.hp = 20;
+    this.hp = 20 * hpMult;
     this.timeSinceDamage = 10;
     this.boundingbox = new BoundingBox(theX + 15, theY + 29, 75, 31);
     Entity.call(this, game, theX, theY);
@@ -1673,7 +1673,7 @@ function Nightmare(game, theX, theY, maxX, minX, backbool) {
     this.height = 96;
     this.maxX = maxX;
     this.minX = minX;
-    this.hp = 20;
+    this.hp = 20 * hpMult;
     this.timeSinceDamage = 100;
     this.boundingbox = new BoundingBox(theX, theY, 96, 80);
     Entity.call(this, game, theX, theY);
@@ -1756,8 +1756,8 @@ Nightmare.prototype.draw = function (ctx) {
 
 // Begin Ghost enemy
 function Ghost(game, theX, theY) {
-    this.appearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 0, 64, 48, .5, 6, false, false);
-    this.disappearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 48, 64, 48, .5, 6, false, false);
+    this.appearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 0, 64, 48, .2, 6, false, false);
+    this.disappearA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 48, 64, 48, .2, 6, false, false);
     this.idleA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 96, 64, 48, .15, 6, true, false);
     this.scareA = new Animation(ASSET_MANAGER.getAsset("./img/ghost.png"), 0, 144, 64, 48, .15, 4, false, false);
     this.appear = false;
@@ -1765,7 +1765,7 @@ function Ghost(game, theX, theY) {
     this.appeared = false;
     this.idle = false;
     this.scare = false;
-    this.hp = 20;
+    this.hp = 20 * hpMult;
     this.timeSinceDamage = 100;
     this.width = 64;
     this.height = 48;
@@ -1866,7 +1866,7 @@ function SkeleBoss(game, theX, theY) {
     this.walke = new Animation(ASSET_MANAGER.getAsset("./img/level1boss.png"), 0, 0, 264, 204, .12, 4, true, false);
     this.backOff = false;
     this.walk = true;
-    this.hp = 110;
+    this.hp = 110
     this.timeSinceDamage = 10;
     this.knockBackTime = -1;
     this.knockback = 0;
@@ -2056,214 +2056,7 @@ Lever.prototype.draw = function(ctx) {
     }
 }
 
-// Begin mini Boss
 
-
-// function MiniBoss(game, spawnX, spawnY) {
-//     this.attackSlashRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlashRev.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
-//     this.attackSlash = new Animation(ASSET_MANAGER.getAsset("./img/miniBossAttackSlash.png"), 0, 0, 4480 / 8, 408, .2, 7, false, false);
-//     this.idle = new Animation(ASSET_MANAGER.getAsset("./img/miniBossIdle.png"), 0, 0, 729 / 3, 234, .1, 3, true, false);
-//     this.idleRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossIdleRev.png"), 0, 0, 729 / 3, 234, .5, 3, true, false);
-//     this.hitRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossHitRev.png"), 0, 0, 222, 280, .5, 1, false, false);
-//     this.hit = new Animation(ASSET_MANAGER.getAsset("./img/miniBossHit.png"), 0, 0, 222, 280, .5, 1, false, false);
-//     this.fightingAniRev = new Animation(ASSET_MANAGER.getAsset("./img/miniBossFightingRev.png"), 0, 0, 220, 206, .5, 2, true, false);
-//     this.fightingAni = new Animation(ASSET_MANAGER.getAsset("./img/miniBossFighting.png"), 0, 0, 220, 206, .5, 2, true, false);
-//     this.still = true;
-//     this.attackTimer = 0;
-//     this.bossIdle = true;
-//     this.found = false;
-//     this.stillFighting = false;
-//     this.attack = false;
-//     this.gotHit = false;
-//     this.back = false;
-//     this.attackTime = 0;
-//     this.width = 298;
-//     this.height = 298;
-//     this.hp = 250;
-//     this.timeSinceDamage = 0;
-//     this.boundingbox = new BoundingBox(spawnX + 40, spawnY + 30, this.width - 80, this.height - 110);
-//     Entity.call(this, game, spawnX, spawnY);
-//     //Entity.call(this, game, theX, 600);
-//
-
-// MiniBoss.prototype = new Entity();
-// MiniBoss.prototype.constructor = MiniBoss;
-
-
-// MiniBoss.prototype.update = function () {
-//     this.timeSinceDamage += this.game.clockTick;
-   
-
-//     var mc = this.game.entities.Character;
-
-
-//     if (collided(mc.boundingbox, this.boundingbox)) {
-//         if (this.attack && this.attackTime === 0) {
-//             if(mc.x > this.x) {
-//                 mc.damage(14, 2);
-//             }
-//             else {
-//                 mc.damage(14, -2);
-//             }
-//         }
-//         if (mc.attack) {
-//             if(this.attackTime < 0) {
-//                 this.attackTime = 10;
-//                 this.attack = true;
-//             } else {
-//                 this.attackTime -= 1;
-//             }
-//         } 
-//     }
-//     if((collided(mc.hitBoxBack, this.boundingbox) && mc.back) || (collided(mc.hitBoxFront, this.boundingbox) && !mc.back)) {
-//         if (mc.attack && this.timeSinceDamage > 1) {
-//             this.hp -= mc.attackPower;
-//             this.timeSinceDamage = 0;
-//             if(mc.x < this.x) {
-//                 this.x += 5;
-//                 knockedBack(this);
-//             }
-//             else {
-//                 this.x -= 5;
-//                 knockedBack(this);
-//             }
-//             if(this.attackTime < 0) {
-//                 this.attackTime = 10;
-//                 this.attack = true;
-//             } else {
-//                 this.attackTime -= 1;
-//             }
-//         } 
-//     }
-
-//     if (mc && mc.x > 7400 && mc.y < 64) {
-//         this.found = true;
-//     }
-//     if (this.found) {           // if found follow mc
-//         if(mc.x - this.x > 40) {
-//             this.back = false;
-//         } else {
-//             this.back = true;
-//         }
-//         if (this.back) {
-//             this.x = this.x - this.game.clockTick * 100;
-//         } else {
-//             this.x = this.x + this.game.clockTick * 100;
-//         }
-//     }
-//     this.boundingbox = new BoundingBox(this.x + 40, this.y + 30, this.width - 80, this.height - 110);
-    // if(this.game.entities.Character) {
-    //     if(this.game.entities.Character.x - this.x > -32 && this.game.entities.Character.x - this.x < 0) {
-    //         this.found = true;
-    //     }
-    //     else {
-    //         if(this.game.entities.Character.x - this.x > 38 && this.game.entities.Character.x - this.x < 70) {
-    //             this.found = true;
-    //         }
-    //         else {
-    //         }
-    //     }
-        
-//     //     if(this.game.entities.Character.x - this.x > 40) {
-//     //         this.back = false;
-//     //     }
-//     //     else {
-//     //         this.back = true;
-//     //     }
-    
-//     // }
-
-
-//     if(this.hitRev.isDone()) {
-//         this.hitRev.elapsedTime = 0;
-//         this.attack = true;
-//     }
-
-//     if(this.hit.isDone()) {
-//         this.hitRev.elapsedTime = 0;
-//         this.attack = true;
-//     }
-
-//     if(this.attackSlashRev.elapsedTime + this.game.clockTick > this.attackSlashRev.totalTime  ) {
-        
-//         this.attackSlashRev.elapsedTime = 0;
-//         this.attackTime = 0;
-//         this.attack = false;
-//         this.stillFighting = true;
-//     }
-
-//     if(this.attackSlash.elapsedTime + this.game.clockTick > this.attackSlash.totalTime ) {
-//         this.attackSlash.elapsedTime = 0;
-//         this.attackTime = 0;
-//         this.attack = false;
-//         this.stillFighting = true;
-//     }
-//     if(this.fightingAniRev.isDone()) {
-        
-//         this.fightingAniRev.elapsedTime = 0;
-//         this.attack = false;
-//         this.stillFighting = true;
-//     }
-
-//     if (this.hp <= 0) {
-//         this.removeFromWorld = true;
-   
-//         if(mc.x <= 6248) {
-//             var crown = new FallingCrown(this.game, 6400, mc.y);
-//         } else if ( mc.x >= 7919) {
-//             console.log("hello");
-//             var crown = new FallingCrown(this.game, 7800, mc.y);
-//         } else {
-//             var crown = new FallingCrown(this.game, mc.x, mc.y);
-//         }
-//         console.log(mc.y);
-//         this.game.addEntity(crown);
-//     }
-// //     if(this.found) {
-// //     if(this.back) {
-// //         this.x = this.x - this.game.clockTick * 100
-// //     }
-// // else {
-// //         this.x = this.x + this.game.clockTick * 100
-// //  }
-// // }
-//     Entity.prototype.update.call(this);
-// }
-
-// MiniBoss.prototype.draw = function (ctx) {
-
-//     if(this.gotHit  && this.back) {
-//         this.hitRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y - 50);
-        
-//     } else if (this.attack === true  && this.back) {
-//         this.attackSlashRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 100);
-
-        
-
-//     } else if ( this.stillFighting && this.back ) {
-//         this.fightingAniRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 30, this.y - this.game.camera.y + 25);
-    
-//     }else if(this.gotHit  && this.back === false) {
-//         this.hit.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 50, this.y - this.game.camera.y - 50);
-//             //this.gotHit = false;
-            
-//     } else if (this.attack  && this.back === false) {
-//         this.attackSlash.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x - 115, this.y - this.game.camera.y - 100);
-      
-    
-//     } else if ( this.stillFighting && this.back === false) {
-//             this.fightingAni.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x + 30, this.y - this.game.camera.y + 25);
-//     } else if (this.back) {
-//         this.idleRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-//     } else if (this.bossIdle) {
-//         this.idleRev.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-//     } else  {
-//         this.idle.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
-        
-//     }
-
-//     Entity.prototype.draw.call(this);
-// }
 
 function GameWonScreen(game) {
     this.anim = new Animation(ASSET_MANAGER.getAsset("./img/story3_END.png"), 0, 0, 1000, 500, 1, 1, true, false);
