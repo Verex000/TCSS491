@@ -36,6 +36,9 @@ function MainCharacter(game) {
     this.timeSinceThrow = 0;
     this.knockBackAmount = 0;
 
+    
+    
+
     // DEFAULT: LEVEL 1 CHECKPOINTS
     this.checkpoint1 = {x: 50, y: 544};
     this.checkpoint2 = {x: 1984, y: 0};
@@ -47,6 +50,7 @@ function MainCharacter(game) {
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
 
    Entity.call(this, game, 50, 544);
+   //Entity.call(this, game, 6400, 0);
 }
 
 MainCharacter.prototype = new Entity();

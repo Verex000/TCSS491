@@ -30,9 +30,11 @@ function MapLevel(game) {
     else if(this.game.onWhichDifficulty == 4) {
         damageMult = 0;
     }
+
     // map 1 storyline
-    this.game.cosmeticEntities.push(new Story1_1(this.game));
-    this.game.cosmeticEntities.push(new Story1_2(this.game));
+   this.game.cosmeticEntities.push(new Story1_1(this.game));
+   this.game.cosmeticEntities.push(new Story1_2(this.game));
+   
 
     createLevel_1(game, this);
     

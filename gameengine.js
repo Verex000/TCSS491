@@ -84,6 +84,27 @@ function GameEngine() {
     // 4 = GodMode
     //DO NOT CHANGE THIS VALUE , need it to change the startscreens
 
+
+    this.onStartScreen = true;
+    this.onStartGameOption = true;
+    this.onControlScreen = false;
+    this.pressedTwiceforControl = 0;
+    this.onLevelChooser = false;
+    this.startTheGame = false;
+    this.startToLevelChooser = false;
+    this.startToPickedLevel = false;
+    
+
+
+    this.firstStartMove = 0;
+
+    this.onWhichDifficulty = 1; //INDICATES WHICH DIFFICULTY THE USER HAS CHOSEN
+    // 1 = Easy
+    // 2 = Normal
+    // 3 = Hard
+    // 4 = GodMode
+    //DO NOT CHANGE THIS VALUE , need it to change the startscreens
+
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -253,6 +274,10 @@ GameEngine.prototype.startInput = function () {
     //     e.preventDefault();
     // }, false);
 
+    // this.ctx.canvas.addEventListener("keydown", function (e) {
+    //     if (String.fromCharCode(e.which) === 'C') that.c = true;
+    //     e.preventDefault();
+    // }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
         if (String.fromCharCode(e.which) === 'K') that.r = true;
@@ -285,8 +310,6 @@ GameEngine.prototype.startInput = function () {
         e.preventDefault();
     }, false);
 
-
-    
     // this.ctx.canvas.addEventListener("keydown", function (e) {
     //     if (String.fromCharCode(e.which) === ' ') that.space = true;
     //     e.preventDefault();
