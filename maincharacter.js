@@ -31,27 +31,41 @@ function MainCharacter(game) {
     this.ground = 592;
     this.platform = this.game.platforms[0];
     this.checkPoint = {x: 50, y: 544};
-    this.bossFight = false;
     this.prevX = 50;
     this.knockedBackDuration = 0;
-
+    this.timeSinceThrow = 0;
     this.knockBackAmount = 0;
+
+    // DEFAULT: LEVEL 1 CHECKPOINTS
+    this.checkpoint1 = {x: 50, y: 544};
+    this.checkpoint2 = {x: 1984, y: 0};
+    this.checkpoint3 = {x: 4736, y: 224};
+    this.checkpoint4 = {x: 6208, y: 500};
     
     this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 44, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 44, 64);
 
    Entity.call(this, game, 50, 544);
-    // Entity.call(this, game, 2464, -416);
-    // Entity.call(this, game, 4608, 640);
-    // Entity.call(this, game, 6500, 200);
-    // Entity.call(this, game, 7100, 400);
 }
 
 MainCharacter.prototype = new Entity();
 MainCharacter.prototype.constructor = MainCharacter;
 
 MainCharacter.prototype.checkPointUpdate = function() {
+    if (this.x >= this.checkpoint4.x) {
+        this.checkPoint = {x: this.checkpoint4.x, y: this.checkpoint4.y};
+    }
+    else if (this.x >= this.checkpoint3.x) {
+        this.checkPoint = {x: this.checkpoint3.x, y: this.checkpoint3.y};
+    }
+    else if (this.x >= this.checkpoint2.x) {
+        this.checkPoint = {x: this.checkpoint2.x, y: this.checkpoint2.y};
+    }
+    else if (this.x >= this.checkpoint1.x) {
+        this.checkPoint = {x: this.checkpoint1.x, y: this.checkpoint1.y};
+    }
+
     // if(this.x > 7300 && this.bossFight === false) {
     //     this.game.enemies.push(new BossWolf(this.game, 7815, 277));
     //     this.bossFight = true;
@@ -72,17 +86,16 @@ MainCharacter.prototype.checkPointUpdate = function() {
     // else if(this.x > 1700) {
     //     this.checkPoint = {x: 1700, y: 400};
     // }
-
 }
 
 MainCharacter.prototype.damage = function (damage, knockback) {
     if(this.ticksSinceDamage > .75 && knockback == 0) {
-        this.hp -= damage;
+        this.hp -= damage * damageMult;
         this.ticksSinceDamage = 0;
         this.damaged = true;
     }
     else if(this.ticksSinceDamage > .75 && knockback != 0) {
-        this.hp -= damage;
+        this.hp -= damage * damageMult;
         this.ticksSinceDamage = 0;
         this.knockedBackDuration = .3;
         this.knockBackAmount = knockback;
@@ -90,20 +103,9 @@ MainCharacter.prototype.damage = function (damage, knockback) {
     }
 }
 
-
-// Character will get damaged if he collide with a trap (except when has fallen to the ground.)
-// MainCharacter.prototype.collideTrap = function() {
-//     var trapRadius = traps[0].radius;
-//             // top collision
-//     return (traps[0].y + trapRadius >= this.y && traps[0].y + trapRadius <= this.y + this.radius)
-//             // left & right collision
-//             && ((traps[0].x + trapRadius <= this.x + this.radius
-//                 && traps[0].x + trapRadius >= this.x) || (traps[0].x >= this.x
-//                 && traps[0].x <= this.x + this.radius));
-// }
-
 MainCharacter.prototype.update = function () {
     this.ticksSinceDamage += this.game.clockTick;
+    this.timeSinceThrow += this.game.clockTick;
     this.boundingbox = new BoundingBox(this.x + 16, this.y, 32, 64);
     this.hitBoxFront = new BoundingBox(this.x + 40, this.y, 46, 64);
     this.hitBoxBack = new BoundingBox(this.x - 24, this.y, 46, 64);
@@ -112,7 +114,7 @@ MainCharacter.prototype.update = function () {
     }
     // if fall off map, die
     if (this.y > 700) {
-        this.hp = this.hp - 20;
+        this.hp = this.hp - 20 * damageMult;
         this.x = this.checkPoint.x;
         this.y = this.checkPoint.y;
     }
@@ -123,7 +125,7 @@ MainCharacter.prototype.update = function () {
     if (this.hp > this.maxHP) {
         this.hp = this.maxHP;
     }
-    if(this.knockedBackDuration <= 0) {
+    if(this.knockedBackDuration <= 0 && !this.game.stopMc) {
         if(this.game.d) {
             this.x = this.x + this.game.clockTick * 300;
         }
@@ -149,7 +151,8 @@ MainCharacter.prototype.update = function () {
         else {
             this.stand = true;
         }
-        if(this.game.r) {
+        if(this.game.r && !this.attack && this.timeSinceThrow > .19) {
+            this.timeSinceThrow = 0;
             newBall = new Shuriken(this.game);
             if(this.back) {
                 newBall.left = false;
@@ -159,6 +162,10 @@ MainCharacter.prototype.update = function () {
         }
     }
     else {
+        this.stand = true;
+        if(this.knockedBackDuration <= 0) {
+            this.knockBackAmount = 0;
+        }
         this.knockedBackDuration -= this.game.clockTick;
         this.x += this.knockBackAmount;
         knockedBack(this);
@@ -367,7 +374,7 @@ Shuriken.prototype.update = function () {
     for(let b = 0; b < this.game.enemies.length; b++) {
         if(this.boundingbox.collide(this.game.enemies[b].boundingbox)) {
             this.removeFromWorld = true;
-            this.game.enemies[b].hp -= 5;
+            this.game.enemies[b].hp -= 6;
             if(this.game.enemies[b].hp < 1) {
                 this.game.enemies.removeFromWorld = true;
             }
