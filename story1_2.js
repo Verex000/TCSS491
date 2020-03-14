@@ -24,12 +24,10 @@ Story1_2.prototype.update = function() {
         this.removeFromWorld = true;
         this.game.stopMc = false;
     }
-
     if(this.anim.elapsedTime > .5 && this.game.e) {
         this.removeFromWorld = true;
         this.game.stopMc = false;
     }
-
     Entity.prototype.update.call(this);
 }
 

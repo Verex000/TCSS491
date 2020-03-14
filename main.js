@@ -426,7 +426,7 @@ BreakingPlatform.prototype.update = function () {
     if(this.game.entities.Character && this.game.entities.Character.platform == this) {
         this.break = true;
     }
-    if(this.fall.isDone()) {
+    if(this.fall.elapsedTime + this.game.clockTick > this.fall.totalTime) {
         this.removeFromWorld = true;
         if(this.game.entities.Character && this.game.entities.Character.platform == this) { 
             this.boundingbox = new BoundingBox(0,0,0,0);

@@ -169,8 +169,7 @@ MainCharacter.prototype.update = function () {
         this.knockedBackDuration -= this.game.clockTick;
         this.x += this.knockBackAmount;
         knockedBack(this);
-    }
-
+     }
 
 
     if(this.x < 0) {
@@ -391,4 +390,3 @@ Shuriken.prototype.update = function () {
 Shuriken.prototype.draw = function (ctx) {
     this.thrown.drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y - this.game.camera.y);
 }
-// #endregion
