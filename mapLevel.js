@@ -19,9 +19,22 @@ function MapLevel(game) {
     this.currentBoss = null;
     this.defeatedBoss = false;
 
+    if(this.game.onWhichDifficulty  == 2) {
+        damageMult = 2;
+        hpMult = 1.5;
+    }
+    else if(this.game.onWhichDifficulty == 3) {
+        damageMult = 4;
+        hpMult = 3;
+    }
+    else if(this.game.onWhichDifficulty == 4) {
+        damageMult = 0;
+    }
+
     // map 1 storyline
-    this.game.cosmeticEntities.push(new Story1_1(this.game));
-    this.game.cosmeticEntities.push(new Story1_2(this.game));
+   this.game.cosmeticEntities.push(new Story1_1(this.game));
+   this.game.cosmeticEntities.push(new Story1_2(this.game));
+   
 
     createLevel_1(game, this);
     

@@ -2,7 +2,8 @@
 
 // # All traps, items, enemies
 var traps = [];
-
+var hpMult = 1;
+var damageMult = 1;
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
@@ -32,7 +33,9 @@ Timer.prototype.tick = function () {
 }
 
 function GameEngine() {
+    this.hpMult = 1;
     this.entities = [];
+    this.stopMc = false;
     this.openNext = false;
     this.entities.Character = null;
     this.showOutlines = false;
@@ -43,6 +46,8 @@ function GameEngine() {
     this.r = null;
     this.l = null;
     this.p = null;
+    this.enter = null;
+    this.w = null;
     this.controlScreen = false;
     this.startGame = true;
     this.enemies = [];
@@ -56,10 +61,50 @@ function GameEngine() {
     this.count = 0;
     this.music = false;
     this.pause =false;
+    this.damageMult = 1;
 
-    this.temp = 1;
-    this.startGameCount = 0;
-    this.startScreenCount = 0;
+
+    this.onStartScreen = true;
+    this.onStartGameOption = true;
+    this.onControlScreen = false;
+    this.pressedTwiceforControl = 0;
+    this.onLevelChooser = false;
+    this.startTheGame = false;
+    this.startToLevelChooser = false;
+    this.startToPickedLevel = false;
+    
+
+
+    this.firstStartMove = 0;
+
+    this.onWhichDifficulty = 1; //INDICATES WHICH DIFFICULTY THE USER HAS CHOSEN
+    // 1 = Easy
+    // 2 = Normal
+    // 3 = Hard
+    // 4 = GodMode
+    //DO NOT CHANGE THIS VALUE , need it to change the startscreens
+
+
+    this.onStartScreen = true;
+    this.onStartGameOption = true;
+    this.onControlScreen = false;
+    this.pressedTwiceforControl = 0;
+    this.onLevelChooser = false;
+    this.startTheGame = false;
+    this.startToLevelChooser = false;
+    this.startToPickedLevel = false;
+    
+
+
+    this.firstStartMove = 0;
+
+    this.onWhichDifficulty = 1; //INDICATES WHICH DIFFICULTY THE USER HAS CHOSEN
+    // 1 = Easy
+    // 2 = Normal
+    // 3 = Hard
+    // 4 = GodMode
+    //DO NOT CHANGE THIS VALUE , need it to change the startscreens
+
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -101,129 +146,146 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     
-    this.ctx.canvas.addEventListener("keydown", function (e) {
-        if (String.fromCharCode(e.which) === 'D') that.d = true;
-        e.preventDefault();
-    }, false);
 
-    this.ctx.canvas.addEventListener("keyup", function (e) {
-        if (String.fromCharCode(e.which) === 'D') that.d = false;
-        e.preventDefault();
-    }, false);
+//     this.ctx.canvas.addEventListener("keydown", function (e) {
+//         if (String.fromCharCode(e.which) === 'D') that.d = true;
+//         e.preventDefault();
+//     }, false);
 
-    this.ctx.canvas.addEventListener("keydown", function (e) {
-        if (String.fromCharCode(e.which) === 'A') that.a = true;
-        e.preventDefault();
-    }, false);
+//     this.ctx.canvas.addEventListener("keyup", function (e) {
+//         if (String.fromCharCode(e.which) === 'D') that.d = false;
+//         e.preventDefault();
+//     }, false);
 
-    this.ctx.canvas.addEventListener("keyup", function (e) {
-        if (String.fromCharCode(e.which) === 'A') that.a = false;
-        e.preventDefault();
-    }, false);
+//     this.ctx.canvas.addEventListener("keydown", function (e) {
+//         if (String.fromCharCode(e.which) === 'A') that.a = true;
+//         e.preventDefault();
+//     }, false);
 
-    this.ctx.canvas.addEventListener("keydown", function (e) {
-        if (e.key === 'Enter') {
-            if((that.startGame === false || that.controlScreen === true || that.startScreenCount === 0) && that.startGameCount === 0)  {
-                that.startGameCount++;
-                that.startScreenCount++;
-                that.controlScreen = true;
-                that.startGame = false;
-                that.temp = 100;
+//     this.ctx.canvas.addEventListener("keyup", function (e) {
+//         if (String.fromCharCode(e.which) === 'A') that.a = false;
+//         e.preventDefault();
+//     }, false);
 
-                that.count++;
+//     this.ctx.canvas.addEventListener("keydown", function (e) {
+//         if (e.key === 'Enter') {
+//             if((that.startGame === false || that.controlScreen === true || that.startScreenCount === 0) && that.startGameCount === 0)  {
+//                 that.startGameCount++;
+//                 that.startScreenCount++;
+//                 that.controlScreen = true;
+//                 that.startGame = false;
+//                 that.temp = 100;
 
-                that.camera = new Camera();
+//                 that.count++;
 
-            that.entities = [];
-            // var bg = new Background(that);
-            var map = new MapLevel(that);
-            var healthbar = new HealthBar(that);
+//                 that.camera = new Camera();
 
-            // that.entities.Map = new MapLevel();
-            // console.log(that.entities.length);
-            that.entities.unshift(map);
+//             that.entities = [];
+//             // var bg = new Background(that);
+//             var map = new MapLevel(that);
+//             var healthbar = new HealthBar(that);
 
-            var maincharacter = new MainCharacter(that);
-            that.entities.Character = maincharacter;
+//             // that.entities.Map = new MapLevel();
+//             // console.log(that.entities.length);
+//             that.entities.unshift(map);
 
-            that.cosmeticEntities.push(healthbar);
+//             var maincharacter = new MainCharacter(that);
+//             that.entities.Character = maincharacter;
 
-            } else if ( that.controlScreen === false){
-                that.startScreenCount++;
-                var controlScreen = new StartScreen(that, ASSET_MANAGER.getAsset("./img/controlScreen.jpg"));
-                that.entities = [];
-                that.addEntity(controlScreen);
-                that.controlScreen = true;
-            }
-        }
-        e.preventDefault();
-    }, false);
+//             that.cosmeticEntities.push(healthbar);
+
+//             } else if ( that.controlScreen === false){
+//                 that.startScreenCount++;
+//                 var controlScreen = new StartScreen(that, ASSET_MANAGER.getAsset("./img/controlScreen.jpg"));
+//                 that.entities = [];
+//                 that.addEntity(controlScreen);
+//                 that.controlScreen = true;
+//             }
+//         }
+//         e.preventDefault();
+//     }, false);
 
 
-    this.ctx.canvas.addEventListener("keydown", function (e) {
-        var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
-        var control = new Menu(that, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
-        var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
-        var control2 = new Menu(that, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
-        if (String.fromCharCode(e.which) === 'W') {
-            that.startScreenCount++;
-            if(that.startGame === false && that.temp === 0) {
-                that.addEntity(start);
-                that.addEntity(control);
-                that.temp++;
-                that.startGame = true;
-            } else if (that.startGame === true && that.temp === 1) {
-                that.addEntity(start2);
-                that.addEntity(control2);
-                that.temp--;
-                that.startGame = false;
+//     this.ctx.canvas.addEventListener("keydown", function (e) {
+//         var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
+//         var control = new Menu(that, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
+//         var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
+//         var control2 = new Menu(that, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
+//         if (String.fromCharCode(e.which) === 'W') {
+//             that.startScreenCount++;
+//             if(that.startGame === false && that.temp === 0) {
+//                 that.addEntity(start);
+//                 that.addEntity(control);
+//                 that.temp++;
+//                 that.startGame = true;
+//             } else if (that.startGame === true && that.temp === 1) {
+//                 that.addEntity(start2);
+//                 that.addEntity(control2);
+//                 that.temp--;
+//                 that.startGame = false;
+// >>>>>>> master
                 
-            }
-        } 
-        e.preventDefault();
-    }, false);
+    //     //     }
+    //     // } 
+    //     e.preventDefault();
+    // }, false);
 
-    this.ctx.canvas.addEventListener("keydown", function (e) {
-        var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
-        var control = new Menu(that, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
-        var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
-        var control2 = new Menu(that, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
-        if (String.fromCharCode(e.which) === 'S') {
-            that.startScreenCount++;
-            if(that.startGame === false && that.temp === 0) {
-                that.addEntity(start);
-                that.addEntity(control);
-                that.temp++;
-                that.startGame = true;
-            } else if (that.startGame === true && that.temp === 1)  {
-                that.addEntity(start2);
-                that.addEntity(control2);
-                that.temp--;
-                that.startGame = false;
+    // this.ctx.canvas.addEventListener("keyup", function (e) {
+    //     if (String.fromCharCode(e.which) === 'W') that.w = false;
+    //     e.preventDefault();
+    // }, false);
+
+    // this.ctx.canvas.addEventListener("keydown", function (e) {
+    //     // var start = new Menu(that, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
+    //     // var control = new Menu(that, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
+    //     // var start2 = new Menu(that, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
+    //     // var control2 = new Menu(that, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
+    //     // if (String.fromCharCode(e.which) === 'S' ) {
+    //     //     this.s = true;
+    //     //     that.startScreenCount++;
+    //     //     if(that.startGame === false && that.temp === 0) {
+    //     //         that.addEntity(start);
+    //     //         that.addEntity(control);
+    //     //         that.temp++;
+    //     //         that.startGame = true;
+    //     //     } else if (that.startGame === true && that.temp === 1)  {
+    //     //         that.addEntity(start2);
+    //     //         that.addEntity(control2);
+    //     //         that.temp--;
+    //     //         that.startGame = false;
                 
-            }
-        } 
-        e.preventDefault();
-    }, false);
+    //     //     }
+    //     // } 
+    //     e.preventDefault();
+    // }, false);
+
+    // this.ctx.canvas.addEventListener("keyup", function (e) {
+    //     if (String.fromCharCode(e.which) === 'S') that.s = false;
+    //     e.preventDefault();
+    // }, false);
+
+    // this.ctx.canvas.addEventListener("keydown", function (e) {
+    //     if (String.fromCharCode(e.which) === 'C') that.c = true;
+    //     e.preventDefault();
+    // }, false);
+
+    // this.ctx.canvas.addEventListener("keyup", function (e) {
+    //     if (String.fromCharCode(e.which) === 'C') that.c = false;
+    //     e.preventDefault();
+    // }, false);
+
+    // this.ctx.canvas.addEventListener("keydown", function (e) {
+    //     if (String.fromCharCode(e.which) === 'C') that.c = true;
+    //     e.preventDefault();
+    // }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
-        if (String.fromCharCode(e.which) === 'S') that.s = false;
+        if (String.fromCharCode(e.which) === 'K') that.r = true;
         e.preventDefault();
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
-        if (String.fromCharCode(e.which) === 'C') that.c = true;
-        e.preventDefault();
-    }, false);
-
-    this.ctx.canvas.addEventListener("keyup", function (e) {
-        if (String.fromCharCode(e.which) === 'C') that.c = false;
-        e.preventDefault();
-    }, false);
-
-
-    this.ctx.canvas.addEventListener("keyup", function (e) {
-        if (String.fromCharCode(e.which) === 'R') that.r = true;
+        if (String.fromCharCode(e.which) === 'K') that.r = false;
         e.preventDefault();
     }, false);
 
@@ -248,15 +310,15 @@ GameEngine.prototype.startInput = function () {
         e.preventDefault();
     }, false);
 
-    this.ctx.canvas.addEventListener("keydown", function (e) {
-        if (String.fromCharCode(e.which) === ' ') that.space = true;
-        e.preventDefault();
-    }, false);
+    // this.ctx.canvas.addEventListener("keydown", function (e) {
+    //     if (String.fromCharCode(e.which) === ' ') that.space = true;
+    //     e.preventDefault();
+    // }, false);
 
-    this.ctx.canvas.addEventListener("keyup", function (e) {
-        if (String.fromCharCode(e.which) === ' ') that.space = false;
-        e.preventDefault();
-    }, false);
+    // this.ctx.canvas.addEventListener("keyup", function (e) {
+    //     if (String.fromCharCode(e.which) === ' ') that.space = false;
+    //     e.preventDefault();
+    // }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         if (String.fromCharCode(e.which) === "P") {
@@ -305,6 +367,50 @@ GameEngine.prototype.draw = function () {
 }
 
 GameEngine.prototype.update = function () {
+    // if(this.s) {
+        
+    //     var start = new Menu(this, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
+    //     var control = new Menu(this, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
+    //     var start2 = new Menu(this, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
+    //     var control2 = new Menu(this, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
+    //     this.startScreenCount++;
+    //         if(this.startGame === false && this.temp === 0) {
+    //             this.addEntity(start);
+    //             this.addEntity(control);
+    //             this.temp++;
+    //             this.startGame = true;
+    //         } else if (this.startGame === true && this.temp === 1)  {
+    //             this.addEntity(start2);
+    //             this.addEntity(control2);
+    //             this.temp--;
+    //             this.startGame = false;
+                
+    //         }
+    // }
+
+    // if(this.w) {
+    //     var start = new Menu(this, ASSET_MANAGER.getAsset("./img/startGame.png"), 90, 400);
+    //     var control = new Menu(this, ASSET_MANAGER.getAsset("./img/controlsHigh.png"), 100, 500);
+    //     var start2 = new Menu(this, ASSET_MANAGER.getAsset("./img/startGameHigh.png"), 90, 400);
+    //     var control2 = new Menu(this, ASSET_MANAGER.getAsset("./img/controls.png"), 100, 500);
+
+    //         this.startScreenCount++;
+    //         if(this.startGame === false && this.temp === 0) {
+    //             this.addEntity(start);
+    //             this.addEntity(control);
+    //             this.temp++;
+    //             this.startGame = true;
+    //         } else if (this.startGame === true && this.temp === 1) {
+    //             this.addEntity(start2);
+    //             this.addEntity(control2);
+    //             this.temp--;
+    //             this.startGame = false;
+                
+    //         }
+        
+    // }
+
+    if(this)
     for(var x = 0; x < this.platforms.length; x++) {
         var plat = this.platforms[x];
         if(!plat.removeFromWorld) {

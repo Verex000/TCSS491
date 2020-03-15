@@ -17,12 +17,17 @@ Story1_2.prototype.update = function() {
 
     if (!this.read && this.game.entities.Character.x > 6208) {
         this.read = true;
+        this.game.stopMc = true;
     }
 
     if(this.anim.isDone()) {
         this.removeFromWorld = true;
+        this.game.stopMc = false;
     }
-
+    if(this.anim.elapsedTime > .5 && this.game.e) {
+        this.removeFromWorld = true;
+        this.game.stopMc = false;
+    }
     Entity.prototype.update.call(this);
 }
 
